@@ -33,6 +33,7 @@ tasks.withType(JavaCompile){
 configurations {
     libs
 }
+configurations.implementation.extendsFrom(configurations.libs)
 
 dependencies {
     // micronaut
@@ -55,9 +56,6 @@ dependencies {
 
     // libs
     libs "io.micronaut:micronaut-http-client:$micronautVersion"
-    api group: 'commons-io', name: 'commons-io', version: '2.6'
-
-    configurations.implementation.extendsFrom(configurations.libs)
 }
 
 

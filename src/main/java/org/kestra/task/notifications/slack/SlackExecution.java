@@ -1,19 +1,18 @@
 package org.kestra.task.notifications.slack;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.io.IOUtils;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
 import org.kestra.core.runners.RunContext;
 import org.kestra.core.runners.RunOutput;
 import org.kestra.core.serializers.JacksonMapper;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,13 +35,10 @@ public class SlackExecution extends SlackIncomingWebhook {
     public RunOutput run(RunContext runContext) throws Exception {
         Execution execution = (Execution) runContext.getVariables().get("execution");
 
-
-        String template = Files.asCharSource(
-            new File(Objects.requireNonNull(this.getClass().getClassLoader()
-                .getResource("slack-template.hbs"))
-                .toURI()),
+        String template = IOUtils.toString(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("slack-template.hbs")),
             Charsets.UTF_8
-        ).read();
+        );
 
         Map<String, Object> renderMap = new HashMap<>();
         renderMap.put("duration", execution.getState().humanDuration());

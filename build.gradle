@@ -19,13 +19,13 @@ plugins {
 repositories {
     mavenCentral()
     jcenter()
-    maven { url  "https://dl.bintray.com/kestra/maven" }
+    maven { url "https://dl.bintray.com/kestra/maven" }
 }
 
 sourceCompatibility = 11
 group "org.kestra.task.notifications"
 
-tasks.withType(JavaCompile){
+tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
 }
@@ -56,6 +56,10 @@ dependencies {
 
     // libs
     libs "io.micronaut:micronaut-http-client:$micronautVersion"
+
+    // mail
+    implementation "org.simplejavamail:simple-java-mail:5.5.1"
+    testImplementation "net.kemitix:wiser-assertions:0.5.0"
 }
 
 

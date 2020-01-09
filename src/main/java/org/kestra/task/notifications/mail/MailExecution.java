@@ -18,10 +18,10 @@ public class MailExecution extends MailIncomingWebhook {
     public RunOutput run(RunContext runContext) throws Exception {
 
         String htmlTextTemplate = Files.asCharSource(
-                new File(Objects.requireNonNull(this.getClass().getClassLoader()
-                        .getResource("mail-template.hbs.html"))
-                        .toURI()),
-                Charsets.UTF_8
+            new File(Objects.requireNonNull(this.getClass().getClassLoader()
+                .getResource("mail-template.hbs.html"))
+                .toURI()),
+            Charsets.UTF_8
         ).read();
 
         Execution execution = (Execution) runContext.getVariables().get("execution");
@@ -33,11 +33,11 @@ public class MailExecution extends MailIncomingWebhook {
         renderMap.put("link", "https://todo.com");
 
         execution
-                .findFirstByState(State.Type.FAILED)
-                .ifPresentOrElse(
-                        taskRun -> renderMap.put("firstFailed", taskRun),
-                        () -> renderMap.put("firstFailed", false)
-                );
+            .findFirstByState(State.Type.FAILED)
+            .ifPresentOrElse(
+                taskRun -> renderMap.put("firstFailed", taskRun),
+                () -> renderMap.put("firstFailed", false)
+            );
 
         this.htmlTextContent = runContext.render(htmlTextTemplate, renderMap);
 

@@ -12,8 +12,7 @@ listeners:
         port: 465
         username: user
         password: pass
-        debug: false
-        timeout: 1000
+        sessionTimeout: 1000
         transportStrategy: SMTPS
 
 

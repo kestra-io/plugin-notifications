@@ -12,15 +12,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.kestra.core.runners.RunContext;
 import org.simplejavamail.MailException;
+import org.simplejavamail.mailer.config.TransportStrategy;
 import org.subethamail.wiser.Wiser;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
 @MicronautTest
-public class MailIncomingWebhookTest {
+public class MailSendTest {
 
     static Wiser wiser = new Wiser();
     private static final int WISER_PORT = 2500;
@@ -73,18 +73,17 @@ public class MailIncomingWebhookTest {
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
 
-
-        MailIncomingWebhook mailIncomingWebhook = MailIncomingWebhook.builder()
+        MailSend mailSend = MailSend.builder()
             .host(WISER_HOST)
             .port(WISER_PORT)
             .from(from)
             .to(to)
             .subject(subject)
             .htmlTextContent(template)
-            .transportStrategy("SMTP")
+            .transportStrategy(TransportStrategy.SMTP)
             .build();
 
-        mailIncomingWebhook.run(runContext);
+        mailSend.run(runContext);
 
         WiserAssertions.assertReceivedMessage(wiser)
             .from(from)
@@ -97,24 +96,21 @@ public class MailIncomingWebhookTest {
     }
 
     @Test
-    void testThrowsMailException() throws TimeoutException {
-
+    void testThrowsMailException() {
         RunContext runContext = getRunContext();
 
         Assertions.assertThrows(MailException.class, () -> {
-            MailIncomingWebhook mailIncomingWebhook = MailIncomingWebhook.builder()
+            MailSend mailSend = MailSend.builder()
                 .host("fake-host-unknown.com")
                 .port(465)
                 .from(from)
                 .to(to)
                 .subject(subject)
                 .htmlTextContent(template)
-                .transportStrategy("SMTP")
-                .debug(false)
+                .transportStrategy(TransportStrategy.SMTP)
                 .build();
 
-            mailIncomingWebhook.run(runContext);
+            mailSend.run(runContext);
         });
-
     }
 }

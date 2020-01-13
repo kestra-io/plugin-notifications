@@ -12,39 +12,34 @@ import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
+import org.slf4j.Logger;
 
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public class MailIncomingWebhook extends Task implements RunnableTask {
-
+public class MailSend extends Task implements RunnableTask {
     /* Server info */
     private String host;
     private Integer port;
     private String username, password;
-    private String transportStrategy;
 
-    /* Used to output mail debug */
-    private boolean debug;
-    /* Timeout in ms */
-    private Integer timeout;
+    @Builder.Default
+    private TransportStrategy transportStrategy = TransportStrategy.SMTPS;
+
+    @Builder.Default
+    private Integer sessionTimeout = 1000;
 
     /* Mail info */
     private String from, to, subject;
-
-    private static final String DEFAULT_PLAIN_TEXT_CONTENT = "Please view this email in a modern email client!";
-    private static final int DEFAULT_TIMEOUT = 10 * 1000;
-
     protected String htmlTextContent;
-
-    @Builder.Default
-    transient private TransportStrategy ts = TransportStrategy.SMTPS;
 
     @Override
     public RunOutput run(RunContext runContext) throws Exception {
-        runContext.logger(this.getClass()).debug("Sending email to {} ...", to);
+        Logger logger = runContext.logger(this.getClass());
+
+        logger.debug("Sending email to {} ...", to);
 
         final String htmlContent = runContext.render(this.htmlTextContent);
 
@@ -54,27 +49,16 @@ public class MailIncomingWebhook extends Task implements RunnableTask {
             .from(from)
             .withSubject(subject)
             .withHTMLText(htmlContent)
-            .withPlainText(DEFAULT_PLAIN_TEXT_CONTENT)
+            .withPlainText("Please view this email in a modern email client!")
             .withReturnReceiptTo()
             .buildEmail();
 
         // Building mailer to send email
-        int timeout = (getTimeout() == null ? DEFAULT_TIMEOUT : getTimeout());
-        try {
-            transportStrategy = (transportStrategy == null ? "" : transportStrategy.toUpperCase());
-            ts = TransportStrategy.valueOf(transportStrategy);
-        } catch (Exception e) {
-            runContext.logger(
-                this.getClass()).warn("Invalid value [{}] provided for transport strategy. Switched to default value {}",
-                transportStrategy, ts.name());
-            runContext.logger(this.getClass()).warn("Supported values are {}", (Object) TransportStrategy.values());
-        }
-
         Mailer mailer = MailerBuilder
             .withSMTPServer(this.host, this.port, this.username, this.password)
-            .withTransportStrategy(ts)
-            .withSessionTimeout(timeout)
-            .withDebugLogging(debug)
+            .withTransportStrategy(transportStrategy)
+            .withSessionTimeout(sessionTimeout)
+            // .withDebugLogging(true)
             .buildMailer();
 
         mailer.sendMail(email);

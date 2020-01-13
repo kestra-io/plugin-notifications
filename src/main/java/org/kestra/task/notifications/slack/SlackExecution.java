@@ -33,7 +33,8 @@ public class SlackExecution extends SlackIncomingWebhook {
 
     @Override
     public RunOutput run(RunContext runContext) throws Exception {
-        Execution execution = (Execution) runContext.getVariables().get("execution");
+        @SuppressWarnings("unchecked")
+        Execution execution = JacksonMapper.toMap((Map<String, Object>) runContext.getVariables().get("execution"), Execution.class);
 
         String template = IOUtils.toString(
             Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("slack-template.hbs")),
@@ -42,7 +43,7 @@ public class SlackExecution extends SlackIncomingWebhook {
 
         Map<String, Object> renderMap = new HashMap<>();
         renderMap.put("duration", execution.getState().humanDuration());
-        renderMap.put("startDate", execution.getState().startDate());
+        renderMap.put("startDate", execution.getState().getStartDate());
         renderMap.put("link", "https://todo.com");
 
         execution

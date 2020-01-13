@@ -1,0 +1,22 @@
+id: mail
+namespace: org.kestra.tests
+
+listeners:
+  - tasks:
+      - id: mail
+        type: org.kestra.task.notifications.mail.MailExecution
+        to: to@mail.com
+        from: from@mail.com
+        subject: This is the subject
+        host: nohost-mail.site
+        port: 465
+        username: user
+        password: pass
+        sessionTimeout: 1000
+        transportStrategy: SMTPS
+
+
+tasks:
+  - id: ok
+    type: org.kestra.core.tasks.debugs.Return
+    format: "{{task.id}} > {{taskrun.startDate}}"

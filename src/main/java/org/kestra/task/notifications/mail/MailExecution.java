@@ -9,8 +9,8 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
+import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
-import org.kestra.core.runners.RunOutput;
 import org.kestra.core.serializers.JacksonMapper;
 
 import java.io.File;
@@ -25,7 +25,7 @@ import java.util.Objects;
 @NoArgsConstructor
 public class MailExecution extends MailSend {
     @Override
-    public RunOutput run(RunContext runContext) throws Exception {
+    public VoidOutput run(RunContext runContext) throws Exception {
         String htmlTextTemplate = Files.asCharSource(
             new File(Objects.requireNonNull(this.getClass().getClassLoader()
                 .getResource("mail-template.hbs.html"))

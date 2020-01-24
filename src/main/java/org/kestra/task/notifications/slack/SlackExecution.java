@@ -9,8 +9,8 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
+import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
-import org.kestra.core.runners.RunOutput;
 import org.kestra.core.serializers.JacksonMapper;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class SlackExecution extends SlackIncomingWebhook {
     private String iconEmoji;
 
     @Override
-    public RunOutput run(RunContext runContext) throws Exception {
+    public VoidOutput run(RunContext runContext) throws Exception {
         @SuppressWarnings("unchecked")
         Execution execution = JacksonMapper.toMap((Map<String, Object>) runContext.getVariables().get("execution"), Execution.class);
 

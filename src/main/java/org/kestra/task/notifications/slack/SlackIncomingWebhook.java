@@ -10,8 +10,8 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.kestra.core.models.tasks.RunnableTask;
 import org.kestra.core.models.tasks.Task;
+import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
-import org.kestra.core.runners.RunOutput;
 
 import java.net.URL;
 
@@ -20,13 +20,13 @@ import java.net.URL;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public class SlackIncomingWebhook extends Task implements RunnableTask {
+public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
     private String url;
 
     protected String payload;
 
     @Override
-    public RunOutput run(RunContext runContext) throws Exception {
+    public VoidOutput run(RunContext runContext) throws Exception {
         RxHttpClient client = new DefaultHttpClient(new URL(url));
         String payload = runContext.render(this.payload);
 

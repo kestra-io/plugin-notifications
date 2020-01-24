@@ -4,8 +4,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.kestra.core.models.tasks.RunnableTask;
 import org.kestra.core.models.tasks.Task;
+import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
-import org.kestra.core.runners.RunOutput;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.Mailer;
@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public class MailSend extends Task implements RunnableTask {
+public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
     private String host;
     private Integer port;
@@ -35,7 +35,7 @@ public class MailSend extends Task implements RunnableTask {
     protected String htmlTextContent;
 
     @Override
-    public RunOutput run(RunContext runContext) throws Exception {
+    public VoidOutput run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger(this.getClass());
 
         logger.debug("Sending email to {} ...", to);

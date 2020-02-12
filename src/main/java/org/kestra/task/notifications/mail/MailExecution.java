@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.kestra.core.models.annotations.Documentation;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
 import org.kestra.core.models.tasks.VoidOutput;
@@ -23,6 +24,10 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Documentation(
+    description = "Task to send a mail with execution information",
+    body = "Main execution information are provided in the sent mail (id, namespace, flow, state, duration, start date ...)."
+)
 public class MailExecution extends MailSend {
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {

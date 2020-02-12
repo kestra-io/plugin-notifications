@@ -2,6 +2,8 @@ package org.kestra.task.notifications.mail;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.kestra.core.models.annotations.Documentation;
+import org.kestra.core.models.annotations.InputProperty;
 import org.kestra.core.models.tasks.RunnableTask;
 import org.kestra.core.models.tasks.Task;
 import org.kestra.core.models.tasks.VoidOutput;
@@ -18,20 +20,68 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Documentation(
+    description = "Generic task to send a mail."
+)
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
+    @InputProperty(
+        description = "The mail server host"
+    )
     private String host;
+
+    @InputProperty(
+        description = "The mail server port"
+    )
     private Integer port;
-    private String username, password;
+
+    @InputProperty(
+        description = "The mail server username"
+    )
+    private String username;
+
+    @InputProperty(
+        description = "The mail server password"
+    )
+    private String password;
 
     @Builder.Default
+    @InputProperty(
+        description = "The optional transport strategy",
+        body = "Will default to SMTPS if left empty."
+    )
     private TransportStrategy transportStrategy = TransportStrategy.SMTPS;
 
     @Builder.Default
+    @InputProperty(
+        description = "Controls the timeout to use when sending emails",
+        body = "It affects socket connect-, read- and write timeouts"
+    )
     private Integer sessionTimeout = 1000;
 
     /* Mail info */
-    private String from, to, subject;
+    @InputProperty(
+        description = "The address of the sender of this email"
+    )
+    private String from;
+
+    @InputProperty(
+        description = "The recipient email address",
+        body = "Note that the email address must be an RFC2822 format compliant address."
+    )
+    private String to;
+
+    @InputProperty(
+        description = "The optional subject of this email"
+    )
+    private String subject;
+
+    @InputProperty(
+        description = "The optional email message body in HTML text",
+        body = "Both text and HTML can be provided, which will be offered to the email client as alternative content." +
+            " Email clients that support it, will favor HTML over plain text and ignore the text body completely",
+        dynamic = true
+    )
     protected String htmlTextContent;
 
     @Override

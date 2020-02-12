@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
+import org.kestra.core.models.annotations.Documentation;
+import org.kestra.core.models.annotations.InputProperty;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
 import org.kestra.core.models.tasks.VoidOutput;
@@ -22,13 +24,29 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Documentation(
+    description = "Task to send a slack message with execution information",
+    body = "Main execution information are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
+)
 public class SlackExecution extends SlackIncomingWebhook {
+    @InputProperty(
+        description = "Slack channel to send the message to"
+    )
     private String channel;
 
+    @InputProperty(
+        description = "Author of the slack message"
+    )
     private String username;
 
+    @InputProperty(
+        description = "Url of the icon to use"
+    )
     private String iconUrl;
 
+    @InputProperty(
+        description = "Emoji icon to use"
+    )
     private String iconEmoji;
 
     @Override

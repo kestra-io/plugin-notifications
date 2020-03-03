@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.kestra.core.models.annotations.Documentation;
+import org.kestra.core.models.annotations.Example;
 import org.kestra.core.models.annotations.InputProperty;
 import org.kestra.core.models.tasks.RunnableTask;
 import org.kestra.core.models.tasks.Task;
@@ -26,6 +27,31 @@ import java.net.URL;
     description = "Generic task to send a slack message.",
     body = "See <a href=\"https://api.slack.com/messaging/webhooks\">Sending messages using Incoming Webhooks</a>"
 )
+@Example(
+    title = "Send a slack notification on failed flow",
+    full = true,
+    code = {
+        "id: mail",
+        "namespace: org.kestra.tests",
+        "",
+        "listeners:",
+        "  - conditions:",
+        "      - type: org.kestra.core.models.listeners.types.ExecutionStatusCondition",
+        "        in:",
+        "          - FAILED",
+        "  - tasks:",
+        "      - id: slack",
+        "        type: org.kestra.task.notifications.slack.SlackExecution",
+        "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
+        "        channel: \"#random\"",
+        "",
+        "",
+        "tasks:",
+        "  - id: ok",
+        "    type: org.kestra.core.tasks.debugs.Return",
+        "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+    }
+)
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
     @InputProperty(
         description = "Slack incoming webhook url",
@@ -41,12 +67,13 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        RxHttpClient client = new DefaultHttpClient(new URL(url));
-        String payload = runContext.render(this.payload);
+        try (RxHttpClient client = new DefaultHttpClient(new URL(url))) {
+            String payload = runContext.render(this.payload);
 
-        runContext.logger(this.getClass()).debug("Send slack webhook: {}", payload);
+            runContext.logger(this.getClass()).debug("Send slack webhook: {}", payload);
 
-        client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+        }
 
         return null;
     }

@@ -27,31 +27,6 @@ import java.net.URL;
     description = "Generic task to send a slack message.",
     body = "See <a href=\"https://api.slack.com/messaging/webhooks\">Sending messages using Incoming Webhooks</a>"
 )
-@Example(
-    title = "Send a slack notification on failed flow",
-    full = true,
-    code = {
-        "id: mail",
-        "namespace: org.kestra.tests",
-        "",
-        "listeners:",
-        "  - conditions:",
-        "      - type: org.kestra.core.models.listeners.types.ExecutionStatusCondition",
-        "        in:",
-        "          - FAILED",
-        "  - tasks:",
-        "      - id: slack",
-        "        type: org.kestra.task.notifications.slack.SlackExecution",
-        "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
-        "        channel: \"#random\"",
-        "",
-        "",
-        "tasks:",
-        "  - id: ok",
-        "    type: org.kestra.core.tasks.debugs.Return",
-        "    format: \"{{task.id}} > {{taskrun.startDate}}\""
-    }
-)
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
     @InputProperty(
         description = "Slack incoming webhook url",

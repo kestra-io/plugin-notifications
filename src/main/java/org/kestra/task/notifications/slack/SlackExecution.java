@@ -8,6 +8,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
 import org.kestra.core.models.annotations.Documentation;
+import org.kestra.core.models.annotations.Example;
 import org.kestra.core.models.annotations.InputProperty;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
@@ -27,6 +28,31 @@ import java.util.Objects;
 @Documentation(
     description = "Task to send a slack message with execution information",
     body = "Main execution information are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
+)
+@Example(
+    title = "Send a slack notification on failed flow",
+    full = true,
+    code = {
+        "id: mail",
+        "namespace: org.kestra.tests",
+        "",
+        "listeners:",
+        "  - conditions:",
+        "      - type: org.kestra.core.models.listeners.types.ExecutionStatusCondition",
+        "        in:",
+        "          - FAILED",
+        "  - tasks:",
+        "      - id: slack",
+        "        type: org.kestra.task.notifications.slack.SlackExecution",
+        "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
+        "        channel: \"#random\"",
+        "",
+        "",
+        "tasks:",
+        "  - id: ok",
+        "    type: org.kestra.core.tasks.debugs.Return",
+        "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+    }
 )
 public class SlackExecution extends SlackIncomingWebhook {
     @InputProperty(

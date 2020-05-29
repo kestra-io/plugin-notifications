@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.io.IOUtils;
 import org.kestra.core.models.annotations.Documentation;
 import org.kestra.core.models.annotations.Example;
 import org.kestra.core.models.executions.Execution;
@@ -64,12 +65,10 @@ import java.util.Objects;
 public class MailExecution extends MailSend {
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        String htmlTextTemplate = Files.asCharSource(
-            new File(Objects.requireNonNull(this.getClass().getClassLoader()
-                .getResource("mail-template.hbs.html"))
-                .toURI()),
+        String htmlTextTemplate = IOUtils.toString(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("mail-template.hbs.html")),
             Charsets.UTF_8
-        ).read();
+        );
 
         @SuppressWarnings("unchecked")
         Execution execution = JacksonMapper.toMap((Map<String, Object>) runContext.getVariables().get("execution"), Execution.class);

@@ -3,7 +3,6 @@ package org.kestra.task.notifications.mail;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.test.annotation.MicronautTest;
 import net.kemitix.wiser.assertions.WiserAssertions;
 import org.junit.jupiter.api.AfterAll;
@@ -11,17 +10,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.kestra.core.runners.RunContext;
+import org.kestra.core.runners.RunContextFactory;
 import org.simplejavamail.MailException;
 import org.simplejavamail.mailer.config.TransportStrategy;
 import org.subethamail.wiser.Wiser;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.Objects;
+import javax.inject.Inject;
 
 @MicronautTest
 public class MailSendTest {
-
     static Wiser wiser = new Wiser();
     private static final int WISER_PORT = 2500;
     private static final String WISER_HOST = "localhost";
@@ -49,10 +48,10 @@ public class MailSendTest {
     }
 
     @Inject
-    private ApplicationContext applicationContext;
+    private RunContextFactory runContextFactory;
 
     private RunContext getRunContext() {
-        return new RunContext(this.applicationContext, ImmutableMap.of(
+        return runContextFactory.of(ImmutableMap.of(
             "firstFailed", false,
             "execution", ImmutableMap.of(
                 "id", "#aBcDeFgH",

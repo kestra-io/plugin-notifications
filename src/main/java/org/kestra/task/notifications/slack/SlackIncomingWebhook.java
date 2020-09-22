@@ -45,7 +45,7 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
         try (RxHttpClient client = new DefaultHttpClient(new URL(url))) {
             String payload = runContext.render(this.payload);
 
-            runContext.logger(this.getClass()).debug("Send slack webhook: {}", payload);
+            runContext.logger().debug("Send slack webhook: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload));
         }

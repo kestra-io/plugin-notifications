@@ -86,7 +86,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        Logger logger = runContext.logger(this.getClass());
+        Logger logger = runContext.logger();
 
         logger.debug("Sending email to {} ...", to);
 

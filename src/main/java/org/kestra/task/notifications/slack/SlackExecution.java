@@ -38,7 +38,7 @@ import java.util.Objects;
         "",
         "listeners:",
         "  - conditions:",
-        "      - type: org.kestra.core.models.listeners.types.ExecutionStatusCondition",
+        "      - type: org.kestra.core.models.conditions.types.ExecutionStatusCondition",
         "        in:",
         "          - FAILED",
         "  - tasks:",

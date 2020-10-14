@@ -41,7 +41,7 @@ import java.util.Objects;
         "      - type: org.kestra.core.models.conditions.types.ExecutionStatusCondition",
         "        in:",
         "          - FAILED",
-        "  - tasks:",
+        "    tasks:",
         "      - id: slack",
         "        type: org.kestra.task.notifications.slack.SlackExecution",
         "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",

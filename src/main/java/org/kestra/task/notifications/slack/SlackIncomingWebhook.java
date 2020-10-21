@@ -30,7 +30,8 @@ import java.net.URL;
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
     @InputProperty(
         description = "Slack incoming webhook url",
-        body = "See <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> "
+        body = "See <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> ",
+        dynamic = true
     )
     private String url;
 
@@ -42,7 +43,7 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        try (RxHttpClient client = new DefaultHttpClient(new URL(url))) {
+        try (RxHttpClient client = new DefaultHttpClient(new URL(runContext.render(url)))) {
             String payload = runContext.render(this.payload);
 
             runContext.logger().debug("Send slack webhook: {}", payload);

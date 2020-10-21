@@ -56,22 +56,26 @@ import java.util.Objects;
 )
 public class SlackExecution extends SlackIncomingWebhook {
     @InputProperty(
-        description = "Slack channel to send the message to"
+        description = "Slack channel to send the message to",
+        dynamic = true
     )
     private String channel;
 
     @InputProperty(
-        description = "Author of the slack message"
+        description = "Author of the slack message",
+        dynamic = true
     )
     private String username;
 
     @InputProperty(
-        description = "Url of the icon to use"
+        description = "Url of the icon to use",
+        dynamic = true
     )
     private String iconUrl;
 
     @InputProperty(
-        description = "Emoji icon to use"
+        description = "Emoji icon to use",
+        dynamic = true
     )
     private String iconEmoji;
 
@@ -103,19 +107,19 @@ public class SlackExecution extends SlackIncomingWebhook {
         Map<String, Object> map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
 
         if (this.channel != null) {
-            map.put("channel", this.channel);
+            map.put("channel", runContext.render(this.channel));
         }
 
         if (this.username != null) {
-            map.put("username", this.username);
+            map.put("username", runContext.render(this.username));
         }
 
         if (this.iconUrl != null) {
-            map.put("icon_url", this.iconUrl);
+            map.put("icon_url", runContext.render(this.iconUrl));
         }
 
         if (this.iconEmoji != null) {
-            map.put("icon_emoji", this.iconEmoji);
+            map.put("icon_emoji", runContext.render(this.iconEmoji));
         }
 
         this.payload = JacksonMapper.ofJson().writeValueAsString(map);

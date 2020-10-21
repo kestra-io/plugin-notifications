@@ -26,22 +26,26 @@ import org.slf4j.Logger;
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
     @InputProperty(
-        description = "The mail server host"
+        description = "The mail server host",
+        dynamic = true
     )
     private String host;
 
     @InputProperty(
-        description = "The mail server port"
+        description = "The mail server port",
+        dynamic = true
     )
     private Integer port;
 
     @InputProperty(
-        description = "The mail server username"
+        description = "The mail server username",
+        dynamic = true
     )
     private String username;
 
     @InputProperty(
-        description = "The mail server password"
+        description = "The mail server password",
+        dynamic = true
     )
     private String password;
 
@@ -50,29 +54,32 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         description = "The optional transport strategy",
         body = "Will default to SMTPS if left empty."
     )
-    private TransportStrategy transportStrategy = TransportStrategy.SMTPS;
+    private final TransportStrategy transportStrategy = TransportStrategy.SMTPS;
 
     @Builder.Default
     @InputProperty(
         description = "Controls the timeout to use when sending emails",
         body = "It affects socket connect-, read- and write timeouts"
     )
-    private Integer sessionTimeout = 1000;
+    private final Integer sessionTimeout = 1000;
 
     /* Mail info */
     @InputProperty(
-        description = "The address of the sender of this email"
+        description = "The address of the sender of this email",
+        dynamic = true
     )
     private String from;
 
     @InputProperty(
         description = "The recipient email address",
-        body = "Note that the email address must be an RFC2822 format compliant address."
+        body = "Note that the email address must be an RFC2822 format compliant address.",
+        dynamic = true
     )
     private String to;
 
     @InputProperty(
-        description = "The optional subject of this email"
+        description = "The optional subject of this email",
+        dynamic = true
     )
     private String subject;
 
@@ -94,9 +101,9 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         // Building email to send
         Email email = EmailBuilder.startingBlank()
-            .to(to)
-            .from(from)
-            .withSubject(subject)
+            .to(runContext.render(to))
+            .from(runContext.render(from))
+            .withSubject(runContext.render(subject))
             .withHTMLText(htmlContent)
             .withPlainText("Please view this email in a modern email client!")
             .withReturnReceiptTo()
@@ -104,7 +111,12 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         // Building mailer to send email
         Mailer mailer = MailerBuilder
-            .withSMTPServer(this.host, this.port, this.username, this.password)
+            .withSMTPServer(
+                runContext.render(this.host),
+                this.port,
+                runContext.render(this.username),
+                runContext.render(this.password)
+            )
             .withTransportStrategy(transportStrategy)
             .withSessionTimeout(sessionTimeout)
             // .withDebugLogging(true)

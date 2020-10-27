@@ -1,9 +1,9 @@
 package org.kestra.task.notifications.mail;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.kestra.core.models.annotations.Documentation;
-import org.kestra.core.models.annotations.InputProperty;
+import org.kestra.core.models.annotations.PluginProperty;
 import org.kestra.core.models.tasks.RunnableTask;
 import org.kestra.core.models.tasks.Task;
 import org.kestra.core.models.tasks.VoidOutput;
@@ -20,75 +20,75 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Documentation(
-    description = "Generic task to send a mail."
+@Schema(
+    title = "Generic task to send a mail."
 )
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
-    @InputProperty(
-        description = "The mail server host",
-        dynamic = true
+    @Schema(
+        title = "The mail server host"
     )
+    @PluginProperty(dynamic = true)
     private String host;
 
-    @InputProperty(
-        description = "The mail server port",
-        dynamic = true
+    @Schema(
+        title = "The mail server port"
     )
+    @PluginProperty(dynamic = true)
     private Integer port;
 
-    @InputProperty(
-        description = "The mail server username",
-        dynamic = true
+    @Schema(
+        title = "The mail server username"
     )
+    @PluginProperty(dynamic = true)
     private String username;
 
-    @InputProperty(
-        description = "The mail server password",
-        dynamic = true
+    @Schema(
+        title = "The mail server password"
     )
+    @PluginProperty(dynamic = true)
     private String password;
 
     @Builder.Default
-    @InputProperty(
-        description = "The optional transport strategy",
-        body = "Will default to SMTPS if left empty."
+    @Schema(
+        title = "The optional transport strategy",
+        description = "Will default to SMTPS if left empty."
     )
     private final TransportStrategy transportStrategy = TransportStrategy.SMTPS;
 
     @Builder.Default
-    @InputProperty(
-        description = "Controls the timeout to use when sending emails",
-        body = "It affects socket connect-, read- and write timeouts"
+    @Schema(
+        title = "Controls the timeout to use when sending emails",
+        description = "It affects socket connect-, read- and write timeouts"
     )
     private final Integer sessionTimeout = 1000;
 
     /* Mail info */
-    @InputProperty(
-        description = "The address of the sender of this email",
-        dynamic = true
+    @Schema(
+        title = "The address of the sender of this email"
     )
+    @PluginProperty(dynamic = true)
     private String from;
 
-    @InputProperty(
-        description = "The recipient email address",
-        body = "Note that the email address must be an RFC2822 format compliant address.",
-        dynamic = true
+    @Schema(
+        title = "The recipient email address",
+        description = "Note that the email address must be an RFC2822 format compliant address."
     )
+    @PluginProperty(dynamic = true)
     private String to;
 
-    @InputProperty(
-        description = "The optional subject of this email",
-        dynamic = true
+    @Schema(
+        title = "The optional subject of this email"
     )
+    @PluginProperty(dynamic = true)
     private String subject;
 
-    @InputProperty(
-        description = "The optional email message body in HTML text",
-        body = "Both text and HTML can be provided, which will be offered to the email client as alternative content." +
-            " Email clients that support it, will favor HTML over plain text and ignore the text body completely",
-        dynamic = true
+    @Schema(
+        title = "The optional email message body in HTML text",
+        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content." +
+            " Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
+    @PluginProperty(dynamic = true)
     protected String htmlTextContent;
 
     @Override

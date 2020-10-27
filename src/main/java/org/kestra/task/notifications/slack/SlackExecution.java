@@ -1,15 +1,16 @@
 package org.kestra.task.notifications.slack;
 
 import com.google.common.base.Charsets;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
-import org.kestra.core.models.annotations.Documentation;
 import org.kestra.core.models.annotations.Example;
-import org.kestra.core.models.annotations.InputProperty;
+import org.kestra.core.models.annotations.Plugin;
+import org.kestra.core.models.annotations.PluginProperty;
 import org.kestra.core.models.executions.Execution;
 import org.kestra.core.models.flows.State;
 import org.kestra.core.models.tasks.VoidOutput;
@@ -25,58 +26,62 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Documentation(
-    description = "Task to send a slack message with execution information",
-    body = "Main execution information are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
+@Schema(
+    title = "Task to send a slack message with execution information",
+    description = "Main execution information are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
 )
-@Example(
-    title = "Send a slack notification on failed flow",
-    full = true,
-    code = {
-        "id: mail",
-        "namespace: org.kestra.tests",
-        "",
-        "listeners:",
-        "  - conditions:",
-        "      - type: org.kestra.core.models.conditions.types.ExecutionStatusCondition",
-        "        in:",
-        "          - FAILED",
-        "    tasks:",
-        "      - id: slack",
-        "        type: org.kestra.task.notifications.slack.SlackExecution",
-        "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
-        "        channel: \"#random\"",
-        "",
-        "",
-        "tasks:",
-        "  - id: ok",
-        "    type: org.kestra.core.tasks.debugs.Return",
-        "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+@Plugin(
+    examples = {
+        @Example(
+            title = "Send a slack notification on failed flow",
+            full = true,
+            code = {
+                "id: mail",
+                "namespace: org.kestra.tests",
+                "",
+                "listeners:",
+                "  - conditions:",
+                "      - type: org.kestra.core.models.conditions.types.ExecutionStatusCondition",
+                "        in:",
+                "          - FAILED",
+                "    tasks:",
+                "      - id: slack",
+                "        type: org.kestra.task.notifications.slack.SlackExecution",
+                "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
+                "        channel: \"#random\"",
+                "",
+                "",
+                "tasks:",
+                "  - id: ok",
+                "    type: org.kestra.core.tasks.debugs.Return",
+                "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+            }
+        )
     }
 )
 public class SlackExecution extends SlackIncomingWebhook {
-    @InputProperty(
-        description = "Slack channel to send the message to",
-        dynamic = true
+    @Schema(
+        title = "Slack channel to send the message to"
     )
+    @PluginProperty(dynamic = true)
     private String channel;
 
-    @InputProperty(
-        description = "Author of the slack message",
-        dynamic = true
+    @Schema(
+        title = "Author of the slack message"
     )
+    @PluginProperty(dynamic = true)
     private String username;
 
-    @InputProperty(
-        description = "Url of the icon to use",
-        dynamic = true
+    @Schema(
+        title = "Url of the icon to use"
     )
+    @PluginProperty(dynamic = true)
     private String iconUrl;
 
-    @InputProperty(
-        description = "Emoji icon to use",
-        dynamic = true
+    @Schema(
+        title = "Emoji icon to use"
     )
+    @PluginProperty(dynamic = true)
     private String iconEmoji;
 
     @Override

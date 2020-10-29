@@ -42,7 +42,9 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        try (RxHttpClient client = new DefaultHttpClient(new URL(runContext.render(url)))) {
+        String url = runContext.render(this.url);
+
+        try (RxHttpClient client = new DefaultHttpClient(new URL(url))) {
             String payload = runContext.render(this.payload);
 
             runContext.logger().debug("Send slack webhook: {}", payload);

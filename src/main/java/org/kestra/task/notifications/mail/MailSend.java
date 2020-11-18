@@ -10,6 +10,7 @@ import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.email.EmailPopulatingBuilder;
 import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
@@ -71,11 +72,18 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     private String from;
 
     @Schema(
-        title = "The recipient email address",
-        description = "Note that the email address must be an RFC2822 format compliant address."
+        title = "One or more recipient email address. Use semicolon as delimiter to provide several addresses",
+        description = "Note that each email address must be an RFC2822 format compliant address"
     )
     @PluginProperty(dynamic = true)
     private String to;
+
+    @Schema(
+        title = "One or more 'Cc' (carbon copy) optional recipient email address. Use semicolon as delimiter to provide several addresses",
+        description = "Note that each email address must be an RFC2822 format compliant address."
+    )
+    @PluginProperty(dynamic = true)
+    private String cc;
 
     @Schema(
         title = "The optional subject of this email"
@@ -100,14 +108,19 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         final String htmlContent = runContext.render(this.htmlTextContent);
 
         // Building email to send
-        Email email = EmailBuilder.startingBlank()
+        EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
             .to(runContext.render(to))
             .from(runContext.render(from))
             .withSubject(runContext.render(subject))
             .withHTMLText(htmlContent)
             .withPlainText("Please view this email in a modern email client!")
-            .withReturnReceiptTo()
-            .buildEmail();
+            .withReturnReceiptTo();
+
+        if (this.cc != null) {
+            builder.cc(runContext.render(cc));
+        }
+
+        Email email = builder.buildEmail();
 
         // Building mailer to send email
         Mailer mailer = MailerBuilder

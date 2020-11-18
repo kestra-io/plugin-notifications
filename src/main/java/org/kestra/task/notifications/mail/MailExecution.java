@@ -1,13 +1,11 @@
 package org.kestra.task.notifications.mail;
 
-import com.google.common.base.Charsets;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.io.IOUtils;
 import org.kestra.core.models.annotations.Example;
 import org.kestra.core.models.annotations.Plugin;
 import org.kestra.core.models.executions.Execution;
@@ -18,7 +16,6 @@ import org.kestra.core.serializers.JacksonMapper;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @SuperBuilder
 @ToString
@@ -65,31 +62,26 @@ import java.util.Objects;
         )
     }
 )
-public class MailExecution extends MailSend {
+public class MailExecution extends MailTemplate {
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        String htmlTextTemplate = IOUtils.toString(
-            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("mail-template.hbs.html")),
-            Charsets.UTF_8
-        );
-
         @SuppressWarnings("unchecked")
         Execution execution = JacksonMapper.toMap((Map<String, Object>) runContext.getVariables().get("execution"), Execution.class);
 
-        Map<String, Object> renderMap = new HashMap<>();
-        renderMap.put("duration", execution.getState().humanDuration());
-        renderMap.put("startDate", execution.getState().getStartDate());
+        this.templateUri = "mail-template.hbs.html";
+
+        this.templateRenderMap = new HashMap<>();
+        this.templateRenderMap.put("duration", execution.getState().humanDuration());
+        this.templateRenderMap.put("startDate", execution.getState().getStartDate());
         // FIXME
-        renderMap.put("link", "https://todo.com");
+        this.templateRenderMap.put("link", "https://todo.com");
 
         execution
             .findFirstByState(State.Type.FAILED)
             .ifPresentOrElse(
-                taskRun -> renderMap.put("firstFailed", taskRun),
-                () -> renderMap.put("firstFailed", false)
+                taskRun -> this.templateRenderMap.put("firstFailed", taskRun),
+                () -> this.templateRenderMap.put("firstFailed", false)
             );
-
-        this.htmlTextContent = runContext.render(htmlTextTemplate, renderMap);
 
         return super.run(runContext);
     }

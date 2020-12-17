@@ -1,5 +1,8 @@
 package org.kestra.task.notifications.slack;
 
+import com.google.common.collect.ImmutableMap;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,10 +18,14 @@ import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 @MicronautTest
 class SlackExecutionTest {
+    @Inject
+    private ApplicationContext applicationContext;
+
     @Inject
     protected MemoryRunner runner;
 
@@ -36,8 +43,18 @@ class SlackExecutionTest {
 
     @Test
     void flow() throws TimeoutException {
-        Execution execution = runnerUtils.runOne("org.kestra.tests", "slack");
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
+        Execution execution = runnerUtils.runOne(
+            "org.kestra.tests",
+            "slack",
+            null,
+            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+        );
 
         assertThat(execution.getTaskRunList(), hasSize(2));
+        assertThat(SlackWebController.data, containsString(execution.getId()));
+        assertThat(SlackWebController.data, containsString("https://mysuperhost.com/kestra/ui"));
     }
 }

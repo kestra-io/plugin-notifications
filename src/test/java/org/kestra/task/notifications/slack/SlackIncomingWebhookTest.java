@@ -3,6 +3,8 @@ package org.kestra.task.notifications.slack;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 import org.kestra.core.runners.RunContext;
@@ -13,8 +15,15 @@ import java.util.Arrays;
 import java.util.Objects;
 import javax.inject.Inject;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+
 @MicronautTest
 class SlackIncomingWebhookTest {
+    @Inject
+    private ApplicationContext applicationContext;
+
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -33,8 +42,11 @@ class SlackIncomingWebhookTest {
             )
         ));
 
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
-            .url("http://www.mocky.io/v2/5dfa3bfd3600007dafbd6b91")
+            .url(embeddedServer.getURI() + "/slack-test-unit")
             .payload(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
@@ -46,5 +58,8 @@ class SlackIncomingWebhookTest {
             .build();
 
         task.run(runContext);
+
+        assertThat(SlackWebController.data, containsString("ge *with some bold text* an"));
     }
+
 }

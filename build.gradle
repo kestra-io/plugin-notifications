@@ -78,6 +78,8 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-library:2.2"
 
     testImplementation "net.kemitix:wiser-assertions:0.5.0"
+    testImplementation "io.micronaut:micronaut-http-client"
+    testImplementation "io.micronaut:micronaut-http-server-netty"
 }
 
 /**********************************************************************************************************************\

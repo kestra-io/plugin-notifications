@@ -13,6 +13,7 @@ import org.kestra.core.models.flows.State;
 import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
 import org.kestra.core.serializers.JacksonMapper;
+import org.kestra.core.utils.UriProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,9 @@ public class SlackExecution extends SlackTemplate {
         this.templateRenderMap = new HashMap<>();
         this.templateRenderMap.put("duration", execution.getState().humanDuration());
         this.templateRenderMap.put("startDate", execution.getState().getStartDate());
-        this.templateRenderMap.put("link", "https://todo.com");
+
+        UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
+        this.templateRenderMap.put("link", uriProvider.executionUrl(execution));
 
         execution
             .findFirstByState(State.Type.FAILED)

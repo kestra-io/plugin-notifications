@@ -3,7 +3,7 @@ package org.kestra.task.notifications.mail;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import net.kemitix.wiser.assertions.WiserAssertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.kestra.core.runners.RunContext;
 import org.kestra.core.runners.RunContextFactory;
 import org.simplejavamail.MailException;
-import org.simplejavamail.mailer.config.TransportStrategy;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.subethamail.wiser.Wiser;
 
 import java.io.File;

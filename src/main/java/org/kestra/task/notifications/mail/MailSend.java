@@ -8,12 +8,12 @@ import org.kestra.core.models.tasks.RunnableTask;
 import org.kestra.core.models.tasks.Task;
 import org.kestra.core.models.tasks.VoidOutput;
 import org.kestra.core.runners.RunContext;
-import org.simplejavamail.email.Email;
+import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.email.EmailPopulatingBuilder;
+import org.simplejavamail.api.mailer.Mailer;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
-import org.simplejavamail.email.EmailPopulatingBuilder;
-import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
-import org.simplejavamail.mailer.config.TransportStrategy;
 import org.slf4j.Logger;
 
 @SuperBuilder

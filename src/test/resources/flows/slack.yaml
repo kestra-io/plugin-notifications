@@ -1,5 +1,5 @@
 id: slack
-namespace: org.kestra.tests
+namespace: io.kestra.tests
 
 inputs:
   - name: url
@@ -8,11 +8,11 @@ inputs:
 listeners:
   - tasks:
       - id: slack
-        type: org.kestra.task.notifications.slack.SlackExecution
+        type: io.kestra.plugin.notifications.slack.SlackExecution
         url: "{{ inputs.url }}/slack-test-unit"
         channel: "#random"
 
 tasks:
   - id: ok
-    type: org.kestra.core.tasks.debugs.Return
+    type: io.kestra.core.tasks.debugs.Return
     format: "{{task.id}} > {{taskrun.startDate}}"

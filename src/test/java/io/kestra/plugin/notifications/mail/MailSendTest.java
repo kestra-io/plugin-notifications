@@ -1,4 +1,4 @@
-package org.kestra.task.notifications.mail;
+package io.kestra.plugin.notifications.mail;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
@@ -9,8 +9,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.kestra.core.runners.RunContext;
-import org.kestra.core.runners.RunContextFactory;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import org.simplejavamail.MailException;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.subethamail.wiser.Wiser;

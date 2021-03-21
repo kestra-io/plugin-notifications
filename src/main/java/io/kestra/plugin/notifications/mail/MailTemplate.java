@@ -1,4 +1,4 @@
-package org.kestra.task.notifications.mail;
+package io.kestra.plugin.notifications.mail;
 
 import com.google.common.base.Charsets;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
-import org.kestra.core.models.annotations.PluginProperty;
-import org.kestra.core.models.tasks.VoidOutput;
-import org.kestra.core.runners.RunContext;
+import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.tasks.VoidOutput;
+import io.kestra.core.runners.RunContext;
 
 import java.util.HashMap;
 import java.util.Map;

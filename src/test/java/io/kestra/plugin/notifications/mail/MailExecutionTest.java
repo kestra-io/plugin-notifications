@@ -1,13 +1,13 @@
-package org.kestra.task.notifications.mail;
+package io.kestra.plugin.notifications.mail;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.kestra.core.models.executions.Execution;
-import org.kestra.core.models.flows.State;
-import org.kestra.core.repositories.LocalFlowRepositoryLoader;
-import org.kestra.core.runners.RunnerUtils;
-import org.kestra.runner.memory.MemoryRunner;
+import io.kestra.core.models.executions.Execution;
+import io.kestra.core.models.flows.State;
+import io.kestra.core.repositories.LocalFlowRepositoryLoader;
+import io.kestra.core.runners.RunnerUtils;
+import io.kestra.runner.memory.MemoryRunner;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -38,7 +38,7 @@ class MailExecutionTest {
 
     @Test
     void testFlow() throws TimeoutException {
-        Execution execution = runnerUtils.runOne("org.kestra.tests", "mail");
+        Execution execution = runnerUtils.runOne("io.kestra.tests", "mail");
         assertThat(execution.getTaskRunList(), hasSize(2));
         assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.FAILED));
     }

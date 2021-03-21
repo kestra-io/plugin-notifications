@@ -1,4 +1,4 @@
-package org.kestra.task.notifications.slack;
+package io.kestra.plugin.notifications.slack;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;

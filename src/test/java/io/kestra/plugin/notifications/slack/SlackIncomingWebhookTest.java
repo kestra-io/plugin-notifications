@@ -1,4 +1,4 @@
-package org.kestra.task.notifications.slack;
+package io.kestra.plugin.notifications.slack;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
@@ -7,8 +7,8 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
-import org.kestra.core.runners.RunContext;
-import org.kestra.core.runners.RunContextFactory;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 
 import java.io.File;
 import java.util.Arrays;

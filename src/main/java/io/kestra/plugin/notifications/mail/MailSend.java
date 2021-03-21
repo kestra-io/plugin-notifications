@@ -1,13 +1,13 @@
-package org.kestra.task.notifications.mail;
+package io.kestra.plugin.notifications.mail;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.kestra.core.models.annotations.PluginProperty;
-import org.kestra.core.models.tasks.RunnableTask;
-import org.kestra.core.models.tasks.Task;
-import org.kestra.core.models.tasks.VoidOutput;
-import org.kestra.core.runners.RunContext;
+import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.tasks.RunnableTask;
+import io.kestra.core.models.tasks.Task;
+import io.kestra.core.models.tasks.VoidOutput;
+import io.kestra.core.runners.RunContext;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;

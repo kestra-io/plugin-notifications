@@ -1,10 +1,10 @@
 id: mail
-namespace: org.kestra.tests
+namespace: io.kestra.tests
 
 listeners:
   - tasks:
       - id: mail
-        type: org.kestra.task.notifications.mail.MailExecution
+        type: io.kestra.plugin.notifications.mail.MailExecution
         to: to@mail.com
         from: from@mail.com
         subject: This is the subject
@@ -18,5 +18,5 @@ listeners:
 
 tasks:
   - id: ok
-    type: org.kestra.core.tasks.debugs.Return
+    type: io.kestra.core.tasks.debugs.Return
     format: "{{task.id}} > {{taskrun.startDate}}"

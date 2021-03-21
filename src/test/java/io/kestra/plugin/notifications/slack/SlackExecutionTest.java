@@ -1,4 +1,4 @@
-package org.kestra.task.notifications.slack;
+package io.kestra.plugin.notifications.slack;
 
 import com.google.common.collect.ImmutableMap;
 import io.micronaut.context.ApplicationContext;
@@ -6,10 +6,10 @@ import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.kestra.core.models.executions.Execution;
-import org.kestra.core.repositories.LocalFlowRepositoryLoader;
-import org.kestra.core.runners.RunnerUtils;
-import org.kestra.runner.memory.MemoryRunner;
+import io.kestra.core.models.executions.Execution;
+import io.kestra.core.repositories.LocalFlowRepositoryLoader;
+import io.kestra.core.runners.RunnerUtils;
+import io.kestra.runner.memory.MemoryRunner;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -47,7 +47,7 @@ class SlackExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
-            "org.kestra.tests",
+            "io.kestra.tests",
             "slack",
             null,
             (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())

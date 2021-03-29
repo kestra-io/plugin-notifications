@@ -53,8 +53,9 @@ class SlackExecutionTest {
             (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
         );
 
-        assertThat(execution.getTaskRunList(), hasSize(2));
+        assertThat(execution.getTaskRunList(), hasSize(3));
         assertThat(SlackWebController.data, containsString(execution.getId()));
         assertThat(SlackWebController.data, containsString("https://mysuperhost.com/kestra/ui"));
+        assertThat(SlackWebController.data, containsString("Failed on task `failed`"));
     }
 }

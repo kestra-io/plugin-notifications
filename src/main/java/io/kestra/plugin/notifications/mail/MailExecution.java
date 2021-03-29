@@ -1,5 +1,6 @@
 package io.kestra.plugin.notifications.mail;
 
+import com.google.common.collect.Streams;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -64,6 +65,7 @@ import java.util.Map;
     }
 )
 public class MailExecution extends MailTemplate {
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         @SuppressWarnings("unchecked")
@@ -78,8 +80,12 @@ public class MailExecution extends MailTemplate {
         UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
         this.templateRenderMap.put("link", uriProvider.executionUrl(execution));
 
-        execution
-            .findFirstByState(State.Type.FAILED)
+
+        Streams
+            .findLast(execution.getTaskRunList()
+                .stream()
+                .filter(t -> t.getState().getCurrent() == State.Type.FAILED)
+            )
             .ifPresentOrElse(
                 taskRun -> this.templateRenderMap.put("firstFailed", taskRun),
                 () -> this.templateRenderMap.put("firstFailed", false)

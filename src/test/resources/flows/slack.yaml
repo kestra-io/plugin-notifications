@@ -13,6 +13,10 @@ listeners:
         channel: "#random"
 
 tasks:
-  - id: ok
-    type: io.kestra.core.tasks.debugs.Return
-    format: "{{task.id}} > {{taskrun.startDate}}"
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.scripts.Bash
+      commands:
+        - 'exit 1'

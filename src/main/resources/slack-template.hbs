@@ -21,7 +21,7 @@
     ],
     "attachments": [
        {
-          "color": "{{eq execution.state.current "FAILED" yes='danger' no='good'}}",
+          "color": "{{eq execution.state.current "SUCCESS" yes='good' no=(eq execution.state.current "WARNING" yes='warning' no='danger')}}",
           "fields": [
               {
                   "title": "Namespace",

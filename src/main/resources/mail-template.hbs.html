@@ -126,7 +126,9 @@
                                     <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
                                         <p style="font-family: sans-serif; font-size: 16px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
                                             [{{execution.namespace}}] {{flow.id}} ➛ <span
-                                                style="color: {{#eq firstFailed false}}green{{else}}red{{/eq}};">{{execution.state.current}}</span>
+                                                style="color: {{eq execution.state.current "SUCCESS" yes='green' no=(eq execution.state.current "WARNING" yes='orange' no='red')}};">
+                                                    {{execution.state.current}}
+                                                </span>
                                         </p>
                                         {{#eq firstFailed true}}<p
                                             style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">

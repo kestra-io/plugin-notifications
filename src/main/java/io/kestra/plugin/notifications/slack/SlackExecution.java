@@ -1,23 +1,24 @@
 package io.kestra.plugin.notifications.slack;
 
 import com.google.common.collect.Streams;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.tasks.VoidOutput;
+import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+import io.kestra.core.utils.RetryUtils;
 import io.kestra.core.utils.UriProvider;
+import io.kestra.plugin.notifications.services.ExecutionService;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 @SuperBuilder
 @ToString
@@ -58,20 +59,27 @@ import java.util.Map;
     }
 )
 public class SlackExecution extends SlackTemplate {
+    @Schema(
+        title = "The execution id to use",
+        description = "Default is the current execution"
+    )
+    @PluginProperty(dynamic = true)
+    @Builder.Default
+    private final String executionId = "{{ execution.id }}";
+
     @SuppressWarnings("UnstableApiUsage")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        @SuppressWarnings("unchecked")
-        Execution execution = JacksonMapper.toMap((Map<String, Object>) runContext.getVariables().get("execution"), Execution.class);
+        UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
+        Execution execution = ExecutionService.findExecution(runContext, this.executionId);
 
         this.templateUri = "slack-template.hbs";
 
         this.templateRenderMap = new HashMap<>();
         this.templateRenderMap.put("duration", execution.getState().humanDuration());
         this.templateRenderMap.put("startDate", execution.getState().getStartDate());
-
-        UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
         this.templateRenderMap.put("link", uriProvider.executionUrl(execution));
+        this.templateRenderMap.put("execution", JacksonMapper.toMap(execution));
 
         Streams
             .findLast(execution.getTaskRunList()

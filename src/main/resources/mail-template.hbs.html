@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Flow [{{execution.namespace}}] {{flow.id}} execution</title>
+    <title>Flow [{{execution.namespace}}] {{execution.flowId}} execution</title>
     <style>
     /* -------------------------------------
         INLINED WITH htmlemail.io/inline
@@ -125,7 +125,7 @@
                                 <tr>
                                     <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
                                         <p style="font-family: sans-serif; font-size: 16px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-                                            [{{execution.namespace}}] {{flow.id}} ➛ <span
+                                            [{{execution.namespace}}] {{execution.flowId}} ➛ <span
                                                 style="color: {{eq execution.state.current "SUCCESS" yes='green' no=(eq execution.state.current "WARNING" yes='orange' no='red')}};">
                                                     {{execution.state.current}}
                                                 </span>

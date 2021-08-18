@@ -47,6 +47,7 @@ dependencies {
 
     // libs
     api 'org.simplejavamail:simple-java-mail:6.6.1'
+    api 'com.sun.activation:javax.activation:1.2.0'
 }
 
 

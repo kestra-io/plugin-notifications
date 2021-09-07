@@ -1,20 +1,23 @@
 package io.kestra.plugin.notifications.mail;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
+import org.simplejavamail.api.mailer.AsyncResponse;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.slf4j.Logger;
+
+import java.util.concurrent.ExecutionException;
 
 @SuperBuilder
 @ToString
@@ -130,12 +133,21 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
                 runContext.render(this.username),
                 runContext.render(this.password)
             )
+            .async()
             .withTransportStrategy(transportStrategy)
             .withSessionTimeout(sessionTimeout)
             // .withDebugLogging(true)
             .buildMailer();
 
-        mailer.sendMail(email);
+        // we need to use async in order to keep PluginClassLoader for loading javax.mail class
+        AsyncResponse asyncResponse = mailer.sendMail(email, true);
+
+        assert asyncResponse != null;
+        try {
+            asyncResponse.getFuture().get();
+        } catch (ExecutionException e) {
+            throw (Exception) e.getCause();
+        }
 
         return null;
     }

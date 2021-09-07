@@ -1,6 +1,9 @@
 package io.kestra.plugin.notifications.mail;
 
 import com.google.common.base.Charsets;
+import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.tasks.VoidOutput;
+import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,11 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
-import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.models.tasks.VoidOutput;
-import io.kestra.core.runners.RunContext;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,8 +38,6 @@ public class MailTemplate extends MailSend {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-
-        Map<String, Object> map = new HashMap<>();
         String htmlTextTemplate = "";
 
         if (this.templateUri != null) {

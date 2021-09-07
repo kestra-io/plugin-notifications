@@ -46,8 +46,8 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
+    api 'jakarta.activation:jakarta.activation-api:2.0.1'
     api 'org.simplejavamail:simple-java-mail:6.6.1'
-    api 'com.sun.activation:javax.activation:1.2.0'
 }
 
 
@@ -82,7 +82,9 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation "org.hamcrest:hamcrest-library:2.2"
 
-    testImplementation "net.kemitix:wiser-assertions:0.6.0"
+    testImplementation ("net.kemitix:wiser-assertions:0.6.0") {
+        exclude group: 'javax.mail', module: 'mail'
+    }
     testImplementation "io.micronaut:micronaut-http-client"
     testImplementation "io.micronaut:micronaut-http-server-netty"
 }

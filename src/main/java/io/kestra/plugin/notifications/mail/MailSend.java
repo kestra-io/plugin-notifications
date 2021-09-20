@@ -146,7 +146,10 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         try {
             asyncResponse.getFuture().get();
         } catch (ExecutionException e) {
-            throw (Exception) e.getCause();
+            if (e.getCause() instanceof Exception) {
+                throw (Exception) e.getCause();
+            }
+            throw e;
         }
 
         return null;

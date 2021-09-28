@@ -1,0 +1,50 @@
+{
+    "text": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}",
+    "blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "Details"
+				}
+                {% if link is defined %},
+				"url": "{{link}}"
+                {% endif %}
+			}
+		}
+    ],
+    "attachments": [
+       {
+          "color": "{{ execution.state.current == "SUCCESS" ? 'good' : (execution.state.current == "WARNING" ? 'warning' : 'danger') }}",
+          "fields": [
+              {
+                  "title": "Namespace",
+                  "value": {{execution.namespace | json }},
+                  "short": true
+              },
+              {
+                  "title": "Job",
+                  "value": {{execution.flowId | json}},
+                  "short": true
+              },
+              {
+                  "title": "Execution",
+                  "value": {{execution.id | json}},
+                  "short": true
+              },
+              {
+                  "title": "Status",
+                  "value": {{execution.state.current | json }},
+                  "short": true
+              }
+          ],
+          "ts": {{ startDate  | timestamp }}
+      }
+    ]
+}

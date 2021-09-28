@@ -49,7 +49,7 @@ class SlackIncomingWebhookTest {
             .payload(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
-                        .getResource("slack.hbs"))
+                        .getResource("slack.peb"))
                         .toURI()),
                     Charsets.UTF_8
                 ).read()

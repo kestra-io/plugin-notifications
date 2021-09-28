@@ -16,6 +16,7 @@ import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.subethamail.wiser.Wiser;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Objects;
 import javax.inject.Inject;
 
@@ -36,7 +37,7 @@ public class MailSendTest {
 
         template = Files.asCharSource(
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
-                .getResource("mail-template.hbs.html"))
+                .getResource("mail-template.hbs.peb"))
                 .toURI()),
             Charsets.UTF_8
         ).read();
@@ -61,6 +62,7 @@ public class MailSendTest {
                     "current", "SUCCESS"
                 )
             ),
+            "duration", Duration.ofMillis(123456),
             "flow", ImmutableMap.of(
                 "id", "mail"
             ),

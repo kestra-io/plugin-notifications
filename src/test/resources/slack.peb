@@ -1,30 +1,30 @@
 {
     "channel": "#random",
     "blocks": [
-    {{#each blocks}}
+    {% for block in blocks %}
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": {{json text}}
+                "text": {{ block.text | json }}
             }
         },
         {
             "type": "section",
             "fields": [
-                {{#each fields}}
+                {% for field in block.fields %}
                 {
                     "type": "mrkdwn",
-                    "text": {{json this}}
+                    "text": {{ field | json }}
                 }
-                {{#unless @last}},{{/unless}}
-                {{/each}}
+                {{ loop.last == 'false' ? ',' : '' }}
+                {% endfor %}
             ]
         },
         {
         "type": "divider"
         }
-        {{#unless @last}},{{/unless}}
-    {{/each}}
+        {{ loop.last == 'false' ? ',' : '' }}
+    {% endfor %}
     ]
 }

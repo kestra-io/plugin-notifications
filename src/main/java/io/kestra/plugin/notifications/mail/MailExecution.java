@@ -7,7 +7,6 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.tasks.VoidOutput;
-import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.utils.UriProvider;
@@ -77,7 +76,7 @@ public class MailExecution extends MailTemplate {
         UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
         Execution execution = ExecutionService.findExecution(runContext, this.executionId);
 
-        this.templateUri = "mail-template.hbs.html";
+        this.templateUri = "mail-template.hbs.peb";
 
         this.templateRenderMap = new HashMap<>();
         this.templateRenderMap.put("duration", execution.getState().humanDuration());

@@ -3,8 +3,9 @@ package io.kestra.plugin.notifications.mail;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import io.kestra.core.storages.StorageInterface;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import net.kemitix.wiser.assertions.WiserAssertions;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,11 +15,22 @@ import io.kestra.core.runners.RunContextFactory;
 import org.simplejavamail.MailException;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.subethamail.wiser.Wiser;
+import org.subethamail.wiser.WiserMessage;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @MicronautTest
 public class MailSendTest {
@@ -29,6 +41,9 @@ public class MailSendTest {
     private final String to = "to@mail.com";
     private final String subject = "Mail subject";
     private static String template = null;
+
+    @Inject
+    StorageInterface storageInterface;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -73,6 +88,12 @@ public class MailSendTest {
     @Test
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
+        URL resource = MailSendTest.class.getClassLoader().getResource("application.yml");
+
+        URI put = storageInterface.put(
+            new URI("/file/storage/get.yml"),
+            new FileInputStream(Objects.requireNonNull(resource).getFile())
+        );
 
         MailSend mailSend = MailSend.builder()
             .host(WISER_HOST)
@@ -82,18 +103,42 @@ public class MailSendTest {
             .subject(subject)
             .htmlTextContent(template)
             .transportStrategy(TransportStrategy.SMTP)
+            .attachments(List.of(MailSend.Attachment.builder()
+                .name("application.yml")
+                .uri(put.toString())
+                .contentType("text/yaml")
+                .build())
+            )
             .build();
 
         mailSend.run(runContext);
 
-        WiserAssertions.assertReceivedMessage(wiser)
-            .from(from)
-            .to(to)
-            .withSubject(subject)
-            .withContentContains("Namespace : org.test")
-            .withContentContains("Flow : mail")
-            .withContentContains("Execution : #aBcDeFgH")
-            .withContentContains("Status : SUCCESS");
+        assertThat(wiser.getMessages(), hasSize(1));
+
+        WiserMessage wiserMessage = wiser.getMessages().get(0);
+        MimeMessage mimeMessage = wiserMessage.getMimeMessage();
+        MimeMultipart content = (MimeMultipart) mimeMessage.getContent();
+
+        assertThat(content.getCount(), is(2));
+
+        MimeBodyPart bodyPart = ((MimeBodyPart) content.getBodyPart(0));
+        String body = IOUtils.toString(bodyPart.getInputStream(), Charsets.UTF_8);
+
+        assertThat(wiserMessage.getEnvelopeSender(), is(from));
+        assertThat(wiserMessage.getEnvelopeReceiver(), is(to));
+        assertThat(mimeMessage.getSubject(), is(subject));
+        assertThat(body, containsString("Namespace : org.test"));
+        assertThat(body, containsString("Flow : mail"));
+        assertThat(body, containsString("Execution : #aBcDeFgH"));
+        assertThat(body, containsString("Status : SUCCESS"));
+
+        MimeBodyPart filePart = ((MimeBodyPart) content.getBodyPart(1));
+        assertThat(body, containsString("Namespace : org.test"));
+        String file = IOUtils.toString(filePart.getInputStream(), Charsets.UTF_8);
+
+        assertThat(filePart.getContentType(), is("text/yaml; filename=application.yml; name=application.yml"));
+        assertThat(filePart.getFileName(), is("application.yml"));
+        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(put), Charsets.UTF_8)));
     }
 
     @Test

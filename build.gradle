@@ -81,7 +81,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation "org.hamcrest:hamcrest-library:2.2"
 
-    testImplementation ("net.kemitix:wiser-assertions:0.6.0") {
+    testImplementation (group: 'org.subethamail', name: 'subethasmtp', version: '3.1.7') {
         exclude group: 'javax.mail', module: 'mail'
         exclude group: 'javax.activation', module: 'activation'
     }

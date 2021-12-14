@@ -43,6 +43,15 @@
                   "value": {{execution.state.current | json }},
                   "short": true
               }
+              {% if customFields is defined %}
+              {% for entry in customFields %}
+              ,{
+                  "title": {{entry.key | json}},
+                  "value": {{entry.value | json }},
+                  "short": true
+              }
+              {% endfor %}
+              {% endif %}
           ],
           "ts": {{ startDate  | timestamp }}
       }

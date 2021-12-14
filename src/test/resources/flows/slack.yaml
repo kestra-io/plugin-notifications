@@ -11,6 +11,9 @@ listeners:
         type: io.kestra.plugin.notifications.slack.SlackExecution
         url: "{{ inputs.url }}/slack-test-unit"
         channel: "#random"
+        customFields:
+          Env: DEV
+          Cloud: GCP
 
 tasks:
   - id: seq

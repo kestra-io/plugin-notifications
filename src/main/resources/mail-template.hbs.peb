@@ -157,13 +157,19 @@
                                         </table>
                                         {% endif %}
                                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-                                            Namespace : {{execution.namespace}}</p>
+                                            <strong>Namespace :</strong> {{execution.namespace}}</p>
                                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-                                            Flow : {{execution.flowId}}</p>
+                                            <strong>Flow :</strong> {{execution.flowId}}</p>
                                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-                                            Execution : {{execution.id}}</p>
+                                            <strong>Execution :</strong> {{execution.id}}</p>
                                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-                                            Status : {{execution.state.current}}</p>
+                                            <strong>Status :</strong> {{execution.state.current}}</p>
+                                        {% if customFields is defined %}
+                                        {% for entry in customFields %}
+                                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
+                                            <strong>{{entry.key}} :</strong> {{entry.value}}</p>
+                                        {% endfor %}
+                                        {% endif %}
                                     </td>
                                 </tr>
                             </table>

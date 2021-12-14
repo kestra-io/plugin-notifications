@@ -16,6 +16,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -64,6 +65,12 @@ public class SlackExecution extends SlackTemplate {
     @Builder.Default
     private final String executionId = "{{ execution.id }}";
 
+    @Schema(
+        title = "Custom fields to be added on slack message"
+    )
+    @PluginProperty(dynamic = true)
+    private Map<String, Object> customFields;
+
     @SuppressWarnings("UnstableApiUsage")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
@@ -77,6 +84,10 @@ public class SlackExecution extends SlackTemplate {
         this.templateRenderMap.put("startDate", execution.getState().getStartDate());
         this.templateRenderMap.put("link", uriProvider.executionUrl(execution));
         this.templateRenderMap.put("execution", JacksonMapper.toMap(execution));
+
+        if (this.customFields != null) {
+            this.templateRenderMap.put("customFields", runContext.render(this.customFields));
+        }
 
         Streams
             .findLast(execution.getTaskRunList()

@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.mail.internet.MimeBodyPart;
@@ -67,7 +68,7 @@ public class MailSendTest {
     private RunContextFactory runContextFactory;
 
     private RunContext getRunContext() {
-        return runContextFactory.of(ImmutableMap.of(
+        return runContextFactory.of(Map.of(
             "firstFailed", false,
             "execution", ImmutableMap.of(
                 "id", "#aBcDeFgH",
@@ -81,7 +82,10 @@ public class MailSendTest {
             "flow", ImmutableMap.of(
                 "id", "mail"
             ),
-            "link", "http://todo.com"
+            "link", "http://todo.com",
+            "customFields", ImmutableMap.of(
+                "Env", "dev"
+            )
         ));
     }
 
@@ -127,13 +131,13 @@ public class MailSendTest {
         assertThat(wiserMessage.getEnvelopeSender(), is(from));
         assertThat(wiserMessage.getEnvelopeReceiver(), is(to));
         assertThat(mimeMessage.getSubject(), is(subject));
-        assertThat(body, containsString("Namespace : org.test"));
-        assertThat(body, containsString("Flow : mail"));
-        assertThat(body, containsString("Execution : #aBcDeFgH"));
-        assertThat(body, containsString("Status : SUCCESS"));
+        assertThat(body, containsString("<strong>Namespace :</strong> or=\r\ng.test"));
+        assertThat(body, containsString("<strong>Flow :</strong> mail"));
+        assertThat(body, containsString("<strong>Execution :</strong> #a=\r\nBcDeFgH"));
+        assertThat(body, containsString("<strong>Status :</strong> SUCCE=\r\nSS"));
+        assertThat(body, containsString("<strong>Env :</strong> dev"));
 
         MimeBodyPart filePart = ((MimeBodyPart) content.getBodyPart(1));
-        assertThat(body, containsString("Namespace : org.test"));
         String file = IOUtils.toString(filePart.getInputStream(), Charsets.UTF_8);
 
         assertThat(filePart.getContentType(), is("text/yaml; filename=application.yml; name=application.yml"));

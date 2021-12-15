@@ -59,5 +59,6 @@ class SlackExecutionTest {
         assertThat(SlackWebController.data, containsString("Failed on task `failed`"));
         assertThat(SlackWebController.data, containsString("{\"title\":\"Env\",\"value\":\"DEV\",\"short\":true}"));
         assertThat(SlackWebController.data, containsString("{\"title\":\"Cloud\",\"value\":\"GCP\",\"short\":true}"));
+        assertThat(SlackWebController.data, containsString("myCustomMessage"));
     }
 }

@@ -85,7 +85,8 @@ public class MailSendTest {
             "link", "http://todo.com",
             "customFields", ImmutableMap.of(
                 "Env", "dev"
-            )
+            ),
+            "customMessage", "myCustomMessage"
         ));
     }
 
@@ -136,6 +137,7 @@ public class MailSendTest {
         assertThat(body, containsString("<strong>Execution :</strong> #a=\r\nBcDeFgH"));
         assertThat(body, containsString("<strong>Status :</strong> SUCCE=\r\nSS"));
         assertThat(body, containsString("<strong>Env :</strong> dev"));
+        assertThat(body, containsString("myCustomMessage"));
 
         MimeBodyPart filePart = ((MimeBodyPart) content.getBodyPart(1));
         String file = IOUtils.toString(filePart.getInputStream(), Charsets.UTF_8);

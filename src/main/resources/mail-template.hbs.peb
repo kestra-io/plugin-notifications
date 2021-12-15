@@ -130,6 +130,11 @@
                                                     {{execution.state.current}}
                                                 </span>
                                         </p>
+                                        {% if customMessage is defined %}
+                                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
+                                            {{ customMessage }}
+                                        </p>
+                                        {% endif %}
                                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
                                             {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}
                                         </p>

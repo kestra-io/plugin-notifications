@@ -1,21 +1,15 @@
 package io.kestra.plugin.notifications.mail;
 
-import com.google.common.collect.Streams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.models.executions.Execution;
-import io.kestra.core.models.flows.State;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.serializers.JacksonMapper;
-import io.kestra.core.utils.UriProvider;
+import io.kestra.plugin.notifications.ExecutionInterface;
 import io.kestra.plugin.notifications.services.ExecutionService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SuperBuilder
@@ -62,48 +56,16 @@ import java.util.Map;
         )
     }
 )
-public class MailExecution extends MailTemplate {
-    @Schema(
-        title = "The execution id to use",
-        description = "Default is the current execution"
-    )
-    @PluginProperty(dynamic = true)
+public class MailExecution extends MailTemplate implements ExecutionInterface {
     @Builder.Default
     private final String executionId = "{{ execution.id }}";
-
-    @Schema(
-        title = "Custom fields to be added on slack message"
-    )
-    @PluginProperty(dynamic = true)
     private Map<String, Object> customFields;
+    private String customMessage;
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
-        Execution execution = ExecutionService.findExecution(runContext, this.executionId);
-
         this.templateUri = "mail-template.hbs.peb";
-
-        this.templateRenderMap = new HashMap<>();
-        this.templateRenderMap.put("duration", execution.getState().humanDuration());
-        this.templateRenderMap.put("startDate", execution.getState().getStartDate());
-        this.templateRenderMap.put("link", uriProvider.executionUrl(execution));
-        this.templateRenderMap.put("execution", JacksonMapper.toMap(execution));
-
-        if (this.customFields != null) {
-            this.templateRenderMap.put("customFields", runContext.render(this.customFields));
-        }
-
-        Streams
-            .findLast(execution.getTaskRunList()
-                .stream()
-                .filter(t -> t.getState().getCurrent() == State.Type.FAILED)
-            )
-            .ifPresentOrElse(
-                taskRun -> this.templateRenderMap.put("firstFailed", taskRun),
-                () -> this.templateRenderMap.put("firstFailed", false)
-            );
+        this.templateRenderMap = ExecutionService.executionMap(runContext, this);
 
         return super.run(runContext);
     }

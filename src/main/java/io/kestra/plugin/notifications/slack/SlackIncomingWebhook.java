@@ -3,7 +3,6 @@ package io.kestra.plugin.notifications.slack;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.micronaut.http.HttpRequest;
-import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
@@ -17,6 +16,7 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 
+import java.net.URI;
 import java.net.URL;
 
 @SuperBuilder
@@ -62,7 +62,7 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
-        try (RxHttpClient client = new DefaultHttpClient(new URL(url))) {
+        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload);
 
             runContext.logger().debug("Send slack webhook: {}", payload);

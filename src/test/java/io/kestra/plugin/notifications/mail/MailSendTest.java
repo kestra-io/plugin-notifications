@@ -3,19 +3,25 @@ package io.kestra.plugin.notifications.mail;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.storages.StorageInterface;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
+import jakarta.mail.Message;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import io.kestra.core.runners.RunContext;
-import io.kestra.core.runners.RunContextFactory;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.simplejavamail.MailException;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
-import org.subethamail.wiser.Wiser;
-import org.subethamail.wiser.WiserMessage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,19 +31,16 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import jakarta.inject.Inject;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 @MicronautTest
 public class MailSendTest {
-    static Wiser wiser = new Wiser();
-    private static final int WISER_PORT = 2500;
-    private static final String WISER_HOST = "localhost";
+    @RegisterExtension
+    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
+
     private final String from = "from@mail.com";
     private final String to = "to@mail.com";
     private final String subject = "Mail subject";
@@ -48,8 +51,6 @@ public class MailSendTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        wiser.setPort(WISER_PORT);
-        wiser.start();
 
         template = Files.asCharSource(
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
@@ -57,11 +58,6 @@ public class MailSendTest {
                 .toURI()),
             Charsets.UTF_8
         ).read();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        wiser.stop();
     }
 
     @Inject
@@ -101,8 +97,8 @@ public class MailSendTest {
         );
 
         MailSend mailSend = MailSend.builder()
-            .host(WISER_HOST)
-            .port(WISER_PORT)
+            .host("localhost")
+            .port(greenMail.getSmtp().getPort())
             .from(from)
             .to(to)
             .subject(subject)
@@ -118,10 +114,11 @@ public class MailSendTest {
 
         mailSend.run(runContext);
 
-        assertThat(wiser.getMessages(), hasSize(1));
+        MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
 
-        WiserMessage wiserMessage = wiser.getMessages().get(0);
-        MimeMessage mimeMessage = wiserMessage.getMimeMessage();
+        assertThat(receivedMessages.length, is(1));
+
+        MimeMessage mimeMessage = receivedMessages[0];
         MimeMultipart content = (MimeMultipart) mimeMessage.getContent();
 
         assertThat(content.getCount(), is(2));
@@ -129,8 +126,8 @@ public class MailSendTest {
         MimeBodyPart bodyPart = ((MimeBodyPart) content.getBodyPart(0));
         String body = IOUtils.toString(bodyPart.getInputStream(), Charsets.UTF_8);
 
-        assertThat(wiserMessage.getEnvelopeSender(), is(from));
-        assertThat(wiserMessage.getEnvelopeReceiver(), is(to));
+        assertThat(mimeMessage.getFrom()[0].toString(), is(from));
+        assertThat(((InternetAddress) mimeMessage.getRecipients(Message.RecipientType.TO)[0]).getAddress(), is(to));
         assertThat(mimeMessage.getSubject(), is(subject));
         assertThat(body, containsString("<strong>Namespace :</strong> or=\r\ng.test"));
         assertThat(body, containsString("<strong>Flow :</strong> mail"));

@@ -1,15 +1,15 @@
 package io.kestra.plugin.notifications.mail;
 
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.runner.memory.MemoryRunner;
-
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -31,7 +31,7 @@ class MailExecutionTest {
     protected LocalFlowRepositoryLoader repositoryLoader;
 
     @BeforeEach
-    private void init() throws IOException, URISyntaxException {
+    void init() throws IOException, URISyntaxException {
         repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows")));
         this.runner.run();
     }

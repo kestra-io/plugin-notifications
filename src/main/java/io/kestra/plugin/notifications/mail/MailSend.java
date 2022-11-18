@@ -128,6 +128,8 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
         Logger logger = runContext.logger();
 
         logger.debug("Sending email to {} ...", to);

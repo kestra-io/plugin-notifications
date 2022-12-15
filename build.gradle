@@ -21,6 +21,8 @@ repositories {
 }
 
 sourceCompatibility = 11
+targetCompatibility = 11
+
 group "io.kestra.plugin"
 description 'Notification plugin for Kestra'
 
@@ -52,7 +54,7 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:7.5.0'
+    api 'org.simplejavamail:simple-java-mail:7.6.0'
 }
 
 
@@ -87,7 +89,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation "org.hamcrest:hamcrest-library:2.2"
 
-    testImplementation group: 'com.icegreen', name: 'greenmail-junit5', version: '2.0.0-alpha-2'
+    testImplementation group: 'com.icegreen', name: 'greenmail-junit5', version: '2.0.0-alpha-3'
     testImplementation "io.micronaut:micronaut-http-client"
     testImplementation "io.micronaut:micronaut-http-server-netty"
     testImplementation "io.micronaut.rxjava2:micronaut-rxjava2-http-client"

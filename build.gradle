@@ -21,6 +21,8 @@ repositories {
 }
 
 sourceCompatibility = 11
+targetCompatibility = 11
+
 group "io.kestra.plugin"
 description 'Notification plugin for Kestra'
 
@@ -52,7 +54,7 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:7.5.0'
+    api 'org.simplejavamail:simple-java-mail:7.5.2'
 }
 
 

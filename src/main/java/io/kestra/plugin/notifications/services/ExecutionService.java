@@ -36,7 +36,7 @@ public class ExecutionService {
         return retryInstance.run(
             NoSuchElementException.class,
             () -> executionRepository.findById(executionRendererId)
-                .filter(e -> e.getState().getCurrent().isTerninated())
+                .filter(e -> e.getState().getCurrent().isTerminated())
                 .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionId + "'"))
         );
     }

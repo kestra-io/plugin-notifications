@@ -20,18 +20,16 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Task to send a mail using provided template information"
-)
-public class MailTemplate extends MailSend {
+public abstract class MailTemplate extends MailSend {
     @Schema(
-        title = "Template to use"
+        title = "Template to use",
+        hidden = true
     )
     @PluginProperty(dynamic = true)
     protected String templateUri;
 
     @Schema(
-        title = "Render map to use for template"
+        title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
     protected Map<String, Object> templateRenderMap;

@@ -22,10 +22,7 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Task to send a slack message using provided template information"
-)
-public class SlackTemplate extends SlackIncomingWebhook {
+public abstract class SlackTemplate extends SlackIncomingWebhook {
     @Schema(
         title = "Slack channel to send the message to"
     )
@@ -51,13 +48,14 @@ public class SlackTemplate extends SlackIncomingWebhook {
     protected String iconEmoji;
 
     @Schema(
-        title = "Template to use"
+        title = "Template to use",
+        hidden = true
     )
     @PluginProperty(dynamic = true)
     protected String templateUri;
 
     @Schema(
-        title = "Render map to use for template"
+        title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
     protected Map<String, Object> templateRenderMap;

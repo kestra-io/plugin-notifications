@@ -34,7 +34,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Generic task to send a mail."
+    title = "Task to send a mail."
 )
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
@@ -72,7 +72,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     @Builder.Default
     @Schema(
         title = "Controls the timeout to use when sending emails",
-        description = "It affects socket connect-, read- and write timeouts"
+        description = "It affects socket connect, read and write timeouts"
     )
     private final Integer sessionTimeout = 1000;
 

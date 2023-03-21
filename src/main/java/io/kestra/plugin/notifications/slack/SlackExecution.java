@@ -18,8 +18,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a slack message with execution information",
-    description = "Main execution information are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
+    title = "Task to send a Slack message with the execution informations",
+    description = "Main execution informations are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
 )
 @Plugin(
     examples = {

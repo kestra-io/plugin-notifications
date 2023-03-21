@@ -1,0 +1,28 @@
+{
+    "@type": "MessageCard",
+    "@context": "http://schema.org/extensions",
+    "themeColor": "{{themeColor}}",
+    "summary": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}",
+    "sections": [{
+        {% if activityTitle is defined %}
+        "activityTitle": "{{activityTitle}}",
+        {% endif %}
+        {% if activitySubtitle is defined %}
+        "activitySubtitle": "{{activitySubtitle}}",
+        {% endif %}
+        "facts": [{
+            "name": "Namespace",
+            "value": "{{execution.namespace}}"
+        }, {
+            "name": "Job",
+            "value": "{{execution.flowId}}"
+        }, {
+            "name": "Execution",
+            "value": "{{execution.id}}"
+        }, {
+            "name": "Status",
+            "value": "{{execution.state.current}}"
+        }],
+        "markdown": true
+    }]
+}

@@ -1,13 +1,18 @@
-package io.kestra.plugin.notifications.mail;
+package io.kestra.plugin.notifications.teams;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
+import io.kestra.plugin.notifications.mail.MailTemplate;
 import io.kestra.plugin.notifications.services.ExecutionService;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
@@ -18,16 +23,16 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a mail with the execution informations",
-    description = "Main execution informations are provided in the sent mail (id, namespace, flow, state, duration, start date ...)."
+    title = "Task to send a Microsoft Teams message with the execution informations",
+    description = "Main execution informations are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a mail notification on failed flow",
+            title = "Send a Microsoft Teams notification on failed flow",
             full = true,
             code = {
-                "id: mail",
+                "id: teams",
                 "namespace: io.kestra.tests",
                 "",
                 "listeners:",
@@ -36,17 +41,8 @@ import java.util.Map;
                 "        in:",
                 "          - FAILED",
                 "    tasks:",
-                "      - id: mail",
-                "        type: io.kestra.plugin.notifications.mail.MailExecution",
-                "        to: to@mail.com",
-                "        from: from@mail.com",
-                "        subject: This is the subject",
-                "        host: nohost-mail.site",
-                "        port: 465",
-                "        username: user",
-                "        password: pass",
-                "        sessionTimeout: 1000",
-                "        transportStrategy: SMTPS",
+                "      - id: teams",
+                "        type: io.kestra.plugin.notifications.teams.TeamsExecution",
                 "",
                 "tasks:",
                 "  - id: ok",
@@ -56,7 +52,7 @@ import java.util.Map;
         )
     }
 )
-public class MailExecution extends MailTemplate implements ExecutionInterface {
+public class TeamsExecution extends TeamsTemplate implements ExecutionInterface {
     @Builder.Default
     private final String executionId = "{{ execution.id }}";
     private Map<String, Object> customFields;
@@ -64,7 +60,7 @@ public class MailExecution extends MailTemplate implements ExecutionInterface {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = "mail-template.hbs.peb";
+        this.templateUri = "teams-template.peb";
         this.templateRenderMap = ExecutionService.executionMap(runContext, this);
 
         return super.run(runContext);

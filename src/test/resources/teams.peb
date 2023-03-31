@@ -1,0 +1,15 @@
+{
+    "@type": "MessageCard",
+    "@context": "http://schema.org/extensions",
+    "themeColor": "0076D7",
+    "summary": "I'm a notification message"
+    "sections": [{
+        "activityTitle": "{{activityTitle}}",
+        "activitySubtitle": "{{activitySubtitle}}",
+        "facts": [{
+            "name": "Fun Fact",
+            "value": "There is nothing fun here"
+        }],
+        "markdown": true
+    }]
+}

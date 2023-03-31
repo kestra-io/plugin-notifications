@@ -17,7 +17,6 @@ import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 
 import java.net.URI;
-import java.net.URL;
 
 @SuperBuilder
 @ToString
@@ -25,8 +24,8 @@ import java.net.URL;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Generic task to send a slack message.",
-    description = "See <a href=\"https://api.slack.com/messaging/webhooks\">Sending messages using Incoming Webhooks</a>"
+    title = "Task to send a slack message to an incoming webhook.",
+    description = "See <a href=\"https://api.slack.com/messaging/webhooks\">Sending messages using Incoming Webhooks</a>."
 )
 
 @Plugin(
@@ -46,7 +45,7 @@ import java.net.URL;
 )
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
     @Schema(
-        title = "Slack incoming webhook url",
+        title = "Slack incoming webhook URL",
         description = "See <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> "
     )
     @PluginProperty(dynamic = true)

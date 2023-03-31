@@ -1,4 +1,4 @@
-id: slack
+id: teams
 namespace: io.kestra.tests
 
 inputs:
@@ -8,13 +8,9 @@ inputs:
 listeners:
   - tasks:
       - id: slack
-        type: io.kestra.plugin.notifications.slack.SlackExecution
+        type: io.kestra.plugin.notifications.teams.TeamsExecution
         url: "{{ inputs.url }}/webhook-unit-test"
-        channel: "#random"
-        customFields:
-          Env: DEV
-          Cloud: GCP
-        customMessage: myCustomMessage
+        activityTitle: "Kestra Teams notification"
 
 tasks:
   - id: seq

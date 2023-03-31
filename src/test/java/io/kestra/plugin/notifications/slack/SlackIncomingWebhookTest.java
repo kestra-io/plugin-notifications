@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.slack;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -45,7 +46,7 @@ class SlackIncomingWebhookTest {
         embeddedServer.start();
 
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
-            .url(embeddedServer.getURI() + "/slack-test-unit")
+            .url(embeddedServer.getURI() + "/webhook-unit-test")
             .payload(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
@@ -58,7 +59,7 @@ class SlackIncomingWebhookTest {
 
         task.run(runContext);
 
-        assertThat(SlackWebController.data, containsString("ge *with some bold text* an"));
+        assertThat(FakeWebhookController.data, containsString("ge *with some bold text* an"));
     }
 
 }

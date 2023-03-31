@@ -1,18 +1,18 @@
-package io.kestra.plugin.notifications.slack;
+package io.kestra.plugin.notifications.teams;
 
 import com.google.common.collect.ImmutableMap;
-import io.kestra.plugin.notifications.FakeWebhookController;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
+import io.kestra.plugin.notifications.FakeWebhookController;
 import io.kestra.runner.memory.MemoryRunner;
-
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.runtime.server.EmbeddedServer;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 @MicronautTest
-class SlackExecutionTest {
+class TeamsExecutionTest {
     @Inject
     private ApplicationContext applicationContext;
 
@@ -38,7 +38,7 @@ class SlackExecutionTest {
 
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(SlackExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(TeamsExecutionTest.class.getClassLoader().getResource("flows")));
         this.runner.run();
     }
 
@@ -49,7 +49,7 @@ class SlackExecutionTest {
 
         Execution execution = runnerUtils.runOne(
             "io.kestra.tests",
-            "slack",
+            "teams",
             null,
             (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
         );
@@ -58,8 +58,6 @@ class SlackExecutionTest {
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
         assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
-        assertThat(FakeWebhookController.data, containsString("{\"title\":\"Env\",\"value\":\"DEV\",\"short\":true}"));
-        assertThat(FakeWebhookController.data, containsString("{\"title\":\"Cloud\",\"value\":\"GCP\",\"short\":true}"));
-        assertThat(FakeWebhookController.data, containsString("myCustomMessage"));
+        assertThat(FakeWebhookController.data, containsString("Kestra Teams notification"));
     }
 }

@@ -37,7 +37,7 @@ public class ExecutionService {
             NoSuchElementException.class,
             () -> executionRepository.findById(executionRendererId)
                 .filter(e -> e.getState().getCurrent().isTerminated())
-                .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionId + "'"))
+                .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionRendererId + "'"))
         );
     }
     

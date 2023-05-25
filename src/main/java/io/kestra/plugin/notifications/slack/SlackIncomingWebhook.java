@@ -24,20 +24,20 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a slack message to an incoming webhook.",
+    title = "Task to send a Slack message to an incoming webhook",
     description = "See <a href=\"https://api.slack.com/messaging/webhooks\">Sending messages using Incoming Webhooks</a>."
 )
 
 @Plugin(
     examples = {
         @Example(
-            title = "Send a slack notification",
+            title = "Send a Slack notification",
             code = {
                 "url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
                 "payload: |",
                 "  {",
                 "    \"channel\": \"#my-chan\",",
-                "    \"text\": \"Flow `{{ flow.namespace }}.{{ flow.id }}` started with execution `{{ execution.id }}`\"",
+                "    \"text\": \"Flow {{ flow.namespace }}.{{ flow.id }} started with execution {{ execution.id }}\"",
                 "  }"
             }
         )
@@ -64,7 +64,7 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload);
 
-            runContext.logger().debug("Send slack webhook: {}", payload);
+            runContext.logger().debug("Send Slack webhook: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload));
         }

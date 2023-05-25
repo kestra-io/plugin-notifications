@@ -5,7 +5,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
-import io.kestra.plugin.notifications.mail.MailTemplate;
 import io.kestra.plugin.notifications.services.ExecutionService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -23,8 +22,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a Microsoft Teams message with the execution informations",
-    description = "Main execution informations are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
+    title = "Task to send a Microsoft Teams message with the execution information",
+    description = "Main execution information is provided in the sent message (id, namespace, flow, state, duration, start date, ...)."
 )
 @Plugin(
     examples = {
@@ -43,11 +42,12 @@ import java.util.Map;
                 "    tasks:",
                 "      - id: teams",
                 "        type: io.kestra.plugin.notifications.teams.TeamsExecution",
+                "        url: \"https://TENANT-NAME.webhook.office.com/webhookb2/XXXXXXXXXX\"",
+                "        activityTitle: \"Kestra Teams notification\"",
                 "",
                 "tasks:",
-                "  - id: ok",
-                "    type: io.kestra.core.tasks.debugs.Return",
-                "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+                "  - id: always fail",
+                "    type: io.kestra.core.tasks.executions.Fail"
             }
         )
     }

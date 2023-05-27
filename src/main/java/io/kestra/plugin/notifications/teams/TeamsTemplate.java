@@ -5,7 +5,6 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
-import io.kestra.plugin.notifications.slack.SlackIncomingWebhook;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -24,7 +23,7 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public abstract class TeamsTemplate extends SlackIncomingWebhook {
+public abstract class TeamsTemplate extends TeamsIncomingWebhook {
     @Schema(
         title = "Template to use",
         hidden = true
@@ -50,7 +49,6 @@ public abstract class TeamsTemplate extends SlackIncomingWebhook {
     @Schema(title = "Activity Subtitle")
     @PluginProperty(dynamic = true)
     protected String activitySubtitle;
-
 
     @SuppressWarnings("unchecked")
     @Override

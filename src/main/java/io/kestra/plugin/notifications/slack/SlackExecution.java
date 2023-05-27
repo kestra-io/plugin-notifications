@@ -42,7 +42,7 @@ import java.util.Map;
                 "        channel: \"#random\"",
                 "",
                 "tasks:",
-                "  - id: always fail",
+                "  - id: alwaysFail",
                 "    type: io.kestra.core.tasks.executions.Fail"
             }
         )

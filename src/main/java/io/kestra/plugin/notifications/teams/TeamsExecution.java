@@ -46,7 +46,7 @@ import java.util.Map;
                 "        activityTitle: \"Kestra Teams notification\"",
                 "",
                 "tasks:",
-                "  - id: always fail",
+                "  - id: alwaysFail",
                 "    type: io.kestra.core.tasks.executions.Fail"
             }
         )

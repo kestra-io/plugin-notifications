@@ -49,7 +49,7 @@ import java.util.Map;
                 "        transportStrategy: SMTPS",
                 "",
                 "tasks:",
-                "  - id: always fail",
+                "  - id: alwaysFail",
                 "    type: io.kestra.core.tasks.executions.Fail"
             }
         )

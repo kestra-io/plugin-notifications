@@ -16,6 +16,8 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @SuperBuilder
@@ -49,6 +51,8 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
         description = "See <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> "
     )
     @PluginProperty(dynamic = true)
+    @NotNull
+    @NotEmpty
     private String url;
 
     @Schema(

@@ -1,0 +1,21 @@
+id: slackMissingUrl
+namespace: io.kestra.tests
+
+listeners:
+  - tasks:
+      - id: slack
+        type: io.kestra.plugin.notifications.slack.SlackExecution
+        channel: "#random"
+        customFields:
+          Env: DEV
+          Cloud: GCP
+        customMessage: myCustomMessage
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.scripts.Bash
+      commands:
+        - 'exit 1'

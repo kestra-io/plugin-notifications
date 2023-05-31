@@ -1,0 +1,11 @@
+id: slackMissingUrl
+namespace: io.kestra.tests
+
+tasks:
+  - id: "slack_incoming_webhook"
+    type: "io.kestra.plugin.notifications.slack.SlackIncomingWebhook"
+    payload: |
+        {
+          "channel": "#random",
+          "text": "myCustomMessage"
+        }

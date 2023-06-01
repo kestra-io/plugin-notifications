@@ -16,8 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @SuperBuilder
@@ -69,8 +67,6 @@ public class TeamsIncomingWebhook  extends Task implements RunnableTask<VoidOutp
         title = "Microsoft Teams incoming webhook URL"
     )
     @PluginProperty(dynamic = true)
-    @NotNull
-    @NotEmpty
     private String url;
 
     @Schema(

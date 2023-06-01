@@ -42,7 +42,7 @@ import java.util.Map;
                 "    tasks:",
                 "      - id: teams",
                 "        type: io.kestra.plugin.notifications.teams.TeamsExecution",
-                "        url: \"https://TENANT-NAME.webhook.office.com/webhookb2/XXXXXXXXXX\"",
+                "        url: \"https://microsoft.webhook.office.com/webhookb2/XXXXXXXXXX\"",
                 "        activityTitle: \"Kestra Teams notification\"",
                 "",
                 "tasks:",

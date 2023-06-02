@@ -34,7 +34,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a mail."
+    title = "Task to send a mail"
 )
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
@@ -197,7 +197,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     @Introspected
     public static class Attachment {
         @Schema(
-            title = "An attachment uri from kestra internal storage"
+            title = "An attachment URI from Kestra internal storage"
         )
         @PluginProperty(dynamic = true)
         @NotNull

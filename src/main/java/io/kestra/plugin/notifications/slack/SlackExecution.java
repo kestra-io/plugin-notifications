@@ -18,16 +18,16 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a Slack message with the execution informations",
-    description = "Main execution informations are provided in the sent message (id, namespace, flow, state, duration, start date ...)."
+    title = "Task to send a Slack message with the execution information",
+    description = "Main execution information is provided in the sent message (id, namespace, flow, state, duration, start date, ...)."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a slack notification on failed flow",
+            title = "Send a Slack notification on failed flow",
             full = true,
             code = {
-                "id: mail",
+                "id: slack",
                 "namespace: io.kestra.tests",
                 "",
                 "listeners:",
@@ -41,11 +41,9 @@ import java.util.Map;
                 "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
                 "        channel: \"#random\"",
                 "",
-                "",
                 "tasks:",
-                "  - id: ok",
-                "    type: io.kestra.core.tasks.debugs.Return",
-                "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+                "  - id: alwaysFail",
+                "    type: io.kestra.core.tasks.executions.Fail"
             }
         )
     }

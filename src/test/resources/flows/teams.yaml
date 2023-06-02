@@ -7,7 +7,7 @@ inputs:
 
 listeners:
   - tasks:
-      - id: slack
+      - id: teams
         type: io.kestra.plugin.notifications.teams.TeamsExecution
         url: "{{ inputs.url }}/webhook-unit-test"
         activityTitle: "Kestra Teams notification"

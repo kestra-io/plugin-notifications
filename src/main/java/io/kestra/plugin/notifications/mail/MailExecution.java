@@ -18,8 +18,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a mail with the execution informations",
-    description = "Main execution informations are provided in the sent mail (id, namespace, flow, state, duration, start date ...)."
+    title = "Task to send a mail with the execution information",
+    description = "Main execution information is provided in the sent mail (id, namespace, flow, state, duration, start date, ...)."
 )
 @Plugin(
     examples = {
@@ -49,9 +49,8 @@ import java.util.Map;
                 "        transportStrategy: SMTPS",
                 "",
                 "tasks:",
-                "  - id: ok",
-                "    type: io.kestra.core.tasks.debugs.Return",
-                "    format: \"{{task.id}} > {{taskrun.startDate}}\""
+                "  - id: alwaysFail",
+                "    type: io.kestra.core.tasks.executions.Fail"
             }
         )
     }

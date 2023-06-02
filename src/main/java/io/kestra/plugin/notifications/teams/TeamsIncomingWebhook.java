@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotEmpty;
 import java.net.URI;
 
 @SuperBuilder
@@ -33,22 +34,30 @@ import java.net.URI;
         @Example(
             title = "Send a Microsoft Teams notification message",
             code = {
-                "url: \"https://microsoft.webhook.office.com/webhook/XXXXXXXXXX\"",
+                "url: \"https://microsoft.webhook.office.com/webhookb2/XXXXXXXXXX\"",
                 "payload: |",
                 "  {",
                 "    \"@type\": \"MessageCard\",",
                 "    \"@context\": \"http://schema.org/extensions\",",
-                "    \"themeColor\": \"0076D7\", ",
+                "    \"themeColor\": \"0076D7\",",
                 "    \"summary\": \"Notification message\",",
-                "    \"sections\": [{  ",
-                "      \"activityTitle\": \"Rolling Workflow started\", ",
-                "      \"activitySubtitle\": \"Workflow Notification\", ",
-                "      \"facts\": [{ ",
-                "        \"name\": \"URL\", ",
-                "        \"value\": \"[Rolling Workflow](${deploymentUrl}\" ",
-                "      }],",
+                "    \"sections\": [{",
+                "      \"activityTitle\": \"Rolling Workflow started\",",
+                "      \"activitySubtitle\": \"Workflow Notification\",",
                 "      \"markdown\": true",
-                "    }]",
+                "    }],",
+                "    \"potentialAction\": [",
+                "      {",
+                "        \"@type\": \"OpenUri\",",
+                "        \"name\": \"Rolling Workflow\",",
+                "        \"targets\": [",
+                "          {",
+                "           \"os\": \"default\",",
+                "           \"uri\": \"{{ vars.systemUrl }}\"",
+                "          }",
+                "        ]",
+                "      }",
+                "    ]",
                 "  }"
             }
         )
@@ -59,6 +68,7 @@ public class TeamsIncomingWebhook  extends Task implements RunnableTask<VoidOutp
         title = "Microsoft Teams incoming webhook URL"
     )
     @PluginProperty(dynamic = true)
+    @NotEmpty
     private String url;
 
     @Schema(

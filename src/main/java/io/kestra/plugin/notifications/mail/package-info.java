@@ -1,5 +1,5 @@
 @PluginSubGroup(
-    description = "This sub-group of plugins contains tasks for email notifications.",
+    description = "This subgroup of plugins contains tasks for email notifications.",
     categories = PluginSubGroup.PluginCategory.ALERTING
 )
 package io.kestra.plugin.notifications.mail;

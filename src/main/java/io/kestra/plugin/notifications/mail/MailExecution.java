@@ -18,17 +18,17 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a mail with the execution information",
-    description = "Main execution information is provided in the sent mail (id, namespace, flow, state, duration, start date, ...)."
+    title = "Task to send an email with the execution information",
+    description = "Flow execution information is provided in the sent email including xxecution metadata such as ID, namespace, flow, state, duration, start date, and the URL to the flow's execution page"
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a mail notification on failed flow",
+            title = "Send an email notification on failed flow execution",
             full = true,
             code = {
-                "id: mail",
-                "namespace: io.kestra.tests",
+                "id: emailAlert",
+                "namespace: dev",
                 "",
                 "listeners:",
                 "  - conditions:",
@@ -36,15 +36,15 @@ import java.util.Map;
                 "        in:",
                 "          - FAILED",
                 "    tasks:",
-                "      - id: mail",
+                "      - id: email",
                 "        type: io.kestra.plugin.notifications.mail.MailExecution",
-                "        to: to@mail.com",
-                "        from: from@mail.com",
+                "        to: hello@kestra.io",
+                "        from: hello@kestra.io",
                 "        subject: This is the subject",
-                "        host: nohost-mail.site",
+                "        host: mail.privateemail.com",
                 "        port: 465",
-                "        username: user",
-                "        password: pass",
+                "        username: hello@kestra.io",
+                "        password: topSecret42",
                 "        sessionTimeout: 1000",
                 "        transportStrategy: SMTPS",
                 "",

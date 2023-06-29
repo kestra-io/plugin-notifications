@@ -34,30 +34,30 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a mail"
+    title = "Task to send an email"
 )
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
     @Schema(
-        title = "The mail server host"
+        title = "The email server host"
     )
     @PluginProperty(dynamic = true)
     private String host;
 
     @Schema(
-        title = "The mail server port"
+        title = "The email server port"
     )
     @PluginProperty(dynamic = true)
     private Integer port;
 
     @Schema(
-        title = "The mail server username"
+        title = "The email server username"
     )
     @PluginProperty(dynamic = true)
     private String username;
 
     @Schema(
-        title = "The mail server password"
+        title = "The email server password"
     )
     @PluginProperty(dynamic = true)
     private String password;
@@ -65,14 +65,14 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     @Builder.Default
     @Schema(
         title = "The optional transport strategy",
-        description = "Will default to SMTPS if left empty."
+        description = "Will default to SMTPS if left empty"
     )
     private final TransportStrategy transportStrategy = TransportStrategy.SMTPS;
 
     @Builder.Default
     @Schema(
-        title = "Controls the timeout to use when sending emails",
-        description = "It affects socket connect, read and write timeouts"
+        title = "Integer value in milliseconds. Default is 1000 milliseconds, i.e. 1 second",
+        description = "It controls the maximum timeout value when sending emails"
     )
     private final Integer sessionTimeout = 1000;
 
@@ -84,15 +84,15 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     private String from;
 
     @Schema(
-        title = "One or more recipient email address. Use semicolon as delimiter to provide several addresses",
-        description = "Note that each email address must be an RFC2822 format compliant address"
+        title = "Email address(es) of the recipient(s). Use semicolon as delimiter to provide several email addresses",
+        description = "Note that each email address must be compliant with the RFC2822 format"
     )
     @PluginProperty(dynamic = true)
     private String to;
 
     @Schema(
         title = "One or more 'Cc' (carbon copy) optional recipient email address. Use semicolon as delimiter to provide several addresses",
-        description = "Note that each email address must be an RFC2822 format compliant address."
+        description = "Note that each email address must be compliant with the RFC2822 format"
     )
     @PluginProperty(dynamic = true)
     private String cc;
@@ -105,23 +105,23 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
         title = "The optional email message body in HTML text",
-        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content." +
-            " Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
     @PluginProperty(dynamic = true)
     protected String htmlTextContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
-        description = "which will be shown in the email client as separate files available for download or inline " +
-            "display if the client supports it (for example, most browsers these days display PDF's in a popup)."
+        description = "The attachment will be shown in the email client as separate files available for download, or displayed " +
+            "inline if the client supports it (for example, most browsers display PDF's in a popup window)"
     )
     @PluginProperty(dynamic = true)
     private List<Attachment> attachments;
 
     @Schema(
-        title = "Adds image data to this email that can be referred to from the email HTML body.",
-        description = "The provided images is assumed to be of mimetype png, jpg or whatever the email client supports as valid image embedded in HTML content."
+        title = "Adds image data to this email that can be referred to from the email HTML body",
+        description = "The provided images are assumed to be of MIME type png, jpg or whatever the email client supports as valid image that can be embedded in HTML content"
     )
     @PluginProperty(dynamic = true)
     private List<Attachment> embeddedImages;
@@ -132,7 +132,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         Logger logger = runContext.logger();
 
-        logger.debug("Sending email to {} ...", to);
+        logger.debug("Sending an email to {}", to);
 
         final String htmlContent = runContext.render(this.htmlTextContent);
 
@@ -142,7 +142,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             .from(runContext.render(from))
             .withSubject(runContext.render(subject))
             .withHTMLText(htmlContent)
-            .withPlainText("Please view this email in a modern email client!")
+            .withPlainText("Please view this email in a modern email client")
             .withReturnReceiptTo();
 
         if (this.attachments != null) {
@@ -204,15 +204,15 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         private String uri;
 
         @Schema(
-            title = "name of the attachment (eg. 'filename.ext')."
+            title = "The name of the attachment (eg. 'filename.txt')"
         )
         @PluginProperty(dynamic = true)
         @NotNull
         private String name;
 
         @Schema(
-            title = "One or more 'Cc' (carbon copy) optional recipient email address. Use semicolon as delimiter to provide several addresses",
-            description = "Note that each email address must be an RFC2822 format compliant address."
+            title = "One or more 'Cc' (carbon copy) optional recipient email address(es). Use semicolon as a delimiter to provide several addresses",
+            description = "Note that each email address must be compliant with the RFC2822 format"
         )
         @PluginProperty(dynamic = true)
         @NotNull

@@ -1,0 +1,23 @@
+id: telegram
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: telegram
+        type: io.kestra.plugin.notifications.telegram.TelegramExecution
+        endpointOverride: "{{ inputs.url }}"
+        channel: "channel"
+        token: "token"
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+      - id: failed
+        type: io.kestra.core.tasks.scripts.Bash
+        commands:
+          - 'exit 1'

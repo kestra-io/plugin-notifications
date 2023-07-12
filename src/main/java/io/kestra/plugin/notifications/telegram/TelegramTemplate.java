@@ -25,7 +25,7 @@ import java.util.Objects;
 @Schema(
         title = "Send input as a telegram message"
 )
-public class TelegramTemplate extends TelegramSend {
+public abstract class TelegramTemplate extends TelegramSend {
 
     @Schema(
             title = "Template to use",

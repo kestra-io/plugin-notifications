@@ -2,7 +2,6 @@ package io.kestra.plugin.notifications.telegram;
 
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.notifications.telegram.api.dto.TelegramMessage;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -46,7 +45,7 @@ class TelegramSendTest {
         task.run(runContext);
 
         assertThat(FakeTelegramController.token, containsString(token));
-        assertThat(FakeTelegramController.message, equalToObject(new TelegramMessage(channel, message)));
+        assertThat(FakeTelegramController.message, equalToObject(new TelegramBotApiService.TelegramMessage(channel, message)));
 
     }
 }

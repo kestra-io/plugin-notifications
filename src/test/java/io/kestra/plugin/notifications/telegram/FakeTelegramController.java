@@ -1,7 +1,5 @@
 package io.kestra.plugin.notifications.telegram;
 
-import io.kestra.plugin.notifications.telegram.api.dto.TelegramBotApiResponse;
-import io.kestra.plugin.notifications.telegram.api.dto.TelegramMessage;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -11,12 +9,12 @@ import io.micronaut.http.annotation.Post;
 public class FakeTelegramController {
 
     public static String token;
-    public static TelegramMessage message;
+    public static TelegramBotApiService.TelegramMessage message;
 
     @Post("/bot{token}/sendMessage")
-    public HttpResponse<TelegramBotApiResponse> post(String token, @Body TelegramMessage message) {
+    public HttpResponse<TelegramBotApiService.TelegramBotApiResponse> post(String token, @Body TelegramBotApiService.TelegramMessage message) {
         FakeTelegramController.token = token;
         FakeTelegramController.message = message;
-        return HttpResponse.ok(new TelegramBotApiResponse(true, message));
+        return HttpResponse.ok(new TelegramBotApiService.TelegramBotApiResponse(true, message));
     }
 }

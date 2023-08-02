@@ -43,7 +43,7 @@ public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
     protected String payload;
 
     @Schema(
-            title = "Only to be used when testing locally",
+        title = "Only to be used when testing locally"
     )
     @PluginProperty(dynamic = false)
     protected String endpointOverride;

@@ -1,0 +1,1 @@
+"<{{execution.namespace}} {{execution.flowId}} {{execution.id}} ➛ {{execution.state.current}}> {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}} ({{link}})"

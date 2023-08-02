@@ -22,9 +22,6 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-        title = "Send input as a telegram message"
-)
 public abstract class TelegramTemplate extends TelegramSend {
 
     @Schema(
@@ -43,7 +40,6 @@ public abstract class TelegramTemplate extends TelegramSend {
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        Logger logger = runContext.logger();
 
         Map<String, Object> map = new HashMap<>();
 
@@ -52,7 +48,6 @@ public abstract class TelegramTemplate extends TelegramSend {
                     Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
                     Charsets.UTF_8
             );
-            logger.debug("Template {}", template);
 
             this.payload = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
         }

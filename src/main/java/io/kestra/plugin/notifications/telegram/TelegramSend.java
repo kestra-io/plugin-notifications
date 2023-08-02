@@ -23,9 +23,6 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-        title = "Send input as a telegram message"
-)
 public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
     private static final String TELEGRAMAPI_BASE_URL = "https://api.telegram.org";
     private static final NettyHttpClientFactory FACTORY = new NettyHttpClientFactory();
@@ -47,7 +44,6 @@ public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
             title = "Only to be used when testing locally",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @PluginProperty(dynamic = false)
     protected String endpointOverride;

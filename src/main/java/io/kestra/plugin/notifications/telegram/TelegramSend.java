@@ -39,13 +39,12 @@ public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(title = "Message payload")
     @PluginProperty(dynamic = true)
-    @NotNull
     protected String payload;
 
     @Schema(
         title = "Only to be used when testing locally"
     )
-    @PluginProperty(dynamic = false)
+    @PluginProperty
     protected String endpointOverride;
 
     @Override

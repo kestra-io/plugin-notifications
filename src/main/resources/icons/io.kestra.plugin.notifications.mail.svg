@@ -1,6 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
-     preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"
-     style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);">
-    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5l-8-5V6l8 5l8-5v2z"
-          fill="#333"/>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.3333 25.3335C17.3333 20.9202 20.92 17.3335 25.3333 17.3335C26.8 17.3335 28.16 17.7335 29.3333 18.4135V8.00016C29.3333 6.52016 28.1333 5.3335 26.6666 5.3335H5.33329C3.85329 5.3335 2.66663 6.52016 2.66663 8.00016V24.0002C2.66663 25.4802 3.86663 26.6668 5.33329 26.6668H17.4533C17.3866 26.2268 17.3333 25.7868 17.3333 25.3335ZM5.33329 10.6668V8.00016L16 14.6668L26.6666 8.00016V10.6668L16 17.3335L5.33329 10.6668ZM26.6666 29.3335V26.6668H21.3333V24.0002H26.6666V21.3335L30.6666 25.3335L26.6666 29.3335Z" fill="currentColor"/>
 </svg>

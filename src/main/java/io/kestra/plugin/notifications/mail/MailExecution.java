@@ -18,40 +18,42 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send an email with the execution information",
-    description = "Flow execution information is provided in the sent email including xxecution metadata such as ID, namespace, flow, state, duration, start date, and the URL to the flow's execution page"
+    title = "Send an email with the execution information",
+    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
+    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting), as shown in this example. Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [MailSend](https://kestra.io/plugins/plugin-notifications/tasks/mail/io.kestra.plugin.notifications.mail.mailsend) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send an email notification on failed flow execution",
+            title = "Send an email notification on a failed flow execution",
             full = true,
-            code = {
-                "id: emailAlert",
-                "namespace: dev",
-                "",
-                "listeners:",
-                "  - conditions:",
-                "      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition",
-                "        in:",
-                "          - FAILED",
-                "    tasks:",
-                "      - id: email",
-                "        type: io.kestra.plugin.notifications.mail.MailExecution",
-                "        to: hello@kestra.io",
-                "        from: hello@kestra.io",
-                "        subject: This is the subject",
-                "        host: mail.privateemail.com",
-                "        port: 465",
-                "        username: hello@kestra.io",
-                "        password: topSecret42",
-                "        sessionTimeout: 1000",
-                "        transportStrategy: SMTPS",
-                "",
-                "tasks:",
-                "  - id: alwaysFail",
-                "    type: io.kestra.core.tasks.executions.Fail"
-            }
+            code = """
+                id: failure_alert
+                namespace: prod.monitoring
+
+                tasks:
+                  - id: send_alert
+                    type: io.kestra.plugin.notifications.mail.MailExecution
+                    to: hello@kestra.io
+                    from: hello@kestra.io
+                    subject: "The workflow execution {{trigger.executionId}} failed for the flow {{trigger.flowId}} in the namespace {{trigger.namespace}}"
+                    host: mail.privateemail.com
+                    port: 465
+                    username: "{{ secret('EMAIL_USERNAME') }}"
+                    password: "{{ secret('EMAIL_PASSWORD') }}"
+
+                triggers:
+                  - id: failed_prod_workflows
+                    type: io.kestra.core.models.triggers.types.Flow
+                    conditions:
+                      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+                        in:
+                          - FAILED
+                          - WARNING
+                      - type: io.kestra.core.models.conditions.types.ExecutionNamespaceCondition
+                        namespace: prod
+                        prefix: true
+                """
         )
     }
 )

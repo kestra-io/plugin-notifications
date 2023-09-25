@@ -14,13 +14,13 @@
             "name": "Namespace",
             "value": "{{execution.namespace}}"
         }, {
-            "name": "Job",
+            "name": "Flow ID",
             "value": "{{execution.flowId}}"
         }, {
-            "name": "Execution",
+            "name": "Execution ID",
             "value": "{{execution.id}}"
         }, {
-            "name": "Status",
+            "name": "Execution Status",
             "value": "{{execution.state.current}}"
         }],
         "markdown": true

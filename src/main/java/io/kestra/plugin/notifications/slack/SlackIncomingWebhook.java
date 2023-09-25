@@ -25,29 +25,60 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a Slack message to an incoming webhook",
-    description = "See <a href=\"https://api.slack.com/messaging/webhooks\">Sending messages using Incoming Webhooks</a>."
+    title = "Send a Slack message using an Incoming Webhook",
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the <a href=\"https://api.slack.com/messaging/webhooks\">Slack documentation</a> for more details.."
 )
-
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Slack notification",
-            code = {
-                "url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
-                "payload: |",
-                "  {",
-                "    \"channel\": \"#my-chan\",",
-                "    \"text\": \"Flow {{ flow.namespace }}.{{ flow.id }} started with execution {{ execution.id }}\"",
-                "  }"
-            }
-        )
+            title = "Send a Slack notification on a failed flow execution",
+            full = true,
+            code = """
+                id: unreliable_flow
+                namespace: prod
+
+                tasks:
+                  - id: fail
+                    type: io.kestra.plugin.scripts.shell.Commands
+                    runner: PROCESS
+                    commands:
+                      - exit 1
+
+                errors:
+                  - id: alert_on_failure
+                    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+                    url: "{{ secret('SLACK_WEBHOOK') }}" # https://hooks.slack.com/services/xzy/xyz/xyz
+                    payload: |
+                      {
+                        "channel": "#alerts",
+                        "text": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                      }
+                """
+        ),
+        @Example(
+            title = "Send a Slack message via incoming webhook",
+            full = true,
+            code = """
+                id: slack_incoming_webhook
+                namespace: dev
+
+                tasks:
+                  - id: send_slack_message
+                    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+                    url: "{{ secret('SLACK_WEBHOOK') }}"
+                    payload: |
+                      {
+                        "channel": "#general",
+                        "text": "Hello from the workflow {{ flow.id }}"
+                      }            
+                """
+        ),        
     }
 )
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "Slack incoming webhook URL",
-        description = "See <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> "
+        description = "Check the <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> documentation for more details.."
     )
     @PluginProperty(dynamic = true)
     @NotEmpty

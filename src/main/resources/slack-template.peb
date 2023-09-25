@@ -38,17 +38,17 @@
                   "short": true
               },
               {
-                  "title": "Job",
+                  "title": "Flow ID",
                   "value": {{execution.flowId | json}},
                   "short": true
               },
               {
-                  "title": "Execution",
+                  "title": "Execution ID",
                   "value": {{execution.id | json}},
                   "short": true
               },
               {
-                  "title": "Status",
+                  "title": "Execution Status",
                   "value": {{execution.state.current | json }},
                   "short": true
               }

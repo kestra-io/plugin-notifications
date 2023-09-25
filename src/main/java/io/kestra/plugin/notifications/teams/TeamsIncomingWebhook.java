@@ -25,12 +25,55 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a Microsoft Teams notification message to an incoming webhook.",
-    description = "See <a href=\"https://learn.microsoft.com/en-us/azure/data-factory/how-to-send-notifications-to-teams?tabs=data-factory\">Send notifications to a Microsoft Teams channel</a>."
+    title = "Send a Microsoft Teams message using an incoming webhook.",
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the <a href=\"https://learn.microsoft.com/en-us/azure/data-factory/how-to-send-notifications-to-teams?tabs=data-factory\">Microsoft Teams documentation</a> for more details."
 )
-
 @Plugin(
     examples = {
+        @Example(
+            title = "Send a Microsoft Teams notification on a failed flow execution",
+            full = true,
+            code = """
+                id: unreliable_flow
+                namespace: prod
+
+                tasks:
+                  - id: fail
+                    type: io.kestra.plugin.scripts.shell.Commands
+                    runner: PROCESS
+                    commands:
+                      - exit 1
+
+                errors:
+                  - id: alert_on_failure
+                    type: io.kestra.plugin.notifications.teams.TeamsIncomingWebhook
+                    url: "{{ secret('TEAMS_WEBHOOK') }}" # format: https://microsoft.webhook.office.com/webhook/xyz
+                    payload: |
+                      {
+                        "@type": "MessageCard",
+                        "@context": "http://schema.org/extensions",
+                        "themeColor": "0076D7",
+                        "summary": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}",
+                        "sections": [{
+                        "activityTitle": "Kestra Workflow Notification",
+                        "activitySubtitle": "Workflow Execution Finished With Errors",
+                        "markdown": true
+                        }],
+                        "potentialAction": [
+                          {
+                            "@type": "OpenUri",
+                            "name": "Kestra Workflow",
+                            "targets": [
+                            {
+                            "os": "default",
+                            "uri": "{{ vars.systemUrl }}"
+                            }
+                            ]
+                          }
+                        ]
+                      }
+                """
+        ),
         @Example(
             title = "Send a Microsoft Teams notification message",
             code = {

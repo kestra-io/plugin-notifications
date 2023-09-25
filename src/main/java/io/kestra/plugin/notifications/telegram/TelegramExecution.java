@@ -18,34 +18,39 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-        title = "Send input as a telegram message"
+    title = "Send a Telegram message with the execution information",
+    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
+    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [TelegramSend](https://kestra.io/plugins/plugin-notifications/tasks/telegram/io.kestra.plugin.notifications.telegram.telegramsend) task."
 )
 @Plugin(
-        examples = {
-                @Example(
-                        title = "Send a Telegram notification on failed flow",
-                        full = true,
-                        code = {
-                                "id: telegram",
-                                "namespace: io.kestra.tests",
-                                "",
-                                "listeners:",
-                                "  - conditions:",
-                                "      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition",
-                                "        in:",
-                                "          - FAILED",
-                                "    tasks:",
-                                "      - id: telegram",
-                                "        type: io.kestra.plugin.notifications.telegram.TelegramExecution",
-                                "        channel: \"2072728690\"",
-                                "        token: \"6090305634:AAHHlR1R4H0JOZBFJlPp9jbSFrDwYwaS\",",
-                                "",
-                                "tasks:",
-                                "  - id: alwaysFail",
-                                "    type: io.kestra.core.tasks.executions.Fail"
-                        }
-                )
-        }
+    examples = {
+        @Example(
+            title = "Send a Telegram notification on a failed flow execution",
+            full = true,
+            code = """
+                id: failure_alert
+                namespace: prod.monitoring
+
+                tasks:
+                  - id: send_alert
+                    type: io.kestra.plugin.notifications.telegram.TelegramExecution
+                    token: "{{ secret('TELEGRAM_TOKEN') }}" # format: 6090305634:xyz
+                    channel: "2072728690"
+
+                triggers:
+                  - id: failed_prod_workflows
+                    type: io.kestra.core.models.triggers.types.Flow
+                    conditions:
+                      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+                        in:
+                          - FAILED
+                          - WARNING
+                      - type: io.kestra.core.models.conditions.types.ExecutionNamespaceCondition
+                        namespace: prod
+                        prefix: true
+                """
+        )
+    }
 )
 public class TelegramExecution extends TelegramTemplate implements ExecutionInterface {
 

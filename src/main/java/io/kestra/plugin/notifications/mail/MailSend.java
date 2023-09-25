@@ -1,5 +1,7 @@
 package io.kestra.plugin.notifications.mail;
 
+import io.kestra.core.models.annotations.Example;
+import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
@@ -34,7 +36,38 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send an email"
+    title = "Send an automated email from a workflow"
+)
+@Plugin(
+    examples = {
+        @Example(
+            title = "Send an email on a failed flow execution",
+            full = true,
+            code = """
+                id: unreliable_flow
+                namespace: prod
+
+                tasks:
+                  - id: fail
+                    type: io.kestra.plugin.scripts.shell.Commands
+                    runner: PROCESS
+                    commands:
+                      - exit 1
+
+                errors:
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.mail.MailSend
+                    from: hello@kestra.io
+                    to: hello@kestra.io
+                    username: "{{ secret('EMAIL_USERNAME') }}"
+                    password: "{{ secret('EMAIL_PASSWORD') }}"
+                    host: mail.privateemail.com
+                    port: 465 # or 587
+                    subject: "Kestra workflow failed for the flow {{flow.id}} in the namespace {{flow.namespace}}"
+                    htmlTextContent: "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                """
+        )
+    }
 )
 public class MailSend extends Task implements RunnableTask<VoidOutput> {
     /* Server info */
@@ -71,10 +104,10 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Builder.Default
     @Schema(
-        title = "Integer value in milliseconds. Default is 1000 milliseconds, i.e. 1 second",
+        title = "Integer value in milliseconds. Default is 10000 milliseconds, i.e. 10 seconds",
         description = "It controls the maximum timeout value when sending emails"
     )
-    private final Integer sessionTimeout = 1000;
+    private final Integer sessionTimeout = 10000;
 
     /* Mail info */
     @Schema(

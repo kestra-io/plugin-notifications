@@ -18,33 +18,38 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Task to send a Slack message with the execution information",
-    description = "Main execution information is provided in the sent message (id, namespace, flow, state, duration, start date, ...)."
+    title = "Send a Slack message with the execution information",
+    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
+    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SlackIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/slack/io.kestra.plugin.notifications.slack.slackincomingwebhook) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Slack notification on failed flow",
+            title = "Send a Slack notification on a failed flow execution",
             full = true,
-            code = {
-                "id: slack",
-                "namespace: io.kestra.tests",
-                "",
-                "listeners:",
-                "  - conditions:",
-                "      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition",
-                "        in:",
-                "          - FAILED",
-                "    tasks:",
-                "      - id: slack",
-                "        type: io.kestra.plugin.notifications.slack.SlackExecution",
-                "        url: \"https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX\"",
-                "        channel: \"#random\"",
-                "",
-                "tasks:",
-                "  - id: alwaysFail",
-                "    type: io.kestra.core.tasks.executions.Fail"
-            }
+            code = """
+                id: failure_alert
+                namespace: prod.monitoring
+
+                tasks:
+                  - id: send_alert
+                    type: io.kestra.plugin.notifications.slack.SlackExecution
+                    url: "{{ secret('SLACK_WEBHOOK') }}" # format: https://hooks.slack.com/services/xzy/xyz/xyz
+                    channel: "#general"
+                    executionId: "{{trigger.executionId}}"
+
+                triggers:
+                  - id: failed_prod_workflows
+                    type: io.kestra.core.models.triggers.types.Flow
+                    conditions:
+                      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+                        in:
+                          - FAILED
+                          - WARNING
+                      - type: io.kestra.core.models.conditions.types.ExecutionNamespaceCondition
+                        namespace: prod
+                        prefix: true
+                """
         )
     }
 )

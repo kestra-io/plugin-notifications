@@ -50,8 +50,9 @@ import java.net.URI;
                     url: "{{ secret('DISCORD_WEBHOOK') }}" # https://discord.com/api/webhooks/000000/xxxxxxxxxxx
                     payload: |
                       {
-                        "channel": "#alerts",
-                        "Content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                        "username": "MyUsername",
+                        "title": "Discord Alert",
+                        "content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
                       }
                 """
         ),
@@ -68,8 +69,9 @@ import java.net.URI;
                     url: "{{ secret('DISCORD_WEBHOOK') }}"
                     payload: |
                       {
-                        "channel": "#general",
-                        "text": "Hello from the workflow {{ flow.id }}"
+                        "username": "MyUsername",
+                        "title": "Discord Hello",
+                        "content": "Hello from the workflow {{ flow.id }}"
                       }            
                 """
         ),

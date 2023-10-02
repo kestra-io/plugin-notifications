@@ -31,9 +31,8 @@ public class DiscordIncomingWebhookTest {
     void run() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
             "title", "Discord test webhook notification",
-            "username", "Some User",
-            "content", "A message *with some bold text* and _some italicized text_.",
-            "description", "his is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, and <https://google.com|this is a link>"
+            "username", "SomeUser",
+            "content", "A message *with some bold text* and _some italicized text_."
                                                            ));
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);

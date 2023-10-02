@@ -1,8 +1,9 @@
 {
-    "@type": "MessageCard",
-    "@context": "http://schema.org/extensions",
     "username": "{{username}}",
     "title": "{{title}}",
     "content": "{{content}}",
-    "description": "{{description}}"
+    "description": [{
+        "name": "Fun Fact",
+        "value": "There is nothing fun here"
+    }]
 }

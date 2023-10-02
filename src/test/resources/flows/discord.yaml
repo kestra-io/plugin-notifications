@@ -11,9 +11,8 @@ listeners:
         type: io.kestra.plugin.notifications.discord.DiscordExecution
         url: "{{ inputs.url }}/webhook-unit-test"
         title: "Kestra Discord notification"
-        username: "someUser"
+        username: someUser
         content: "A message *with some bold text* and _some italicized text_."
-        description: "his is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, and <https://google.com|this is a link>"
 
 tasks:
   - id: seq

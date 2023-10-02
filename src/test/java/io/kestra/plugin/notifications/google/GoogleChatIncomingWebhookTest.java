@@ -5,7 +5,6 @@ import com.google.common.io.Files;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.kestra.plugin.notifications.discord.DiscordIncomingWebhook;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -37,7 +36,7 @@ public class GoogleChatIncomingWebhookTest {
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
 
-        DiscordIncomingWebhook task = DiscordIncomingWebhook.builder()
+        GoogleChatIncomingWebhook task = GoogleChatIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
             .payload(
                 Files.asCharSource(

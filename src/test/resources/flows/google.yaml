@@ -15,5 +15,5 @@ tasks:
   - id: seq
     type: io.kestra.core.tasks.flows.Sequential
     tasks:
-    - id: failed
-      type: io.kestra.core.tasks.executions.Fail
+      - id: failed
+        type: io.kestra.core.tasks.executions.Fail

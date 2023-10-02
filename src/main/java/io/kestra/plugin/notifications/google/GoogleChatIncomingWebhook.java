@@ -89,7 +89,6 @@ public class GoogleChatIncomingWebhook extends Task implements RunnableTask<Void
         title = "Google Chat message payload"
     )
     @PluginProperty(dynamic = true)
-    @NotNull
     protected String payload;
 
     @Override

@@ -1,0 +1,19 @@
+id: google
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: google
+        type: io.kestra.plugin.notifications.google.GoogleChatExecution
+        url: "{{ inputs.url }}/webhook-unit-test"
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.executions.Fail

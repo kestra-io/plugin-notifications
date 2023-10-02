@@ -45,7 +45,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     protected String username;
 
     @Schema(
-        title = "Webhook profile photo URL"
+        title = "Webhook avatar URL"
     )
     @PluginProperty(dynamic = true)
     protected String avatarUrl;
@@ -88,9 +88,9 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
 
     @Schema(
         title = "RGB color of text",
-        description = "Example: 255, 255, 255"
+        description = "Example: [255, 255, 255]"
     )
-    @PluginProperty(dynamic = true)
+    @PluginProperty
     protected Integer[] color;
 
     @Schema(

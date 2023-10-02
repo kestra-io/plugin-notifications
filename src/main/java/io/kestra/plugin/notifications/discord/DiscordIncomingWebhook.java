@@ -81,7 +81,7 @@ import java.net.URI;
 public class DiscordIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
-        title = "Webhook url which should be taken from discord integrations tab"
+        title = "Webhook URL which should be taken from discord integrations tab"
     )
     @PluginProperty(dynamic = true)
     @NotBlank

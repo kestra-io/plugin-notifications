@@ -50,9 +50,9 @@ import java.net.URI;
                     url: "{{ secret('WHATSAPP_WEBHOOK') }}" # https://webhook.your-domain
                     payload: |
                       {
-                        "username": "MyUsername",
-                        "title": "What's app Alert",
-                        "content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                        "profileName": "MyName",
+                        "whatsAppIds": ["IdNo1, IdNo2"],
+                        "from": 380999999999
                       }
                 """
         ),
@@ -69,11 +69,11 @@ import java.net.URI;
                     url: "{{ secret('WHATSAPP_WEBHOOK') }}"
                     payload: |
                       {
-                        "username": "MyUsername",
-                        "title": "WhatsApp Hello",
-                        "content": "Hello from the workflow {{ flow.id }}",
-                        "color"[255, 255, 255]
-                      }            
+                        "profileName": "MyName",
+                        "whatsAppIds": ["IdNo1, IdNo2"],
+                        "from": 380999999999,
+                        "messageId": "wamIdNo1"
+                      }
                 """
         ),
     }

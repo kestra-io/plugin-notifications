@@ -35,12 +35,11 @@ import java.util.Map;
                   - id: send_alert
                     type: io.kestra.plugin.notifications.discord.WhatsAppExecution
                     url: "{{ secret('WHATSAPP_WEBHOOK') }}" # format: https://hooks.discord.com/services/xzy/xyz/xyz
-                    username: "MyUsername"
-                    title: "WhatsApp Notification"
-                    color:
-                        - 255
-                        - 255
-                        - 255
+                    profileName: "MyProfile"
+                    from: 380999999999
+                    whatsAppIds:
+                        - "some waId"
+                        - "waId No2"
                     executionId: "{{trigger.executionId}}"
 
                 triggers:

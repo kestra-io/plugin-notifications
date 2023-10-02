@@ -87,10 +87,11 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     protected String footer;
 
     @Schema(
-        title = "RGB color of text"
+        title = "RGB color of text",
+        description = "Example: 255, 255, 255"
     )
-    @PluginProperty
-    protected Integer color;
+    @PluginProperty(dynamic = true)
+    protected Integer[] color;
 
     @Schema(
         title = "Website URL"
@@ -135,7 +136,14 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         }
 
         if (this.color != null) {
-            embedMap.put("color", this.color);
+
+            if (color.length >= 3) {
+                int rgb = color[0];
+                rgb = (rgb << 8) + color[1];
+                rgb = (rgb << 8) + color[2];
+
+                embedMap.put("color", rgb);
+            }
         }
 
         if (this.footer != null) {

@@ -71,7 +71,8 @@ import java.net.URI;
                       {
                         "username": "MyUsername",
                         "title": "Discord Hello",
-                        "content": "Hello from the workflow {{ flow.id }}"
+                        "content": "Hello from the workflow {{ flow.id }}",
+                        "color"[255, 255, 255]
                       }            
                 """
         ),

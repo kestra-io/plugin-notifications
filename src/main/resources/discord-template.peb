@@ -1,12 +1,27 @@
 {
     {% if username is defined %}
-    "username": "{{username}}",
+        "username": "{{username}}",
     {% endif %}
     {% if title is defined %}
-    "title": "{{title}}",
+        "title": "{{title}}",
     {% endif %}
     {% if content is defined %}
-    "content": "{{content}}",
+        "content": "{{content}}",
+    {% endif %}
+    {% if color is defined %}
+        "color": "{{color}}",
+    {% endif %}
+    {% if avatarUrl is defined %}
+        "avatarUrl": "{{avatarUrl}}"
+    {% endif %}
+    {% if thumbnail is defined %}
+        "thumbnail": "{{thumbnail}}"
+    {% endif %}
+    {% if authorName is defined %}
+        "authorName": "{{authorName}}"
+    {% endif %}
+    {% if websiteUrl is defined %}
+        "websiteUrl": "{{websiteUrl}}"
     {% endif %}
     "description": [{
             "name": "Namespace",

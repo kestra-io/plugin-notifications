@@ -13,6 +13,10 @@ listeners:
         title: "Kestra Discord notification"
         username: someUser
         content: "A message *with some bold text* and _some italicized text_."
+        color:
+          - 255
+          - 255
+          - 255
 
 tasks:
   - id: seq

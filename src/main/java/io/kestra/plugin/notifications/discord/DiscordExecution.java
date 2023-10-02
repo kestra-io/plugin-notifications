@@ -37,6 +37,10 @@ import java.util.Map;
                     url: "{{ secret('DISCORD_WEBHOOK') }}" # format: https://hooks.discord.com/services/xzy/xyz/xyz
                     username: "MyUsername"
                     title: "Discord Notification"
+                    color:
+                        - 255
+                        - 255
+                        - 255
                     executionId: "{{trigger.executionId}}"
 
                 triggers:

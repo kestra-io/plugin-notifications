@@ -17,6 +17,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @SuperBuilder
@@ -88,6 +89,7 @@ public class GoogleChatIncomingWebhook extends Task implements RunnableTask<Void
         title = "Google Chat message payload"
     )
     @PluginProperty(dynamic = true)
+    @NotNull
     protected String payload;
 
     @Override

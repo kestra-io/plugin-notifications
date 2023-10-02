@@ -99,7 +99,7 @@ public class DiscordIncomingWebhook extends Task implements RunnableTask<VoidOut
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload);
 
-            runContext.logger().debug("Send Slack webhook: {}", payload);
+            runContext.logger().debug("Send Discord webhook: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload));
         }

@@ -4,6 +4,7 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+import io.kestra.core.utils.Rethrow;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static io.kestra.core.utils.Rethrow.*;
 
 @SuperBuilder
 @ToString
@@ -47,7 +50,7 @@ public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
     @Schema(
         title = "The WhatsApp ID of the contact"
     )
-    @PluginProperty(dynamic = true)
+    @PluginProperty
     protected List<String> whatsAppIds;
 
     @Schema(
@@ -70,7 +73,7 @@ public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
 
 
     @Schema(
-        title = "WhatsApp ID of recipient"
+        title = "WhatsApp recipient ID"
     )
     @PluginProperty(dynamic = true)
     protected String recipientId;
@@ -92,7 +95,7 @@ public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
 
         if (this.profileName != null && this.whatsAppIds != null && !this.whatsAppIds.isEmpty()) {
             List<Map<String, Object>> profiles = this.whatsAppIds.stream()
-                .map(WhatsAppId -> Map.of("profile", Map.of("name", profileName), "wa_id", WhatsAppId))
+                .map(throwFunction(WhatsAppId -> Map.of("profile", Map.of("name", runContext.render(this.profileName)), "wa_id", WhatsAppId)))
                 .toList();
 
             map.put("contacts", profiles);
@@ -102,7 +105,7 @@ public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
             Map<String, Object> message = new HashMap<>(Map.of("from", runContext.render(this.from)));
 
             if (messageId != null) {
-                message.put("id", this.messageId);
+                message.put("id", runContext.render(this.messageId));
             }
 
             if (textBody != null) {
@@ -117,7 +120,7 @@ public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
         }
 
         if (recipientId != null) {
-            map.put("recipient_id", recipientId);
+            map.put("recipient_id", runContext.render(recipientId));
         }
 
         this.payload = JacksonMapper.ofJson().writeValueAsString(map);

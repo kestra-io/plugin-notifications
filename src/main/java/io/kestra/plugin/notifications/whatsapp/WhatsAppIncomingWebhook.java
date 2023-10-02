@@ -25,7 +25,7 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a What's app message using an Incoming Webhook",
+    title = "Send a WhatsApp message using an Incoming Webhook",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://developers.facebook.com/docs/whatsapp/on-premises/guides/webhooks\">WhatsApp documentation</a> for more details.."
 )
 @Plugin(
@@ -88,7 +88,7 @@ public class WhatsAppIncomingWebhook extends Task implements RunnableTask<VoidOu
     protected String url;
 
     @Schema(
-        title = "What's app message payload"
+        title = "WhatsApp message payload"
     )
     @PluginProperty(dynamic = true)
     protected String payload;
@@ -100,7 +100,7 @@ public class WhatsAppIncomingWebhook extends Task implements RunnableTask<VoidOu
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload);
 
-            runContext.logger().debug("Send What's app webhook: {}", payload);
+            runContext.logger().debug("Send WhatsApp webhook: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload));
         }

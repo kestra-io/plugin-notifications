@@ -1,5 +1,5 @@
 @PluginSubGroup(
-    description = "This sub-group of plugins contains tasks for What's App notifications.",
+    description = "This sub-group of plugins contains tasks for WhatsApp notifications.",
     categories = PluginSubGroup.PluginCategory.ALERTING
 )
 package io.kestra.plugin.notifications.whatsapp;

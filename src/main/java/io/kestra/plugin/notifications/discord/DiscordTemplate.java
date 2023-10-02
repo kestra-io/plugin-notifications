@@ -39,16 +39,16 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     protected Map<String, Object> templateRenderMap;
 
     @Schema(
-        title = "Webhook username who sends"
+        title = "Webhook username"
     )
     @PluginProperty(dynamic = true)
     protected String username;
 
     @Schema(
-        title = "Webhook profile photo who sends"
+        title = "Webhook profile photo URL"
     )
     @PluginProperty(dynamic = true)
-    protected String photoUrl;
+    protected String avatarUrl;
 
     @Schema(
         title = "Title"
@@ -57,25 +57,25 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     protected String title;
 
     @Schema(
-        title = "Embed message"
+        title = "Message description"
     )
     @PluginProperty(dynamic = true)
     protected String description;
 
     @Schema(
-        title = "Thumbnail url"
+        title = "Thumbnail URL"
     )
     @PluginProperty(dynamic = true)
     protected String thumbnail;
 
     @Schema(
-        title = "Get photo from photoUrl and gets link from websiteUrl"
+        title = "Message author name"
     )
     @PluginProperty(dynamic = true)
     protected String authorName;
 
     @Schema(
-        title = "Out of embed message"
+        title = "Message content"
     )
     @PluginProperty(dynamic = true)
     protected String content;
@@ -87,14 +87,13 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     protected String footer;
 
     @Schema(
-        title = "Color of text",
-        description = "Possibilities (ORANGE, RED, BLACK, GREEN, YELLOW, CYAN, WHITE and BLUE)"
+        title = "RGB color of text"
     )
-    @PluginProperty(dynamic = true)
-    protected Color color;
+    @PluginProperty
+    protected Integer color;
 
     @Schema(
-        title = "Website url"
+        title = "Website URL"
     )
     @PluginProperty(dynamic = true)
     protected String websiteUrl;
@@ -119,8 +118,8 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
             mainMap.put("username", runContext.render(this.username));
         }
 
-        if (this.photoUrl != null) {
-            mainMap.put("avatar_url", runContext.render(this.photoUrl));
+        if (this.avatarUrl != null) {
+            mainMap.put("avatar_url", runContext.render(this.avatarUrl));
         }
 
         if (this.title != null) {
@@ -136,7 +135,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         }
 
         if (this.color != null) {
-            embedMap.put("color", this.color.getRGB());
+            embedMap.put("color", this.color);
         }
 
         if (this.footer != null) {
@@ -152,7 +151,8 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         if (this.authorName != null) {
             Map<String, String> authorMap = Map.of(
                 "name", runContext.render(authorName),
-                "url", runContext.render(websiteUrl)
+                "url", runContext.render(websiteUrl),
+                "icon_url", runContext.render(this.avatarUrl)
                                                   );
             embedMap.put("author", authorMap);
         }

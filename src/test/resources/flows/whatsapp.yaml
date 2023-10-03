@@ -1,0 +1,24 @@
+id: whatsapp
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: whatsapp
+        type: io.kestra.plugin.notifications.whatsapp.WhatsAppExecution
+        url: "{{ inputs.url }}/webhook-unit-test"
+        whatsAppIds:
+          - "some waId"
+          - "someId"
+        from: "some phone number"
+        profileName: "MyProfile"
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.executions.Fail

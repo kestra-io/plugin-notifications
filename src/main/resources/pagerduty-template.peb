@@ -1,0 +1,31 @@
+{
+        {% if rountingKey is defined %}
+            "rounting_key": "{{rountingKey}}",
+        {% endif %}
+        {% if deduplicationKey is defined %}
+            "dedup_key" : "{{deduplicationKey}}",
+        {% endif %}
+        "event_action" : "{% if eventAction is defined %}{{eventAction}}{% else if deduplicationKey is defined %}acknowledge{% else %}trigger{% endif %}",
+        "payload" : {
+            {% if payloadSummary is defined %}
+              "summary": "{{payloadSummary}}",
+            {% endif %}
+            "source" : "{{execution.namespace}} {{execution.id}}",
+            "severity": "{% if firstFailed == false %}info{% else %}error{% endif %}",
+            "custom_details" : [
+              {
+                  "title": "Flow ID",
+                  "value": {{execution.flowId | json}}
+              },
+              {
+                  "title": "Execution Status",
+                  "value": {{execution.state.current | json }}
+              }]
+        }
+        ,
+        "links": [
+          {
+                "href": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n>",
+                "text": "{% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+          }]
+}

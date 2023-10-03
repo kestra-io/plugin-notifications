@@ -1,0 +1,15 @@
+{
+  "contacts": [{
+    "profile": {
+      "name": "NAME"
+    },
+    "wa_id": "WHATSAPP_BUSINESS_ACCOUNT_ID"
+  }],
+  "messages":[{
+    "from": "PHONE_NUMBER",
+    "text": {
+      "body": "{{textBody}}"
+    },
+    "type": "text"
+  }]
+}

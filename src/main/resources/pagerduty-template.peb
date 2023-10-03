@@ -5,7 +5,7 @@
         {% if deduplicationKey is defined %}
             "dedup_key" : "{{deduplicationKey}}",
         {% endif %}
-        "event_action" : "{% if eventAction is defined %}{{eventAction}}{% else if deduplicationKey is defined %}acknowledge{% else %}trigger{% endif %}",
+        "event_action" : "{% if eventAction is defined %}{{eventAction}}{% elseif deduplicationKey is defined %}acknowledge{% else %}trigger{% endif %}",
         "payload" : {
             {% if payloadSummary is defined %}
               "summary": "{{payloadSummary}}",

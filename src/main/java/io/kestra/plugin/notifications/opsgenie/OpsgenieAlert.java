@@ -101,18 +101,22 @@ import java.net.URI;
 public class OpsgenieAlert extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
-        title = "Webhook URL which should be taken from discord integrations tab"
+        title = "Alert creation URL"
     )
     @PluginProperty(dynamic = true)
     @NotBlank
     protected String url;
 
     @Schema(
-        title = "Discord message payload"
+        title = "Opsgenie alert payload"
     )
     @PluginProperty(dynamic = true)
     protected String payload;
 
+    @Schema(
+        title = "GenieKey. Authorization token from Opsgenie"
+    )
+    @PluginProperty(dynamic = true)
     protected String authorizationToken;
 
     @Override
@@ -122,7 +126,7 @@ public class OpsgenieAlert extends Task implements RunnableTask<VoidOutput> {
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload);
 
-            runContext.logger().debug("Send Discord webhook: {}", payload);
+            runContext.logger().debug("Send Opsgenie alert: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload).header(HttpHeaders.AUTHORIZATION, runContext.render(authorizationToken)));
         }

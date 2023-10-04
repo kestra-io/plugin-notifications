@@ -26,6 +26,7 @@ listeners:
           - Error
           - Fail
           - Execution
+        authorizationToken: sampleAuthorizationToken
 
 tasks:
   - id: seq

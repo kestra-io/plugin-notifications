@@ -66,6 +66,7 @@ import java.net.URI;
                         "tags":["ExecutionFail","Error","Execution"],
                         "priority":"P1"
                       }
+                    authorizationToken: sampleAuthorizationToken
                 """
         ),
         @Example(
@@ -94,6 +95,7 @@ import java.net.URI;
                         "tags":["Execution"],
                         "priority":"P2"
                       }
+                    authorizationToken: sampleAuthorizationToken
                 """
         ),
     }

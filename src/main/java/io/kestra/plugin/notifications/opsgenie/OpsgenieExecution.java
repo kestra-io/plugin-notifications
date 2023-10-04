@@ -51,6 +51,7 @@ import java.util.Map;
                       - Error
                       - Fail
                       - Execution
+                    authorizationToken: sampleAuthorizationToken
                     executionId: "{{trigger.executionId}}"
 
                 triggers:

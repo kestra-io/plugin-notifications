@@ -1,0 +1,9 @@
+{
+    "routingKey": "SOME_INTEGRATION_KEY",
+    "eventAction": "acknowledge",
+    "deduplicationKey": "SOME_DEDUPLATION_KEY",
+    "payloadSummary": "{{payloadSummary}}",
+    "payloadSource": "SOME_SOURCE",
+    "payloadSeverity": "error",
+    "payloadCustomDetails": "ge *with some bold text* an"
+}

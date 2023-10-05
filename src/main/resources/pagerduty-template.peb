@@ -1,6 +1,6 @@
 {
-        {% if rountingKey is defined %}
-            "rounting_key": "{{rountingKey}}",
+        {% if routingKey is defined %}
+            "routing_key": "{{routingKey}}",
         {% endif %}
         {% if deduplicationKey is defined %}
             "dedup_key" : "{{deduplicationKey}}",

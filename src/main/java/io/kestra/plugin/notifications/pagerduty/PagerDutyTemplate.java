@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,7 @@ public abstract class PagerDutyTemplate extends PagerDutyAlert {
     @Schema(
         title = "Brief text summary of the event, used to generate the summaries/titles of any associated alerts"
     )
+    @Size(max = 1024)
     @PluginProperty(dynamic = true)
     protected String payloadSummary;
 

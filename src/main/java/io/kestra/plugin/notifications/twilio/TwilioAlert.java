@@ -88,8 +88,18 @@ public class TwilioAlert extends Task implements RunnableTask<VoidOutput> {
     @PluginProperty(dynamic = true)
     protected String payload;
 
+    @Schema(
+        title = "Twilio account SID"
+    )
+    @NotBlank
+    @PluginProperty(dynamic = true)
     protected String accountSID;
 
+    @Schema(
+        title = "Twilio authentication token"
+    )
+    @NotBlank
+    @PluginProperty(dynamic = true)
     protected String authToken;
 
     @Override

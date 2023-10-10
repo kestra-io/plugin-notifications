@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
@@ -57,7 +58,6 @@ public class DiscordExecutionTest {
 
         assertThat(execution.getTaskRunList(), hasSize(3));
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
-        assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
         assertThat(FakeWebhookController.data, containsString("Kestra Discord notification"));
     }

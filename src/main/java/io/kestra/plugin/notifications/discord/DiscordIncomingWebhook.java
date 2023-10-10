@@ -70,10 +70,19 @@ import java.net.URI;
                     payload: |
                       {
                         "username": "MyUsername",
-                        "title": "Discord Hello",
+                        "tts": false,
                         "content": "Hello from the workflow {{ flow.id }}",
-                        "color"[255, 255, 255]
-                      }            
+                        "embeds": [
+                            {
+                                "title": "Discord Hello",
+                                "color": 16777215
+                                "description": "Namespace: dev\nFlow ID: discord\nExecution ID: 1p0JVFz24ZVLSK8iJN6hfs\nExecution Status: SUCCESS\n\n[Link to the Execution page](http://localhost:8080/ui/executions/dev/discord/1p0JVFz24ZVLSK8iJN6hfs)",
+                                "footer": {
+                                    "text": "Succeded after 00:00:00.385"
+                                }
+                            }
+                        ]
+                      }
                 """
         ),
     }

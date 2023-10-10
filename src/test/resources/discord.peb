@@ -2,9 +2,6 @@
     "username": "{{username}}",
     "title": "{{title}}",
     "content": "{{content}}",
-    "description": [{
-        "name": "Fun Fact",
-        "value": "There is nothing fun here"
-    }],
+    "description": "Fun Fact: There is nothing fun here",
     "color": "{{color}}"
 }

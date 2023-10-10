@@ -36,11 +36,12 @@ import java.util.Map;
                     type: io.kestra.plugin.notifications.discord.DiscordExecution
                     url: "{{ secret('DISCORD_WEBHOOK') }}" # format: https://hooks.discord.com/services/xzy/xyz/xyz
                     username: "MyUsername"
-                    title: "Discord Notification"
-                    color:
-                        - 255
-                        - 255
-                        - 255
+                    embedList:
+                        - title: "Discord Notification"
+                          color:
+                              - 255
+                              - 255
+                              - 255
                     executionId: "{{trigger.executionId}}"
 
                 triggers:

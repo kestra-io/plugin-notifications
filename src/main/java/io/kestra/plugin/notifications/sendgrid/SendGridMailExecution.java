@@ -18,14 +18,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send an email with the execution information",
+    title = "Send an SendGrid email with the execution information",
     description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
-    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting), as shown in this example. Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [MailSend](https://kestra.io/plugins/plugin-notifications/tasks/mail/io.kestra.plugin.notifications.mail.mailsend) task."
+    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting), as shown in this example. Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SendGridMailSend](https://kestra.io/plugins/plugin-notifications/tasks/mail/io.kestra.plugin.notifications.gendgrid.sendgridmailsend) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send an email notification on a failed flow execution",
+            title = "Send an SendGrid email notification on a failed flow execution",
             full = true,
             code = """
                 id: failure_alert
@@ -33,7 +33,7 @@ import java.util.Map;
 
                 tasks:
                   - id: send_alert
-                    type: io.kestra.plugin.notifications.mail.MailExecution
+                    type: io.kestra.plugin.notifications.sendgrid.SendGridMailExecution
                     to: hello@kestra.io
                     from: hello@kestra.io
                     subject: "The workflow execution {{trigger.executionId}} failed for the flow {{trigger.flowId}} in the namespace {{trigger.namespace}}"

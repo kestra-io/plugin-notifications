@@ -38,7 +38,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send an automated SendGrid email from a workflow"
+    title = "Send an automated email from a workflow"
 )
 @Plugin(
     examples = {
@@ -58,7 +58,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 
                 errors:
                   - id: send_email
-                    type: io.kestra.plugin.notifications.sendgrid.SendGridMailSend
+                    type: io.kestra.plugin.notifications.mail.MailSend
                     from: hello@kestra.io
                     to: hello@kestra.io
                     sendgridApiKey: "{{ secret('SENDGRID_API_KEY') }}"

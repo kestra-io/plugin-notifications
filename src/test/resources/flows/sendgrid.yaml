@@ -1,0 +1,17 @@
+id: sendgrid
+namespace: io.kestra.tests
+
+listeners:
+  - tasks:
+      - id: sendgrid
+        type: io.kestra.plugin.notifications.sendgrid.SendGridMailExecution
+        to:
+          - to@mail.com
+        from: from@mail.com
+        subject: This is the subject
+        sendgridApiKey: sampleApiKey
+
+tasks:
+  - id: ok
+    type: io.kestra.core.tasks.debugs.Return
+    format: "{{task.id}} > {{taskrun.startDate}}"

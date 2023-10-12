@@ -111,7 +111,7 @@ public class DiscordIncomingWebhook extends Task implements RunnableTask<VoidOut
 
             runContext.logger().debug("Send Discord webhook: {}", payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            client.toBlocking().exchange(HttpRequest.POST(url, payload));
         }
 
         return null;

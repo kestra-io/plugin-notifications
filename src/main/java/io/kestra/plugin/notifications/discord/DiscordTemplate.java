@@ -60,12 +60,6 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     @PluginProperty(dynamic = true)
     protected String content;
 
-    @Schema(
-        title = "Website URL"
-    )
-    @PluginProperty(dynamic = true)
-    protected String websiteUrl;
-
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
@@ -98,14 +92,16 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         if (embedList != null) {
             List<Map<String, Object>> embeds = new ArrayList<>(
                 embedList.stream()
-                    .map(throwFunction(embedEntry -> embedEntry.getEmbedMap(runContext, url, websiteUrl, avatarUrl)))
+                    .map(throwFunction(embedEntry -> embedEntry.getEmbedMap(runContext, avatarUrl)))
                     .toList()
             );
 
             if (mainMap.containsKey("embeds")) {
                 List<Object> existingEmbeds = (List<Object>) mainMap.get("embeds");
+
                 if (!existingEmbeds.isEmpty()) {
-                    embeds.add((Map<String, Object>) existingEmbeds.get(0));
+                    Map<String, Object> map = (Map<String, Object>) existingEmbeds.get(0);
+                    embeds.get(0).putAll(map);
                 }
             }
 
@@ -132,6 +128,12 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         )
         @PluginProperty(dynamic = true)
         protected String title;
+
+        @Schema(
+            title = "Website URL, link title with given URL"
+        )
+        @PluginProperty(dynamic = true)
+        protected String websiteUrl;
 
         @Schema(
             title = "Message description"
@@ -175,7 +177,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
             return 0;
         }
 
-        public Map<String, Object> getEmbedMap(RunContext runContext, String url, String websiteUrl, String avatarUrl) throws Exception {
+        public Map<String, Object> getEmbedMap(RunContext runContext, String avatarUrl) throws Exception {
             Map<String, Object> embedMap = new HashMap<>();
 
             if (this.title != null) {
@@ -186,8 +188,8 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
                 embedMap.put("description", runContext.render(this.description));
             }
 
-            if (url != null) {
-                embedMap.put("url", runContext.render(url));
+            if (this.websiteUrl != null) {
+                embedMap.put("url", runContext.render(this.websiteUrl));
             }
 
             if (this.thumbnail != null) {
@@ -197,8 +199,8 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
 
             if (this.authorName != null) {
                 Map<String, String> authorMap = Map.of(
-                    "name", runContext.render(authorName),
-                    "url", runContext.render(websiteUrl),
+                    "name", runContext.render(this.authorName),
+                    "url", runContext.render(this.websiteUrl),
                     "icon_url", runContext.render(avatarUrl)
                                                       );
                 embedMap.put("author", authorMap);

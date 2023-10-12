@@ -31,15 +31,11 @@
               {% if authorName is defined %}
                 "authorName": "{{authorName}}",
               {% endif %}
-                "description": "Namespace: {{execution.namespace}}\nFlow ID: {{execution.flowId}}\nExecution ID: {{execution.id}}\nExecution Status: {{execution.state.current}}",
-                "footer": {
-                    "text": "{% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
-                }
             },
           {% endfor %}
           {% endif %}
           {
-                "description": "Namespace: {{execution.namespace}}\nFlow ID: {{execution.flowId}}\nExecution ID: {{execution.id}}\nExecution Status: {{execution.state.current}}",
+                "description": "Namespace: {{execution.namespace}}\nFlow ID: {{execution.flowId}}\nExecution ID: {{execution.id}}\nExecution Status: {{execution.state.current}} {% if link is defined %}\n\n[Link to the Execution page]({{link}}){% endif %}",
                 "footer": {
                     "text": "{% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
                 }

@@ -49,6 +49,7 @@ public class DiscordExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "discord",
             null,

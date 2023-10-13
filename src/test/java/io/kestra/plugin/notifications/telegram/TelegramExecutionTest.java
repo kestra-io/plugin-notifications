@@ -48,6 +48,7 @@ class TelegramExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
                 "io.kestra.tests",
                 "telegram",
                 null,

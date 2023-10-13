@@ -38,7 +38,7 @@ class MailExecutionTest {
 
     @Test
     void testFlow() throws TimeoutException {
-        Execution execution = runnerUtils.runOne("io.kestra.tests", "mail");
+        Execution execution = runnerUtils.runOne(null, "io.kestra.tests", "mail");
         assertThat(execution.getTaskRunList(), hasSize(2));
         assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.FAILED));
     }

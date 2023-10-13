@@ -50,6 +50,7 @@ public class WhatsAppExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "whatsapp",
             null,

@@ -48,6 +48,7 @@ class TeamsExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "teams",
             null,

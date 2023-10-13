@@ -49,6 +49,7 @@ public class PagerDutyExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "pagerduty",
             null,

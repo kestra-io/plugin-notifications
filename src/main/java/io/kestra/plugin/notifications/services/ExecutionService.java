@@ -33,9 +33,11 @@ public class ExecutionService {
 
         String executionRendererId = runContext.render(runContext.render(executionId));
 
+        var flowVars = (Map<String, String>) runContext.getVariables().get("flow");
+
         return retryInstance.run(
             NoSuchElementException.class,
-            () -> executionRepository.findById(executionRendererId)
+            () -> executionRepository.findById(flowVars.get("tenantId"), executionRendererId)
                 .filter(e -> e.getState().getCurrent().isTerminated())
                 .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionRendererId + "'"))
         );

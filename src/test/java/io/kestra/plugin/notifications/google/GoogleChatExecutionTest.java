@@ -49,6 +49,7 @@ public class GoogleChatExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "google",
             null,

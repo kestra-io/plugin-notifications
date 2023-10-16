@@ -51,8 +51,10 @@ import java.net.URI;
                     payload: |
                       {
                         "username": "MyUsername",
-                        "title": "Discord Alert",
                         "content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                        "embedList": [{
+                                "title": "Discord Notification"
+                            }]
                       }
                 """
         ),

@@ -49,6 +49,7 @@ public class TwilioExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "twilio",
             null,

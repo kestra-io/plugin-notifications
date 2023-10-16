@@ -87,7 +87,7 @@ public abstract class OpsgenieTemplate extends OpsgenieAlert {
                 Charsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ? runContext.render(templateRenderMap) : Map.of());
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 

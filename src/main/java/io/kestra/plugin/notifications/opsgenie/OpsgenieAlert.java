@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Opsgenie alert",
+    title = "Send an alert to Opsgenie",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://docs.opsgenie.com/docs/alert-api\">Opsgenie documentation</a> for more details.."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Opsgenie alert on a failed flow execution",
+            title = "Send a failed flow alert to Opsgenie",
             full = true,
             code = """
                 id: unreliable_flow

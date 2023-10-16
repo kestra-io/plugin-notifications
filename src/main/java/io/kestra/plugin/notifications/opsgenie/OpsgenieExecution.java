@@ -18,14 +18,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Opsgenie message with the execution information",
+    title = "Send a notification with the execution information via Opsgenie",
     description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
         "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [OpsgenieAlert](https://kestra.io/plugins/plugin-notifications/tasks/opsgenie/io.kestra.plugin.notifications.opsgenie.opsgeniealert) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Opsgenie notification on a failed flow execution",
+            title = "Send notification on a failed flow execution via Opsgenie",
             full = true,
             code = """
                 id: failure_alert

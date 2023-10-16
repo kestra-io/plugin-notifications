@@ -28,7 +28,7 @@ import java.net.URI;
 @Schema(
     title = "Send a Zenduty alert",
     description = """
-                Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. 
+                Add this task to a list of `errors` tasks to implement custom flow-level failure notifications.
                 
                 Check the <a href=\"https://docs.zenduty.com/docs/integrations\">Zenduty documentation</a> to learn how to create an integration. 
                 
@@ -60,7 +60,7 @@ import java.net.URI;
                         {
                             "alert_type": "critical",
                             "message": "Kestra flow {{flow.id}} failed at {{ execution.startDate }}",
-                            "summary": "Flow {{ flow.namespace }}.{{ flow.id }} with revision {{ flow.revision }} failed within the execution {{ execution.id }}.",
+                            "summary": "Flow {{ flow.id }} with revision {{ flow.revision }}, from the namespace {{ flow.namespace }}, failed in the execution {{ execution.id }}.",
                             "entity_id": "{{ execution.id }}"
                         }
                 """

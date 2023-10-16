@@ -26,7 +26,7 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Zenduty message using an Alert API",
+    title = "Send a Zenduty alert",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://apidocs.zenduty.com/#tag/Integration-Alerts/paths/~1api~1account~1teams~1%7Bteam_id%7D~1services~1%7Bservice_id%7D~1integrations~1%7Bintegration_id%7D~1alerts~1/get\">Zenduty documentation</a> for more details.."
 )
 @Plugin(
@@ -58,7 +58,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Zenduty message via alert API",
+            title = "Send a Zenduty alert",
             full = true,
             code = """
                 id: zenduty_alert

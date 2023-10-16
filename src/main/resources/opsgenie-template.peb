@@ -1,0 +1,47 @@
+{
+    {% if alias is defined %}
+        "alias": "{{alias}}",
+    {% endif %}
+    {% if responders is defined %}
+        "responders": [
+    {% for responder in responders %}
+            ,{
+                "id": "{{responder.key | json}}",
+                "type": "{{responder.value | json}}"
+            }
+    {% endfor %}
+        ],
+    {% endif %}
+    {% if visibleTo is defined %}
+        "visibleTo": [
+    {% for responder in visibleTo %}
+        ,{
+            "id": "{{responder.key | json}}",
+            "type": "{{responder.value | json}}"
+        }
+    {% endfor %}
+        ],
+    {% endif %}
+    {% if tags is defined %}
+        "tags": [
+        {% for tag in tags %}
+            {{tag | json}}
+        {% endfor %}
+        ],
+    {% endif %}
+    {% if priority is defined %}
+        "priority": "{{priority}}",
+    {% endif %}
+    {% if message is defined %}
+        "message": "{{message}}",
+    {% endif %}
+    {% if details is defined %}
+        "details": {
+            "Namespace": "{{execution.namespace}}",
+            "Flow ID": "{{execution.flowId}}",
+            "Execution ID": "{{execution.id}}",
+            "Execution Status": "{{execution.state.current}}"
+        },
+    {% endif %}
+    "description": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+}

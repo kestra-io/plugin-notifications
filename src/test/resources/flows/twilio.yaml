@@ -1,0 +1,22 @@
+id: twilio
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: twilio
+        type: io.kestra.plugin.notifications.twilio.TwilioExecution
+        url: "{{ inputs.url }}/webhook-unit-test"
+        identity: "0000001"
+        accountSID: "0000000"
+        authToken: "sampleToken"
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.executions.Fail

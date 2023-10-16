@@ -1,0 +1,5 @@
+{
+    "identity": "{{identity}}",
+    "body": "{{body}}",
+    "tag": "someUserTag"
+}

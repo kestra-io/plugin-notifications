@@ -1,0 +1,20 @@
+id: pagerduty
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: pagerduty
+        type: io.kestra.plugin.notifications.pagerduty.PagerDutyExecution
+        url: "{{ inputs.url }}/webhook-unit-test"
+        payloadSummary: "Kestra PagerDuty alert"
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.executions.Fail

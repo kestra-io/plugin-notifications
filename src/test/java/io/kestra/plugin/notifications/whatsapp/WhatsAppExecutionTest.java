@@ -1,9 +1,10 @@
-package io.kestra.plugin.notifications.telegram;
+package io.kestra.plugin.notifications.whatsapp;
 
 import com.google.common.collect.ImmutableMap;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
+import io.kestra.plugin.notifications.FakeWebhookController;
 import io.kestra.runner.memory.MemoryRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -14,31 +15,32 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 
-/**
- * This test will only test the main task, this allow you to send any input
- * parameters to your task and test the returning behaviour easily.
- */
 @MicronautTest
-class TelegramExecutionTest {
-    @Inject
-    protected MemoryRunner runner;
-    @Inject
-    protected RunnerUtils runnerUtils;
-    @Inject
-    protected LocalFlowRepositoryLoader repositoryLoader;
+public class WhatsAppExecutionTest {
+
     @Inject
     private ApplicationContext applicationContext;
 
+    @Inject
+    protected MemoryRunner runner;
+
+    @Inject
+    protected RunnerUtils runnerUtils;
+
+    @Inject
+    protected LocalFlowRepositoryLoader repositoryLoader;
+
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(TelegramExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(WhatsAppExecutionTest.class.getClassLoader().getResource("flows")));
         this.runner.run();
     }
 
@@ -49,15 +51,17 @@ class TelegramExecutionTest {
 
         Execution execution = runnerUtils.runOne(
             null,
-                "io.kestra.tests",
-                "telegram",
-                null,
-                (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+            "io.kestra.tests",
+            "whatsapp",
+            null,
+            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
         );
 
-        assertThat(FakeTelegramController.token, comparesEqualTo("token"));
-        assertThat(FakeTelegramController.message.chat_id(), comparesEqualTo("channel"));
-        assertThat(FakeTelegramController.message.text(), containsString("<io.kestra.tests telegram"));
-        assertThat(FakeTelegramController.message.text(), containsString("Failed on task `failed`"));
+        assertThat(execution.getTaskRunList(), hasSize(3));
+        assertThat(FakeWebhookController.data, containsString(execution.getId()));
+        assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
+        assertThat(FakeWebhookController.data, containsString("\"wa_id\":\"someId\""));
+        assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
     }
+
 }

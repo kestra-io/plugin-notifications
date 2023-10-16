@@ -10,13 +10,14 @@ listeners:
       - id: discord
         type: io.kestra.plugin.notifications.discord.DiscordExecution
         url: "{{ inputs.url }}/webhook-unit-test"
-        title: "Kestra Discord notification"
         username: someUser
         content: "A message *with some bold text* and _some italicized text_."
-        color:
-          - 255
-          - 255
-          - 255
+        embedList:
+          - title: "Kestra Discord notification"
+            color:
+              - 255
+              - 255
+              - 255
 
 tasks:
   - id: seq

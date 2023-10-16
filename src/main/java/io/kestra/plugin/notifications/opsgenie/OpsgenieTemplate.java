@@ -115,7 +115,7 @@ public abstract class OpsgenieTemplate extends OpsgenieAlert {
         }
 
         if (this.tags != null) {
-            map.put("tags", tags);
+            map.put("tags", runContext.render(tags));
         }
 
         if (this.priority != null) {

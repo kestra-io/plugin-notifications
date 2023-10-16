@@ -48,6 +48,7 @@ class SlackExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "slack",
             null,

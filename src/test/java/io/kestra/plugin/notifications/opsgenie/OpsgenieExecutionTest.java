@@ -49,6 +49,7 @@ public class OpsgenieExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
+            null,
             "io.kestra.tests",
             "opsgenie",
             null,

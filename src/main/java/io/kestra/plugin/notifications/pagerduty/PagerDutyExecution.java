@@ -1,4 +1,4 @@
-package io.kestra.plugin.notifications.opsgenie;
+package io.kestra.plugin.notifications.pagerduty;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -18,14 +18,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a notification with the execution information via Opsgenie",
+    title = "Send a PagerDuty message with the execution information",
     description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
-        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [OpsgenieAlert](https://kestra.io/plugins/plugin-notifications/tasks/opsgenie/io.kestra.plugin.notifications.opsgenie.opsgeniealert) task."
+        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [PagerDutyAlert](https://kestra.io/plugins/plugin-notifications/tasks/pagerduty/io.kestra.plugin.notifications.pagerduty.pagerdutyalert) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send notification on a failed flow execution via Opsgenie",
+            title = "Send a PagerDuty notification on a failed flow execution",
             full = true,
             code = """
                 id: failure_alert
@@ -33,25 +33,12 @@ import java.util.Map;
 
                 tasks:
                   - id: send_alert
-                    type: io.kestra.plugin.notifications.opsgenie.OpsgenieExecution
-                    url: "{{ secret('OPSGENIE_REQUEST') }}" # format: 'https://api.opsgenie.com/v2/alerts/requests/xxxxxxyx-yyyx-xyxx-yyxx-yyxyyyyyxxxx'
-                    message: "Kestra Opsgenie alert"
-                    alias: ExecutionError
-                    responders:
-                      4513b7ea-3b91-438f-b7e4-e3e54af9147c: team
-                      bb4d9938-c3c2-455d-aaab-727aa701c0d8: user
-                      aee8a0de-c80f-4515-a232-501c0bc9d715: escalation
-                      80564037-1984-4f38-b98e-8a1f662df552: schedule
-                    visibleTo:
-                      4513b7ea-3b91-438f-b7e4-e3e54af9147c: team
-                      bb4d9938-c3c2-455d-aaab-727aa701c0d8: user
-                    priority: P1
-                    tags:
-                      - ExecutionError
-                      - Error
-                      - Fail
-                      - Execution
-                    authorizationToken: sampleAuthorizationToken
+                    type: io.kestra.plugin.notifications.pagerduty.PagerDutyExecution
+                    url: "{{ secret('PAGERDUTY_EVENT') }}" # format: https://events.pagerduty.com/v2/enqueue
+                    payloadSummary: "PagerDuty Alert"
+                    deduplicationKey: "dedupkey"
+                    routingKey: "routingkey"
+                    eventAction: "acknowledge"
                     executionId: "{{trigger.executionId}}"
 
                 triggers:
@@ -69,7 +56,7 @@ import java.util.Map;
         )
     }
 )
-public class OpsgenieExecution extends OpsgenieTemplate implements ExecutionInterface {
+public class PagerDutyExecution extends PagerDutyTemplate implements ExecutionInterface {
     @Builder.Default
     private final String executionId = "{{ execution.id }}";
     private Map<String, Object> customFields;
@@ -77,7 +64,7 @@ public class OpsgenieExecution extends OpsgenieTemplate implements ExecutionInte
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = "opsgenie-template.peb";
+        this.templateUri = "pagerduty-template.peb";
         this.templateRenderMap = ExecutionService.executionMap(runContext, this);
 
         return super.run(runContext);

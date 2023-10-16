@@ -1,9 +1,10 @@
-package io.kestra.plugin.notifications.opsgenie;
+package io.kestra.plugin.notifications.whatsapp;
 
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+import io.kestra.core.utils.Rethrow;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,12 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.kestra.core.utils.Rethrow.*;
+
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public abstract class OpsgenieTemplate extends OpsgenieAlert {
+public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
 
     @Schema(
         title = "Template to use",
@@ -38,43 +41,42 @@ public abstract class OpsgenieTemplate extends OpsgenieAlert {
     @PluginProperty(dynamic = true)
     protected Map<String, Object> templateRenderMap;
 
-
     @Schema(
-        title = "Map of variables to use for the message template"
+        title = "Sender profile name"
     )
     @PluginProperty(dynamic = true)
-    protected String message;
+    protected String profileName;
+
+    @Schema(
+        title = "The WhatsApp ID of the contact"
+    )
+    @PluginProperty
+    protected List<String> whatsAppIds;
+
+    @Schema(
+        title = "WhatsApp ID of the sender (Phone number)"
+    )
+    @PluginProperty(dynamic = true)
+    protected String from;
+
+    @Schema(
+        title = "Message id"
+    )
+    @PluginProperty(dynamic = true)
+    protected String messageId;
+
+    @Schema(
+        title = "Message"
+    )
+    @PluginProperty(dynamic = true)
+    protected String textBody;
 
 
     @Schema(
-        title = "Map of variables to use for the message template"
+        title = "WhatsApp recipient ID"
     )
     @PluginProperty(dynamic = true)
-    protected String alias;
-
-    @Schema(
-        title = "Map of variables to use for the message template"
-    )
-    @PluginProperty(dynamic = true)
-    protected Map<String, String> responders;
-
-    @Schema(
-        title = "Map of variables to use for the message template"
-    )
-    @PluginProperty(dynamic = true)
-    protected Map<String, String> visibleTo;
-
-    @Schema(
-        title = "Map of variables to use for the message template"
-    )
-    @PluginProperty(dynamic = true)
-    protected List<String> tags;
-
-    @Schema(
-        title = "Map of variables to use for the message template"
-    )
-    @PluginProperty(dynamic = true)
-    protected String priority;
+    protected String recipientId;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -87,39 +89,38 @@ public abstract class OpsgenieTemplate extends OpsgenieAlert {
                 Charsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? runContext.render(templateRenderMap) : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.message != null) {
-            map.put("message", runContext.render(message));
-        }
-
-        if (this.alias != null) {
-            map.put("alias", runContext.render(alias));
-        }
-
-        if (this.responders != null) {
-            List<Map<String, String>> respondersList = responders.entrySet().stream()
-                .map(entry -> Map.of("id", entry.getKey(), "type", entry.getValue()))
+        if (this.profileName != null && this.whatsAppIds != null && !this.whatsAppIds.isEmpty()) {
+            List<Map<String, Object>> profiles = this.whatsAppIds.stream()
+                .map(throwFunction(WhatsAppId -> Map.of("profile", Map.of("name", runContext.render(this.profileName)), "wa_id", WhatsAppId)))
                 .toList();
 
-            map.put("responders", respondersList);
+            map.put("contacts", profiles);
         }
 
-        if (this.visibleTo != null) {
-            List<Map<String, String>> visibleToList = visibleTo.entrySet().stream()
-                .map(entry -> Map.of("id", entry.getKey(), "type", entry.getValue()))
-                .toList();
-            map.put("visibleTo", visibleToList);
+        if (this.from != null) {
+            Map<String, Object> message = new HashMap<>(Map.of("from", runContext.render(this.from)));
+
+            if (messageId != null) {
+                message.put("id", runContext.render(this.messageId));
+            }
+
+            if (textBody != null) {
+                message.put("text", Map.of("body", runContext.render(this.textBody)));
+            } else {
+                message.put("text", ((List<Map<String, Object>>)map.get("messages")).get(0).getOrDefault("text", ""));
+            }
+
+            message.put("type", "text");
+
+            map.put("messages", List.of(message));
         }
 
-        if (this.tags != null) {
-            map.put("tags", runContext.render(tags));
-        }
-
-        if (this.priority != null) {
-            map.put("priority", runContext.render(priority));
+        if (recipientId != null) {
+            map.put("recipient_id", runContext.render(recipientId));
         }
 
         this.payload = JacksonMapper.ofJson().writeValueAsString(map);

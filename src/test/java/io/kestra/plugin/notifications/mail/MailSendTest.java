@@ -92,6 +92,7 @@ public class MailSendTest {
         URL resource = MailSendTest.class.getClassLoader().getResource("application.yml");
 
         URI put = storageInterface.put(
+            null,
             new URI("/file/storage/get.yml"),
             new FileInputStream(Objects.requireNonNull(resource).getFile())
         );
@@ -141,7 +142,7 @@ public class MailSendTest {
 
         assertThat(filePart.getContentType(), is("text/yaml; filename=application.yml; name=application.yml"));
         assertThat(filePart.getFileName(), is("application.yml"));
-        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(put), Charsets.UTF_8)));
+        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(null, put), Charsets.UTF_8)));
     }
 
     @Test

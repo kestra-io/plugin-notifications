@@ -27,7 +27,14 @@ import java.net.URI;
 @NoArgsConstructor
 @Schema(
     title = "Send a Zenduty alert",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://apidocs.zenduty.com/#tag/Integration-Alerts/paths/~1api~1account~1teams~1%7Bteam_id%7D~1services~1%7Bservice_id%7D~1integrations~1%7Bintegration_id%7D~1alerts~1/get\">Zenduty documentation</a> for more details.."
+    description = """
+                Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. 
+                
+                Check the <a href=\"https://docs.zenduty.com/docs/integrations\">Zenduty documentation</a> to learn how to create an integration. 
+                
+                The [API integration](https://docs.zenduty.com/docs/api) is the easiest way to get started. This will allow you to send an API call that follows the format: `curl -X POST https://www.zenduty.com/api/events/[integration-key]/ -H 'Content-Type: application/json' -d '{"alert_type":"critical", "message":"Some message", "summary":"some summary", "entity_id":"some_entity_id"}'`.
+                
+                Visit the Zenduty [Events API documentation](https://apidocs.zenduty.com/#tag/Events) for more details."""
 )
 @Plugin(
     examples = {
@@ -43,39 +50,21 @@ import java.net.URI;
                     type: io.kestra.plugin.scripts.shell.Commands
                     runner: PROCESS
                     commands:
-                      - exit 1
+                    - exit 1  
 
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.zenduty.ZendutyAlert
-                    url: "{{ secret('ZENDUTY_ALERT') }}" # https://www.zenduty.com/api/incidents/
+                    url: https://www.zenduty.com/api/events/your-integration-key/
                     payload: |
-                      {
-                          "title": "Execution error",
-                          "service": "191f5e2c-515e-4ee0-b501-3a292f8dae2f"
-                      }
-                    bearerAuth: xxx000yyy111
+                        {
+                            "alert_type": "critical",
+                            "message": "Kestra flow {{flow.id}} failed at {{ execution.startDate }}",
+                            "summary": "Flow {{ flow.namespace }}.{{ flow.id }} with revision {{ flow.revision }} failed within the execution {{ execution.id }}.",
+                            "entity_id": "{{ execution.id }}"
+                        }
                 """
-        ),
-        @Example(
-            title = "Send a Zenduty alert",
-            full = true,
-            code = """
-                id: zenduty_alert
-                namespace: dev
-
-                tasks:
-                  - id: send_zenduty_message
-                    type: io.kestra.plugin.notifications.zenduty.ZendutyAlert
-                    url: "{{ secret('ZENDUTY_ALERT') }}"
-                    payload: |
-                      {
-                          "title": "Execution",
-                          "service": "191f5e2c-515e-4ee0-b501-3a292f8dae2f"
-                      }
-                    bearerAuth: xxx000yyy111
-                """
-        ),
+        )
     }
 )
 public class ZendutyAlert extends Task implements RunnableTask<VoidOutput> {

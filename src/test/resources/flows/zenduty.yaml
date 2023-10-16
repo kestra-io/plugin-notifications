@@ -1,0 +1,22 @@
+id: zenduty
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: zenduty
+        type: io.kestra.plugin.notifications.zenduty.ZendutyExecution
+        url: "{{ inputs.url }}/webhook-unit-test"
+        title: "Kestra Zenduty alert"
+        status: 1
+        bearerAuth: sampleToken
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.executions.Fail

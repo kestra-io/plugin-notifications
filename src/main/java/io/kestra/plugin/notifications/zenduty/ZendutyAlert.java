@@ -27,7 +27,7 @@ import java.net.URI;
 @NoArgsConstructor
 @Schema(
     title = "Send a Zenduty alert",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://apidocs.zenduty.com/#tag/Integration-Alerts/paths/~1api~1account~1teams~1%7Bteam_id%7D~1services~1%7Bservice_id%7D~1integrations~1%7Bintegration_id%7D~1alerts~1/get\">Zenduty documentation</a> for more details.."
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://apidocs.zenduty.com/#tag/Incidents/paths/~1api~1incidents~1/post\">Zenduty documentation</a> for more details.."
 )
 @Plugin(
     examples = {
@@ -110,7 +110,7 @@ public class ZendutyAlert extends Task implements RunnableTask<VoidOutput> {
             runContext.logger().debug("Send Zenduty webhook: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer "+runContext.render(bearerAuth)));
+                .header(HttpHeaders.AUTHORIZATION, "Token "+runContext.render(bearerAuth)));
         }
 
         return null;

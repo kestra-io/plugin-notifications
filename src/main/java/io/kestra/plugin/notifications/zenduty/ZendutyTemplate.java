@@ -44,6 +44,12 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     protected String title;
 
     @Schema(
+        title = "Service object's unique_id"
+    )
+    @PluginProperty(dynamic = true)
+    protected String service;
+
+    @Schema(
         title = "Incident object's status. 1 is triggered, 2 is acknowledged and 3 is resolved. Default value is 1"
     )
     @PluginProperty
@@ -90,6 +96,10 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
 
         if (this.title != null) {
             map.put("title", runContext.render(this.title));
+        }
+
+        if (this.service != null) {
+            map.put("service", runContext.render(this.service));
         }
 
         if (this.status != null) {

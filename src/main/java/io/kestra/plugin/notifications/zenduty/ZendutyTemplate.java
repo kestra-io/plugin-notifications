@@ -14,6 +14,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,46 +39,34 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     protected Map<String, Object> templateRenderMap;
 
     @Schema(
-        title = "Incident object's title"
+        title = "Incident title"
     )
     @PluginProperty(dynamic = true)
-    protected String title;
+    protected String message;
 
     @Schema(
-        title = "Service object's unique_id"
+        title = "Incident summary"
     )
     @PluginProperty(dynamic = true)
-    protected String service;
+    protected String summary;
 
     @Schema(
-        title = "Incident object's status. 1 is triggered, 2 is acknowledged and 3 is resolved. Default value is 1"
-    )
-    @PluginProperty
-    protected Integer status;
-
-    @Schema(
-        title = "User object's username"
+        title = "Incident type"
     )
     @PluginProperty(dynamic = true)
-    protected String assignedTo;
+    protected AlertType alertType;
 
     @Schema(
-        title = "Escalation Policy object's unique_id"
+        title = "Unique id for alert"
     )
     @PluginProperty(dynamic = true)
-    protected String escalationPolicy;
+    protected String entityId;
 
     @Schema(
-        title = "SLA object's unique_id"
+        title = "Array urls related to alert"
     )
     @PluginProperty(dynamic = true)
-    protected String sla;
-
-    @Schema(
-        title = "Priority object's unique_id"
-    )
-    @PluginProperty(dynamic = true)
-    protected String teamPriority;
+    protected List<String> urls;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -94,32 +83,24 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.title != null) {
-            map.put("title", runContext.render(this.title));
+        if (this.message != null) {
+            map.put("message", runContext.render(this.message));
         }
 
-        if (this.service != null) {
-            map.put("service", runContext.render(this.service));
+        if (this.summary != null) {
+            map.put("summary", runContext.render(this.summary));
         }
 
-        if (this.status != null) {
-            map.put("status", this.status);
+        if (this.alertType != null) {
+            map.put("alert_type", runContext.render(this.alertType.name().toLowerCase()));
         }
 
-        if (this.assignedTo != null) {
-            map.put("assigned_to", runContext.render(this.assignedTo));
+        if (this.entityId != null) {
+            map.put("entity_id", runContext.render(this.entityId));
         }
 
-        if (this.escalationPolicy != null) {
-            map.put("escalation_policy", runContext.render(this.escalationPolicy));
-        }
-
-        if (this.sla != null) {
-            map.put("sla", runContext.render(this.sla));
-        }
-
-        if (this.teamPriority != null) {
-            map.put("team_priority", runContext.render(this.teamPriority));
+        if (this.urls != null) {
+            map.put("urls", runContext.render(this.urls));
         }
 
         this.payload = JacksonMapper.ofJson().writeValueAsString(map);

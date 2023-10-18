@@ -23,6 +23,7 @@ import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.InputStream;
 import java.net.URI;
@@ -60,7 +61,33 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                   - id: send_email
                     type: io.kestra.plugin.notifications.sendgrid.SendGridMailSend
                     from: hello@kestra.io
-                    to: hello@kestra.io
+                    to:
+                      - hello@kestra.io
+                    sendgridApiKey: "{{ secret('SENDGRID_API_KEY') }}"
+                    subject: "Kestra workflow failed for the flow {{flow.id}} in the namespace {{flow.namespace}}"
+                    htmlTextContent: "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                """
+        ),
+        @Example(
+            title = "Send an email on a failed flow execution",
+            full = true,
+            code = """
+                id: unreliable_flow
+                namespace: prod
+
+                tasks:
+                  - id: fail
+                    type: io.kestra.plugin.scripts.shell.Commands
+                    runner: PROCESS
+                    commands:
+                      - exit 1
+
+                errors:
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.sendgrid.SendGridMailSend
+                    from: hello@kestra.io
+                    to:
+                      - hello@kestra.io
                     sendgridApiKey: "{{ secret('SENDGRID_API_KEY') }}"
                     subject: "Kestra workflow failed for the flow {{flow.id}} in the namespace {{flow.namespace}}"
                     htmlTextContent: "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
@@ -89,11 +116,12 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         title = "Email address(es) of the recipient(s)",
         description = "Note that each email address must be compliant with the RFC2822 format"
     )
+    @NotEmpty
     @PluginProperty(dynamic = true)
     private List<String> to;
 
     @Schema(
-        title = "One or more 'Cc' (carbon copy) optional recipient email address",
+        title = "One or more 'Cc' (carbon copy) optional recipient(s) email address(es)",
         description = "Note that each email address must be compliant with the RFC2822 format"
     )
     @PluginProperty(dynamic = true)
@@ -143,7 +171,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         Email fromEmail = new Email(runContext.render(this.from));
         personalization.setFrom(fromEmail);
 
-        this.to.stream().map(Email::new).forEach(personalization::addTo);
+        runContext.render(this.to).stream().map(Email::new).forEach(personalization::addTo);
 
         personalization.setSubject(runContext.render(this.subject));
 
@@ -166,7 +194,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         }
 
         if (this.cc != null) {
-            this.cc.stream().map(Email::new).forEach(personalization::addCc);
+            runContext.render(this.cc).stream().map(Email::new).forEach(personalization::addCc);
         }
         mail.addPersonalization(personalization);
 

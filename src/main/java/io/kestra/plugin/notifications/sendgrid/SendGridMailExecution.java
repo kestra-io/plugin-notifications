@@ -34,7 +34,8 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.sendgrid.SendGridMailExecution
-                    to: hello@kestra.io
+                    to:
+                      - hello@kestra.io
                     from: hello@kestra.io
                     subject: "The workflow execution {{trigger.executionId}} failed for the flow {{trigger.flowId}} in the namespace {{trigger.namespace}}"
                     sendgridApiKey: "{{ secret('SENDGRID_API_KEY') }}"

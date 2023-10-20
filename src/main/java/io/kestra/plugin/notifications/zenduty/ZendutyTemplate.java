@@ -63,7 +63,7 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     protected String entityId;
 
     @Schema(
-        title = "Array urls related to alert"
+        title = "List of URLs related to the alert"
     )
     @PluginProperty(dynamic = true)
     protected List<String> urls;

@@ -12,6 +12,7 @@ listeners:
         url: "{{ inputs.url }}/webhook-unit-test"
         message: "Kestra Zenduty alert"
         alertType: ERROR
+        token: sampleToken
 
 tasks:
   - id: seq

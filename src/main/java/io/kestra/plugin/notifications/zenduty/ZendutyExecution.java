@@ -38,6 +38,7 @@ import java.util.Map;
                     title: "Execution failed"
                     bearerAuth: xxx000yyy111
                     executionId: "{{trigger.executionId}}"
+                    token: "{{ secret('ZENDUTY_TOKEN')}}"
 
                 triggers:
                   - id: failed_prod_workflows

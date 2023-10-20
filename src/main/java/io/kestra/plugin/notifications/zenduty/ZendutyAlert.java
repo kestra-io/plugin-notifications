@@ -1,5 +1,6 @@
 package io.kestra.plugin.notifications.zenduty;
 
+import com.sun.net.httpserver.Headers;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -11,6 +12,7 @@ import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.mail.Header;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,13 +50,14 @@ import java.net.URI;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.zenduty.ZendutyAlert
-                    url: "{{ secret('ZENDUTY_ALERT') }}" # https://www.zenduty.com/api/events/sampleIntegrationKey/
+                    url: "{{ secret('ZENDUTY_ALERT') }}" # https://www.zenduty.com/api/incidents/
                     payload: |
                       {
                           "message": "Execution error",
                           "entity_id": "191f5e2c-515e-4ee0-b501-3a292f8dae2f",
                           "alert_type": "error"
-                      }
+                      },
+                    token: "{{ secret('ZENDUTY_TOKEN')}}"
                 """
         ),
         @Example(
@@ -93,6 +96,13 @@ public class ZendutyAlert extends Task implements RunnableTask<VoidOutput> {
     @PluginProperty(dynamic = true)
     protected String payload;
 
+    @Schema(
+        title = "Zenduty alert payload"
+    )
+    @NotBlank
+    @PluginProperty(dynamic = true)
+    protected String token;
+
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
@@ -102,7 +112,7 @@ public class ZendutyAlert extends Task implements RunnableTask<VoidOutput> {
 
             runContext.logger().debug("Send Zenduty webhook: {}", payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            client.toBlocking().retrieve(HttpRequest.POST(url, payload).header(HttpHeaders.AUTHORIZATION, "Token "+runContext.render(this.token)));
         }
 
         return null;

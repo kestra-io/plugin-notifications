@@ -7,7 +7,7 @@
     {% if urls is defined %}
         "urls": [
               {% for url in urls %}
-                      {{url | json}},
+                      {{url}},
               {% endfor %}
         ],
     {% endif %}

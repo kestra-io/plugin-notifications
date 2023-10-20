@@ -39,25 +39,25 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     protected Map<String, Object> templateRenderMap;
 
     @Schema(
-        title = "Incident title"
+        title = "Event message"
     )
     @PluginProperty(dynamic = true)
     protected String message;
 
     @Schema(
-        title = "Incident summary"
+        title = "Event summary"
     )
     @PluginProperty(dynamic = true)
     protected String summary;
 
     @Schema(
-        title = "Incident type"
+        title = "Event alert type"
     )
-    @PluginProperty(dynamic = true)
+    @PluginProperty
     protected AlertType alertType;
 
     @Schema(
-        title = "Unique id for alert"
+        title = "A unique id for the alert. If not provided, the Zenduty API will create one"
     )
     @PluginProperty(dynamic = true)
     protected String entityId;

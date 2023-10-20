@@ -10,9 +10,8 @@ listeners:
       - id: zenduty
         type: io.kestra.plugin.notifications.zenduty.ZendutyExecution
         url: "{{ inputs.url }}/webhook-unit-test"
-        title: "Kestra Zenduty alert"
-        status: 1
-        bearerAuth: sampleToken
+        message: "Kestra Zenduty alert"
+        alertType: ERROR
 
 tasks:
   - id: seq

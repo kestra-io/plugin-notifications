@@ -32,8 +32,8 @@ public class ZendutyAlertTest {
     @Test
     void run() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
-            "title", "Zenduty test alert notification",
-            "service", IdUtils.create()
+            "message", "Zenduty test alert notification",
+            "entityId", IdUtils.create()
                                                            ));
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
@@ -49,7 +49,6 @@ public class ZendutyAlertTest {
                     Charsets.UTF_8
                                   ).read()
                     )
-            .bearerAuth(UUID.randomUUID().toString())
             .build();
 
         task.run(runContext);

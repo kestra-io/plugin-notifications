@@ -34,20 +34,19 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.sentry.SentryExecution
-                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://www.sentry.io/api/sampleProjectId/store/
-                    event_id: "fc6d8c0c43fc4630ad850ee518f1b9d1",
+                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{HOST/URI}/api/{PROJECT_ID}/store/?sentry_varsion=7&sentry_clien=java&sentry_key={PUBLIC_KEY}
+                    eventId: "fc6d8c0c43fc4630ad850ee518f1b9d1",
                     timestamp: "2023-05-02T17:41:36Z",
                     platform: "java",
                     level: "error",
                     transaction: "/execution/id/321312",
-                    server_name: "localhost:8080",
+                    serverName: "localhost:8080",
                     extra:
-                      - Namespace: {{execution.namespace}},
-                        Flow ID: {{execution.flowId}},
-                        Execution ID: {{execution.id}},
-                        Execution Status: {{execution.state.current}},
-                        Link: {{link}}
-                    bearerAuth: xxx000yyy111
+                      Namespace: {{execution.namespace}},
+                      Flow ID: {{execution.flowId}},
+                      Execution ID: {{execution.id}},
+                      Execution Status: {{execution.state.current}},
+                      Link: {{link}}
                     executionId: "{{trigger.executionId}}"
 
                 triggers:

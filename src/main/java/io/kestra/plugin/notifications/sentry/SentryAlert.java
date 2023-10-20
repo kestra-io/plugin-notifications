@@ -19,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URI;
+import java.time.Instant;
 
 @SuperBuilder
 @ToString
@@ -27,7 +28,10 @@ import java.net.URI;
 @NoArgsConstructor
 @Schema(
     title = "Send a Sentry alert",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://docs.sentry.io/api/alerts/create-an-issue-alert-rule-for-a-project/?original_referrer=https%3A%2F%2Fgithub.com%2Fkestra-io%2Fplugin-notifications%2Fissues%2F89\">Sentry documentation</a> for more details.."
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. " +
+        "Check the <a href=\"https://develop.sentry.dev/sdk/event-payloads/\">Sentry events documentation</a> " +
+        "Check the <a href=\"https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn\">Sentry where to fund dsn documentation</a> " +
+        "for more details.."
 )
 @Plugin(
     examples = {
@@ -48,7 +52,7 @@ import java.net.URI;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://www.sentry.io/api/sampleProjectId/store/
+                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://o1112223334444151.ingest.sentry.io/api/4445551112233445/store/?sentry_varsion=7&sentry_clien=java&sentry_key=a1aax1x11x1x11x111111xx111xxx111
                     payload: |
                       {
                           "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d1",
@@ -65,7 +69,6 @@ import java.net.URI;
                             "Link": "{{link}}"
                           }
                       }
-                    bearerAuth: xxx000yyy111
                 """
         ),
         @Example(
@@ -78,7 +81,7 @@ import java.net.URI;
                 tasks:
                   - id: send_sentry_message
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    url: "{{ secret('SENTRY_ALERT') }}"
+                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{HOST/URI}/api/{PROJECT_ID}/store/?sentry_varsion=7&sentry_clien=java&sentry_key={PUBLIC_KEY}
                     payload: |
                       {
                           "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d0",
@@ -95,7 +98,6 @@ import java.net.URI;
                             "Link": "{{link}}"
                           }
                       }
-                    bearerAuth: xxx000yyy111
                 """
         ),
     }
@@ -115,13 +117,6 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     @PluginProperty(dynamic = true)
     protected String payload;
 
-    @Schema(
-        title = "Sentry bearer token"
-    )
-    @NotBlank
-    @PluginProperty(dynamic = true)
-    protected String bearerAuth;
-
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
@@ -131,8 +126,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
 
             runContext.logger().debug("Send Sentry event: {}", payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer "+runContext.render(bearerAuth)));
+            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
         }
 
         return null;

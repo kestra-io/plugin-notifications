@@ -12,12 +12,34 @@
     "level": "{{level}}",
 {% endif %}
 {% if transaction is defined %}
-    "transaction": "{{transaction}}",
+    "transaction": "{{transaction}} /server",
 {% endif %}
 {% if serverName is defined %}
-    "server_name": "{{serverName}}",
+    "server_name": "{{serverName}} abigail",
 {% endif %}
 {% if firstFailed == false %}
+{% if errors is defined %}
+    "errors": [
+{% for entry in errors %}
+      {
+         "type": "unknown_error",
+         "path": {{entry.key}},
+         "details": "{{entry.value}}"
+      },
+{% endfor %}
+    ]
+{% endif %}
+{% endif %}
+    "exception": {
+      "values": [
+        {
+          "type": "{{execution.flowId}} ➛ {{execution.state.current}}",
+          "value": "Failed on task `{{firstFailed.taskId}}` after {{duration}}",
+          "module": "{{execution.namespace}}",
+          "stacktrace": {}
+        }
+      ]
+    },
     "extra": {
         "Namespace": "{{execution.namespace}}",
         "Flow ID": "{{execution.flowId}}",
@@ -29,17 +51,5 @@
         ,"{{entry.key}}": {{entry.value}}
         {% endfor %}
         {% endif %}
-    },
-{% endif %}
-{% if errors is defined %}
-    "errors": [
-{% for entry in extra %}
-      {
-         "type": "unknown_error",
-         "path": {{entry.key}},
-         "details": "{{entry.value}}"
-      },
-{% endfor %}
-    ]
-{% endif %}
+    }
 }

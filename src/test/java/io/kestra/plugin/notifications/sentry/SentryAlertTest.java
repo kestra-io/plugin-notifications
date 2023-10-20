@@ -31,7 +31,11 @@ public class SentryAlertTest {
 
     @Test
     void run() throws Exception {
-        RunContext runContext = runContextFactory.of();
+        RunContext runContext = runContextFactory.of(Map.of("extra", Map.of(
+                "title", "Sentry test alert notification",
+                "text", "ge *with some bold text* an",
+                "service", IdUtils.create()))
+                                                    );
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
@@ -46,7 +50,6 @@ public class SentryAlertTest {
                     Charsets.UTF_8
                                   ).read()
                     )
-            .bearerAuth(UUID.randomUUID().toString())
             .build();
 
         task.run(runContext);

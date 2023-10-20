@@ -10,20 +10,11 @@ listeners:
       - id: sentry
         type: io.kestra.plugin.notifications.sentry.SentryExecution
         url: "{{ inputs.url }}/webhook-unit-test"
-        event_id: "fc6d8c0c43fc4630ad850ee518f1b9d1",
-        timestamp: "2023-05-02T17:41:36Z",
-        platform: "java",
-        level: "error",
-        transaction: "/execution/id/321312",
-        server_name: "localhost:8080",
+        level: "error"
+        serverName: "{{ inputs.url }}"
         extra:
-          - Namespace: {{execution.namespace}},
-            title: "Kestra Sentry alert"
-            Flow ID: {{execution.flowId}},
-            Execution ID: {{execution.id}},
-            Execution Status: {{execution.state.current}},
-            Link: {{link}},
-        bearerAuth: sampleToken
+          title: "Kestra Sentry alert"
+          service: "Failed on task `failed`"
 
 tasks:
   - id: seq

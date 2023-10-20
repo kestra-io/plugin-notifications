@@ -14,20 +14,6 @@
 {% if serverName is defined %}
     "server_name": "{{serverName}}",
 {% endif %}
-{% if firstFailed == false %}
-    "extra": {
-        "Namespace": "{{execution.namespace}}",
-        "Flow ID": "{{execution.flowId}}",
-        "Execution ID": "{{execution.id}}",
-        "Execution Status": "{{execution.state.current}}",
-        "Link": "{{link}}"
-        {% if extra is defined %}
-        {% for entry in extra %}
-        ,"{{entry.key}}": {{entry.value}}
-        {% endfor %}
-        {% endif %}
-    },
-{% endif %}
 {% if errors is defined %}
     "errors": [
 {% for entry in extra %}
@@ -39,4 +25,11 @@
 {% endfor %}
     ]
 {% endif %}
+    "extra": {
+        {% if extra is defined %}
+        {% for entry in extra %}
+        ,"{{entry.key}}": {{entry.value}}
+        {% endfor %}
+        {% endif %}
+    }
 }

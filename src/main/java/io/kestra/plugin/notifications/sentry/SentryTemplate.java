@@ -120,7 +120,9 @@ public abstract class SentryTemplate extends SentryAlert {
         }
 
         if (this.extra != null) {
-            map.put("extra", runContext.render(this.extra));
+            Map<String, Object> extra = (Map) map.getOrDefault("extra", new HashMap<>());
+            extra.putAll(runContext.render(this.extra));
+            map.put("extra", extra);
         }
 
         if (this.errors != null) {

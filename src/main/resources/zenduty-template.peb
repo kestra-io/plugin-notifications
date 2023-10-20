@@ -1,15 +1,22 @@
 {
-    {% if message is defined %}
-        "message": "{{message}}",
+    {% if title is defined %}
+        "title": "{{title}}",
     {% endif %}
-    "alert_type": "{% if alertType is defined %}{{alertType}}{% elseif firstFailed == false %}resolved{% else %}error{% endif %}",
-    "entity_id": "{% if entityId is defined %}{{entityId}}{% else %}{{execution.id}}{% endif %}",
-    {% if urls is defined %}
-        "urls": [
-              {% for url in urls %}
-                      {{url | json}},
-              {% endfor %}
-        ],
+    {% if status is defined %}
+        "status": "{{status}}",
     {% endif %}
+    {% if assignedTo is defined %}
+        "assigned_to": "{{assignedTo}}",
+    {% endif %}
+    {% if escalationPolicy is defined %}
+        "escalation_policy": "{{escalationPolicy}}",
+    {% endif %}
+    {% if sla is defined %}
+        "sla": "{{sla}}",
+    {% endif %}
+    {% if teamPriority is defined %}
+        "team_priority": "{{teamPriority}}",
+    {% endif %}
+    "service": "{{execution.id}}",
     "summary": "Namespace {{execution.namespace}}, Flow ID {{execution.flowId}}, Execution ID {{execution.id}}, Execution Status {{execution.state.current}}. *<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
 }

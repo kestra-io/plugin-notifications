@@ -1,4 +1,4 @@
-package io.kestra.plugin.notifications.discord;
+package io.kestra.plugin.notifications.opsgenie;
 
 import com.google.common.collect.ImmutableMap;
 import io.kestra.core.models.executions.Execution;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
@@ -24,7 +23,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 @MicronautTest
-public class DiscordExecutionTest {
+public class OpsgenieExecutionTest {
 
     @Inject
     private ApplicationContext applicationContext;
@@ -40,7 +39,7 @@ public class DiscordExecutionTest {
 
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(DiscordExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(OpsgenieExecutionTest.class.getClassLoader().getResource("flows")));
         this.runner.run();
     }
 
@@ -52,15 +51,16 @@ public class DiscordExecutionTest {
         Execution execution = runnerUtils.runOne(
             null,
             "io.kestra.tests",
-            "discord",
+            "opsgenie",
             null,
             (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
         );
 
         assertThat(execution.getTaskRunList(), hasSize(3));
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
+        assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
-        assertThat(FakeWebhookController.data, containsString("Kestra Discord notification"));
+        assertThat(FakeWebhookController.data, containsString("Kestra Opsgenie alert"));
     }
 
 }

@@ -1,0 +1,9 @@
+{
+    "message": "{{message}}",
+    "alias": "{{alias}}",
+    "description": "{{description}}",
+    "responders": "",
+    "visibleTo": "",
+    "tags": "",
+    "priority": ""
+}

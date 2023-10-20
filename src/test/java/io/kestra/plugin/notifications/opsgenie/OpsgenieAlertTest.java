@@ -1,10 +1,9 @@
-package io.kestra.plugin.notifications.zenduty;
+package io.kestra.plugin.notifications.opsgenie;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.utils.IdUtils;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -21,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 @MicronautTest
-public class ZendutyAlertTest {
+public class OpsgenieAlertTest {
 
     @Inject
     private ApplicationContext applicationContext;
@@ -32,24 +31,25 @@ public class ZendutyAlertTest {
     @Test
     void run() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
-            "title", "Zenduty test alert notification",
-            "service", IdUtils.create()
+            "message", "A message *with some bold text* and _some italicized text_.",
+            "alias", "Execution alert",
+            "description", "Opsgenie test alert notification"
                                                            ));
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
 
-        ZendutyAlert task = ZendutyAlert.builder()
+        OpsgenieAlert task = OpsgenieAlert.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
             .payload(
                 Files.asCharSource(
-                    new File(Objects.requireNonNull(ZendutyAlertTest.class.getClassLoader()
-                            .getResource("zenduty.peb"))
+                    new File(Objects.requireNonNull(OpsgenieAlertTest.class.getClassLoader()
+                            .getResource("opsgenie.peb"))
                         .toURI()),
                     Charsets.UTF_8
                                   ).read()
                     )
-            .bearerAuth(UUID.randomUUID().toString())
+            .authorizationToken(UUID.randomUUID().toString())
             .build();
 
         task.run(runContext);

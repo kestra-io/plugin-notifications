@@ -1,4 +1,4 @@
-package io.kestra.plugin.notifications.zenduty;
+package io.kestra.plugin.notifications.opsgenie;
 
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -14,6 +14,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public abstract class ZendutyTemplate extends ZendutyAlert {
+public abstract class OpsgenieTemplate extends OpsgenieAlert {
 
     @Schema(
         title = "Template to use",
@@ -37,41 +38,43 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     @PluginProperty(dynamic = true)
     protected Map<String, Object> templateRenderMap;
 
-    @Schema(
-        title = "Incident object's title"
-    )
-    @PluginProperty(dynamic = true)
-    protected String title;
 
     @Schema(
-        title = "Incident object's status. 1 is triggered, 2 is acknowledged and 3 is resolved. Default value is 1"
-    )
-    @PluginProperty
-    protected Integer status;
-
-    @Schema(
-        title = "User object's username"
+        title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
-    protected String assignedTo;
+    protected String message;
+
 
     @Schema(
-        title = "Escalation Policy object's unique_id"
+        title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
-    protected String escalationPolicy;
+    protected String alias;
 
     @Schema(
-        title = "SLA object's unique_id"
+        title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
-    protected String sla;
+    protected Map<String, String> responders;
 
     @Schema(
-        title = "Priority object's unique_id"
+        title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
-    protected String teamPriority;
+    protected Map<String, String> visibleTo;
+
+    @Schema(
+        title = "Map of variables to use for the message template"
+    )
+    @PluginProperty(dynamic = true)
+    protected List<String> tags;
+
+    @Schema(
+        title = "Map of variables to use for the message template"
+    )
+    @PluginProperty(dynamic = true)
+    protected String priority;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -84,32 +87,39 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
                 Charsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ? runContext.render(templateRenderMap) : Map.of());
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.title != null) {
-            map.put("title", runContext.render(this.title));
+        if (this.message != null) {
+            map.put("message", runContext.render(message));
         }
 
-        if (this.status != null) {
-            map.put("status", this.status);
+        if (this.alias != null) {
+            map.put("alias", runContext.render(alias));
         }
 
-        if (this.assignedTo != null) {
-            map.put("assigned_to", runContext.render(this.assignedTo));
+        if (this.responders != null) {
+            List<Map<String, String>> respondersList = responders.entrySet().stream()
+                .map(entry -> Map.of("id", entry.getKey(), "type", entry.getValue()))
+                .toList();
+
+            map.put("responders", respondersList);
         }
 
-        if (this.escalationPolicy != null) {
-            map.put("escalation_policy", runContext.render(this.escalationPolicy));
+        if (this.visibleTo != null) {
+            List<Map<String, String>> visibleToList = visibleTo.entrySet().stream()
+                .map(entry -> Map.of("id", entry.getKey(), "type", entry.getValue()))
+                .toList();
+            map.put("visibleTo", visibleToList);
         }
 
-        if (this.sla != null) {
-            map.put("sla", runContext.render(this.sla));
+        if (this.tags != null) {
+            map.put("tags", runContext.render(tags));
         }
 
-        if (this.teamPriority != null) {
-            map.put("team_priority", runContext.render(this.teamPriority));
+        if (this.priority != null) {
+            map.put("priority", runContext.render(priority));
         }
 
         this.payload = JacksonMapper.ofJson().writeValueAsString(map);

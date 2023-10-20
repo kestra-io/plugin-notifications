@@ -1,40 +1,44 @@
 {
     {% if username is defined %}
-        "username": "{{username}}",
-    {% endif %}
-    {% if title is defined %}
-        "title": "{{title}}",
+        "username": "{{username}}"
     {% endif %}
     {% if content is defined %}
-        "content": "{{content}}",
-    {% endif %}
-    {% if color is defined %}
-        "color": "{{color}}",
-    {% endif %}
-    {% if avatarUrl is defined %}
-        "avatarUrl": "{{avatarUrl}}"
-    {% endif %}
-    {% if thumbnail is defined %}
-        "thumbnail": "{{thumbnail}}"
-    {% endif %}
-    {% if authorName is defined %}
-        "authorName": "{{authorName}}"
+        , "content": "{{content}} {{execution.id}}"
     {% endif %}
     {% if websiteUrl is defined %}
-        "websiteUrl": "{{websiteUrl}}"
+        , "websiteUrl": "{{websiteUrl}}",
     {% endif %}
-    "description": [{
-            "name": "Namespace",
-            "value": "{{execution.namespace}}"
-        }, {
-            "name": "Flow ID",
-            "value": "{{execution.flowId}}"
-        }, {
-            "name": "Execution ID",
-            "value": "{{execution.id}}"
-        }, {
-            "name": "Execution Status",
-            "value": "{{execution.state.current}}"
-        }],
-    "footer": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+        "embeds": [
+          {% if embedList is defined %}
+          {% for embed in embedList %}
+            {
+              {% if embed.title is defined %}
+                "title": "{{title}}",
+              {% endif %}
+              {% if color is defined %}
+                "color": "{{color}}",
+              {% endif %}
+              {% if avatarUrl is defined %}
+                "avatarUrl": "{{avatarUrl}}",
+              {% endif %}
+              {% if thumbnail is defined %}
+                "thumbnail": "{{thumbnail}}",
+              {% endif %}
+              {% if authorName is defined %}
+                "authorName": "{{authorName}}",
+              {% endif %}
+
+              {% if authorName is defined %}
+                "authorName": "{{authorName}}",
+              {% endif %}
+            },
+          {% endfor %}
+          {% endif %}
+          {
+                "description": "Namespace: {{execution.namespace}}\nFlow ID: {{execution.flowId}}\nExecution ID: {{execution.id}}\nExecution Status: {{execution.state.current}} {% if link is defined %}\n\n[Link to the Execution page]({{link}}){% endif %}",
+                "footer": {
+                    "text": "{% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+                }
+          }
+        ]
 }

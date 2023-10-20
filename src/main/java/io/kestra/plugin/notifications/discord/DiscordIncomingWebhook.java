@@ -51,8 +51,10 @@ import java.net.URI;
                     payload: |
                       {
                         "username": "MyUsername",
-                        "title": "Discord Alert",
                         "content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                        "embedList": [{
+                                "title": "Discord Notification"
+                            }]
                       }
                 """
         ),
@@ -70,10 +72,19 @@ import java.net.URI;
                     payload: |
                       {
                         "username": "MyUsername",
-                        "title": "Discord Hello",
+                        "tts": false,
                         "content": "Hello from the workflow {{ flow.id }}",
-                        "color"[255, 255, 255]
-                      }            
+                        "embeds": [
+                            {
+                                "title": "Discord Hello",
+                                "color": 16777215
+                                "description": "Namespace: dev\nFlow ID: discord\nExecution ID: 1p0JVFz24ZVLSK8iJN6hfs\nExecution Status: SUCCESS\n\n[Link to the Execution page](http://localhost:8080/ui/executions/dev/discord/1p0JVFz24ZVLSK8iJN6hfs)",
+                                "footer": {
+                                    "text": "Succeded after 00:00:00.385"
+                                }
+                            }
+                        ]
+                      }
                 """
         ),
     }
@@ -102,7 +113,7 @@ public class DiscordIncomingWebhook extends Task implements RunnableTask<VoidOut
 
             runContext.logger().debug("Send Discord webhook: {}", payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            client.toBlocking().exchange(HttpRequest.POST(url, payload));
         }
 
         return null;

@@ -10,6 +10,8 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.Instant;
 import java.util.*;
 
@@ -34,23 +36,19 @@ public abstract class SentryTemplate extends SentryAlert {
     protected Map<String, Object> templateRenderMap;
 
     @Schema(
-        title = "Hexadecimal string representing a uuid4 value. The length is exactly 32 characters. Dashes are not allowed. Has to be lowercase"
+        title = "Hexadecimal string representing a uuid4 value. The length is exactly 32 characters. Dashes are not allowed. Has to be lowercase",
+        defaultValue = "5231b533ba17478798a3f2df37de2ad7"
     )
+    @Pattern(regexp = "[0-9a-f]{8}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{12}")
+    @NotNull
     @Builder.Default
     @PluginProperty(dynamic = true)
     protected String eventId = UUID.randomUUID().toString().toLowerCase().replace("-", "");
 
     @Schema(
-        title = "Indicates when the event was created",
-        description = "The format is either a string as defined in RFC 3339 or a numeric (integer or float) value representing the number of seconds that have elapsed since the Unix epoch"
-    )
-    @Builder.Default
-    @PluginProperty(dynamic = true)
-    protected String timestamp = Instant.now().toString();
-
-    @Schema(
         title = "A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface"
     )
+    @NotNull
     @Builder.Default
     @PluginProperty(dynamic = true)
     protected String platform = "java";
@@ -103,9 +101,9 @@ public abstract class SentryTemplate extends SentryAlert {
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        map.put("event_id", runContext.render(this.eventId));
-        map.put("timestamp", runContext.render(this.timestamp));
-        map.put("platform", runContext.render(this.platform));
+        map.put("event_id", eventId);
+        map.put("timestamp", Instant.now().toString());
+        map.put("platform", platform);
 
         if (this.level != null) {
             map.put("level", runContext.render(this.level));

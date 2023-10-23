@@ -30,7 +30,7 @@ import java.time.Instant;
     title = "Send a Sentry alert",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. " +
         "Check the <a href=\"https://develop.sentry.dev/sdk/event-payloads/\">Sentry events documentation</a> " +
-        "Check the <a href=\"https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn\">Sentry where to fund dsn documentation</a> " +
+        "Check the <a href=\"https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn\">Sentry where to find your dsn documentation</a> " +
         "for more details.."
 )
 @Plugin(

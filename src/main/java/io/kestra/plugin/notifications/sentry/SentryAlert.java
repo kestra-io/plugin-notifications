@@ -52,7 +52,7 @@ import java.time.Instant;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://o1112223334444151.ingest.sentry.io/api/4445551112233445/store/?sentry_varsion=7&sentry_clien=java&sentry_key=a1aax1x11x1x11x111111xx111xxx111
+                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{{HOST/URI}}/api/{{PROJECT_ID}}/store/?sentry_varsion=7&sentry_clien=java&sentry_key={{PUBLIC_KEY}}
                     payload: |
                       {
                           "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d1",

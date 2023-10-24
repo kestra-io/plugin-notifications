@@ -4,12 +4,19 @@
     {% endif %}
     "alert_type": "{% if alertType is defined %}{{alertType}}{% elseif firstFailed == false %}resolved{% else %}error{% endif %}",
     "entity_id": "{% if entityId is defined %}{{entityId}}{% else %}{{execution.id}}{% endif %}",
-    {% if urls is defined %}
-        "urls": [
-              {% for url in urls %}
-                      {{url}},
-              {% endfor %}
-        ],
-    {% endif %}
-    "summary": "Namespace {{execution.namespace}}, Flow ID {{execution.flowId}}, Execution ID {{execution.id}}, Execution Status {{execution.state.current}}. *<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+    "urls": [
+        {"link_url":"{{link}}", "link_text":"Execution link"}
+      {% if urls is defined %}
+      {% for url in urls %}
+         ,{"link_url": "{{url}}"}
+      {% endfor %}
+      {% endif %}
+    ],
+    "payload": {
+       "Namespace": "{{execution.namespace}}",
+       "Flow ID": "{{execution.flowId}}",
+       "Execution ID": "{{execution.id}}",
+       "Execution Status": "{{execution.state.current}}"
+    },
+    "summary": "{{execution.namespace}} {{execution.flowId}} ➛ {{execution.state.current}}\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
 }

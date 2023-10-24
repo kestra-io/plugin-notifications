@@ -34,11 +34,10 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.zenduty.ZendutyExecution
-                    url: "{{ secret('ZENDUTY_ALERT') }}" # format: https://www.zenduty.com/api/incidents/
-                    title: "Execution failed"
-                    bearerAuth: xxx000yyy111
+                    url: "https://www.zenduty.com/api/events/{{ secret('ZENDUTY_INTEGRATION_KEY') }}/" # format: https://www.zenduty.com/api/events/x1111xxx-x1x1-111x-1111-xx1xx11x1x1x/
+                    message: "Execution failed"
+                    alertType: ERROR
                     executionId: "{{trigger.executionId}}"
-                    token: "{{ secret('ZENDUTY_TOKEN')}}"
 
                 triggers:
                   - id: failed_prod_workflows

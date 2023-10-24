@@ -51,7 +51,8 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     protected String summary;
 
     @Schema(
-        title = "Event alert type"
+        title = "Event alert type",
+        implementation = AlertType.class
     )
     @PluginProperty
     protected AlertType alertType;

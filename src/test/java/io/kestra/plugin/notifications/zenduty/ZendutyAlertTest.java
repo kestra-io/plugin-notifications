@@ -49,7 +49,6 @@ public class ZendutyAlertTest {
                     Charsets.UTF_8
                                   ).read()
                     )
-            .token("sampleToken")
             .build();
 
         task.run(runContext);

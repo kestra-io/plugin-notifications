@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +40,13 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
     protected Map<String, Object> templateRenderMap;
 
     @Schema(
-        title = "Event message"
+        title = "Event title"
     )
     @PluginProperty(dynamic = true)
     protected String message;
 
     @Schema(
-        title = "Event summary"
+        title = "Event message. Summary description"
     )
     @PluginProperty(dynamic = true)
     protected String summary;

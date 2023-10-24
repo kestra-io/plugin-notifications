@@ -34,7 +34,7 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.sentry.SentryExecution
-                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{HOST/URI}/api/{PROJECT_ID}/store/?sentry_varsion=7&sentry_clien=java&sentry_key={PUBLIC_KEY}
+                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{HOST/URI}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
                     eventId: "fc6d8c0c43fc4630ad850ee518f1b9d1"
                     timestamp: "2023-05-02T17:41:36Z"
                     platform: "java"

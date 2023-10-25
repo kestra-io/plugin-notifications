@@ -28,16 +28,15 @@ import java.util.Map;
             title = "Send a Zenduty notification on a failed flow execution",
             full = true,
             code = """
-                id: failure_alert
+                id: zenduty_failure_alert
                 namespace: prod.monitoring
 
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.zenduty.ZendutyExecution
-                    url: "https://www.zenduty.com/api/events/{{ secret('ZENDUTY_INTEGRATION_KEY') }}/" # format: https://www.zenduty.com/api/events/x1111xxx-x1x1-111x-1111-xx1xx11x1x1x/
-                    message: "Execution failed"
-                    alertType: ERROR
-                    executionId: "{{trigger.executionId}}"
+                    url: "https://www.zenduty.com/api/events/{{ secret('ZENDUTY_INTEGRATION_KEY') }}/"
+                    executionId: "{{ trigger.executionId }}"
+                    message: Kestra workflow execution {{ trigger.executionId }} of a flow {{ trigger.flowId }} in the namespace {{ trigger.namespace }} changed status to {{ trigger.state }}
 
                 triggers:
                   - id: failed_prod_workflows

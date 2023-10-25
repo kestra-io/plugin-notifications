@@ -9,9 +9,10 @@ listeners:
   - tasks:
       - id: sentry
         type: io.kestra.plugin.notifications.sentry.SentryExecution
-        url: "{{ inputs.url }}/webhook-unit-test"
-        level: "error"
+        dsn: "{{ inputs.url }}/webhook-unit-test"
+        level: ERROR
         serverName: "{{ inputs.url }}"
+        platform: JAVA
         extra:
           title: "Kestra Sentry alert"
           service: "Failed on task `failed`"

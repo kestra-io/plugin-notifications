@@ -51,7 +51,7 @@ public abstract class SentryTemplate extends SentryAlert {
     @NotNull
     @Builder.Default
     @PluginProperty(dynamic = true)
-    protected String platform = "java";
+    protected Platform platform = Platform.JAVA;
 
     @Schema(
         title = "The record severity",
@@ -59,7 +59,7 @@ public abstract class SentryTemplate extends SentryAlert {
     )
     @Builder.Default
     @PluginProperty(dynamic = true)
-    protected String level = "error";
+    protected ErrorLevel level = ErrorLevel.ERROR;
 
     @Schema(
         title = "The name of the transaction which caused this exception",
@@ -103,10 +103,10 @@ public abstract class SentryTemplate extends SentryAlert {
 
         map.put("event_id", eventId);
         map.put("timestamp", Instant.now().toString());
-        map.put("platform", platform);
+        map.put("platform", platform.name().toLowerCase());
 
         if (this.level != null) {
-            map.put("level", runContext.render(this.level));
+            map.put("level", runContext.render(this.level.name().toLowerCase()));
         }
 
         if (this.transaction != null) {

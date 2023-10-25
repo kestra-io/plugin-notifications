@@ -7,7 +7,6 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
-import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,7 +18,6 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URI;
-import java.time.Instant;
 
 @SuperBuilder
 @ToString
@@ -52,20 +50,20 @@ import java.time.Instant;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{{HOST/URI}}/api/{{PROJECT_ID}}/store/?sentry_version=7&sentry_client=java&sentry_key={{PUBLIC_KEY}}
+                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://x11xx11x1xxx11x11x11x11111x11111@o11111.ingest.sentry.io/1
                     payload: |
                       {
                           "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d1",
-                          "timestamp": "2023-05-02T17:41:36Z",
+                          "timestamp": "{{ execution.startDate }}",
                           "platform": "java",
                           "level": "error",
-                          "transaction": "/execution/id/321312",
+                          "transaction": "/execution/id/{{ execution.id }}",
                           "server_name": "localhost:8080",
                           "extra": {
-                            "Namespace": "{{execution.namespace}}",
-                            "Flow ID": "{{execution.flowId}}",
-                            "Execution ID": "{{execution.id}}",
-                            "Execution Status": "{{execution.state.current}}",
+                            "Namespace": "{{ flow.namespace }}",
+                            "Flow ID": "{{ flow.id }}",
+                            "Execution ID": "{{ execution.id }}",
+                            "Execution Status": "{{ execution.state.current }}",
                             "Link": "{{link}}"
                           }
                       }
@@ -81,20 +79,20 @@ import java.time.Instant;
                 tasks:
                   - id: send_sentry_message
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    url: "{{ secret('SENTRY_ALERT') }}" # format: https://{HOST/URI}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://{PUBLIC_KEY}@{HOST}/{PROJECT_ID}
                     payload: |
                       {
                           "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d0",
-                          "timestamp": "2023-05-02T17:41:36Z",
+                          "timestamp": "{{ execution.startDate }}",
                           "platform": "java",
                           "level": "info",
-                          "transaction": "/execution/id/321312",
+                          "transaction": "/execution/id/{{ execution.id }}",
                           "server_name": "localhost:8080",
                           "extra": {
-                            "Namespace": "{{execution.namespace}}",
-                            "Flow ID": "{{execution.flowId}}",
-                            "Execution ID": "{{execution.id}}",
-                            "Execution Status": "{{execution.state.current}}",
+                            "Namespace": "{{ flow.namespace }}",
+                            "Flow ID": "{{ flow.id }}",
+                            "Execution ID": "{{ execution.id }}",
+                            "Execution Status": "{{ execution.state.current }}",
                             "Link": "{{link}}"
                           }
                       }
@@ -104,12 +102,16 @@ import java.time.Instant;
 )
 public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
 
+    public static final String SENTRY_VERSION = "7";
+    public static final String SENTRY_CLIENT = "java";
+    public static final String SENTRY_DSN_REGEXP = "^(https?://[a-f0-9]+@o[0-9]+\\.ingest\\.sentry\\.io/[0-9]+)$";
+
     @Schema(
-        title = "Sentry event URL"
+        title = "Sentry DSN"
     )
     @PluginProperty(dynamic = true)
     @NotBlank
-    protected String url;
+    protected String dsn;
 
     @Schema(
         title = "Sentry event payload"
@@ -119,7 +121,18 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        String url = runContext.render(this.url);
+        String dsn = runContext.render(this.dsn);
+
+        String url = dsn;
+        if (dsn.matches(SENTRY_DSN_REGEXP)) {
+            String protocol = dsn.split("://")[0];
+            String publicKey = dsn.split("@")[0].replace(protocol + "://", "");
+            String host = dsn.split("@")[1].split("/")[0];
+            String projectId = dsn.split("@")[1].split("/")[1];
+
+            url = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s" // https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+                .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
+        }
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload);

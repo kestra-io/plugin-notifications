@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -41,7 +40,7 @@ public class SentryAlertTest {
         embeddedServer.start();
 
         SentryAlert task = SentryAlert.builder()
-            .url(embeddedServer.getURI() + "/webhook-unit-test")
+            .dsn(embeddedServer.getURI() + "/webhook-unit-test")
             .payload(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SentryAlertTest.class.getClassLoader()

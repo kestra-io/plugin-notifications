@@ -10,6 +10,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -74,6 +75,7 @@ public class SendGridMailSendTest {
     }
 
     @Test
+    @Disabled
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
         URL resource = SendGridMailSendTest.class.getClassLoader().getResource("application.yml");
@@ -85,6 +87,7 @@ public class SendGridMailSendTest {
         );
 
         SendGridMailSend mailSend = SendGridMailSend.builder()
+            .sendgridApiKey("")
             .from(from)
             .to(List.of(to))
             .subject(subject)

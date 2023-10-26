@@ -18,14 +18,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Sentry message with the execution information",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
-        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SentryAlert](https://kestra.io/plugins/plugin-notifications/tasks/sentry/io.kestra.plugin.notifications.sentry.sentryalert) task."
+    title = "Send a Sentry alert with the execution information",
+    description = """
+    The alert message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SentryAlert](https://kestra.io/plugins/plugin-notifications/tasks/sentry/io.kestra.plugin.notifications.sentry.sentryalert) task. \n\n The only required input is a DSN string value, which you can find when you go to your Sentry project settings and go to the section `Client Keys (DSN)`. For more detailed description of how to find your DSN, visit the [following Sentry documentation](https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn).\n\n You can customize the alert `payload`, which is a JSON object. For more information about the payload, check the [Sentry Event Payloads documentation](https://develop.sentry.dev/sdk/event-payloads/). \n\n The `level` parameter is the severity of the issue. The task documentation lists all available options including `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`. The default value is `ERROR`."""
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Sentry notification on a failed flow execution",
+            title = "This monitoring flow is triggered anytime a flow fails in the `prod` namespace. It then sends a Sentry alert with the execution information. You can fully customize the [trigger conditions](https://kestra.io/plugins/core#conditions).",
             full = true,
             code = """
                 id: failure_alert
@@ -34,17 +34,10 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.sentry.SentryExecution
-                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://{PUBLIC_KEY}@{HOST}/{PROJECT_ID} example: https://x11xx11x1xxx11x11x11x11111x11111@o11111.ingest.sentry.io/1
-                    level: ERROR
-                    transaction: "/execution/id/{{ execution.id }}"
-                    serverName: "kestra.io"
-                    extra:
-                      Namespace: {{ flow.namespace }}
-                      Flow ID: {{ flow.id }}
-                      Execution ID: {{ execution.id }}
-                      Execution Status: {{ execution.state.current }}
-                      Link: {{ link }}
                     executionId: "{{ trigger.executionId} }"
+                    transaction: "/execution/id/{{ trigger.executionId} }"
+                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx
+                    level: ERROR
 
                 triggers:
                   - id: failed_prod_workflows
@@ -56,8 +49,7 @@ import java.util.Map;
                           - WARNING
                       - type: io.kestra.core.models.conditions.types.ExecutionNamespaceCondition
                         namespace: prod
-                        prefix: true
-                """
+                        prefix: true"""
         )
     }
 )

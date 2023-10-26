@@ -32,11 +32,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Sentry alert",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. " +
-        "Check the <a href=\"https://develop.sentry.dev/sdk/event-payloads/\">Sentry events documentation</a> " +
-        "Check the <a href=\"https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn\">Sentry where to find your dsn documentation</a> " +
-        "for more details.."
+    title = "Send a Sentry alert when a specific flow or task fails",
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. \n\n The only required input is a DSN string value, which you can find when you go to your Sentry project settings and go to the section `Client Keys (DSN)`. You can find more detailed description of how to find your DSN in the [following Sentry documentation](https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn). \n\n You can customize the alert `payload`, which is a JSON object, or you can skip it and use the default payload created by kestra. For more information about the payload, check the [Sentry Event Payloads documentation](https://develop.sentry.dev/sdk/event-payloads/). \n\n The `event_id` is an optional payload attribute that you can use to override the default event ID. If you don't specify it (recommended), kestra will generate a random UUID. You can use this attribute to group events together, but note that this must be a UUID type. For more information, check the [Sentry documentation](https://docs.sentry.io/product/issues/grouping-and-fingerprints/)."
 )
 @Plugin(
     examples = {
@@ -57,10 +54,21 @@ import java.util.UUID;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://x11xx11x1xxx11x11x11x11111x11111@o11111.ingest.sentry.io/1
+                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx"""
+        ),
+        @Example(
+            title = "Send a custom Sentry alert",
+            full = true,
+            code = """
+                id: sentry_alert
+                namespace: dev
+
+                tasks:
+                  - id: send_sentry_message
+                    type: io.kestra.plugin.notifications.sentry.SentryAlert
+                    dsn: "{{ secret('SENTRY_DSN') }}"
                     payload: |
                       {
-                          "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d1",
                           "timestamp": "{{ execution.startDate }}",
                           "platform": "java",
                           "level": "error",
@@ -70,40 +78,9 @@ import java.util.UUID;
                             "Namespace": "{{ flow.namespace }}",
                             "Flow ID": "{{ flow.id }}",
                             "Execution ID": "{{ execution.id }}",
-                            "Execution Status": "{{ execution.state.current }}",
-                            "Link": "{{link}}"
+                            "Link": "http://localhost:8080/ui/executions/{{flow.namespace}}/{{flow.id}}/{{execution.id}}"
                           }
-                      }
-                """
-        ),
-        @Example(
-            title = "Send a Sentry alert",
-            full = true,
-            code = """
-                id: sentry_alert
-                namespace: dev
-
-                tasks:
-                  - id: send_sentry_message
-                    type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://{PUBLIC_KEY}@{HOST}/{PROJECT_ID}
-                    payload: |
-                      {
-                          "event_id": "fc6d8c0c43fc4630ad850ee518f1b9d0",
-                          "timestamp": "{{ execution.startDate }}",
-                          "platform": "java",
-                          "level": "info",
-                          "transaction": "/execution/id/{{ execution.id }}",
-                          "server_name": "localhost:8080",
-                          "extra": {
-                            "Namespace": "{{ flow.namespace }}",
-                            "Flow ID": "{{ flow.id }}",
-                            "Execution ID": "{{ execution.id }}",
-                            "Execution Status": "{{ execution.state.current }}",
-                            "Link": "{{link}}"
-                          }
-                      }
-                """
+                      }"""
         ),
     }
 )
@@ -136,8 +113,12 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             String publicKey = dsn.split("@")[0].replace(protocol + "://", "");
             String host = dsn.split("@")[1].split("/")[0];
             String projectId = dsn.split("@")[1].split("/")[1];
-
-            url = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s" // https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            /*
+            To make passing the correct API endpoint URL easier, 
+            users only need to provide the Sentry DSN, and we parse the required attributes for the URL
+            using the format https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            */
+            url = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s" 
                 .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
         }
 

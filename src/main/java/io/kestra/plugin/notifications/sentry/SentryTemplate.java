@@ -36,7 +36,7 @@ public abstract class SentryTemplate extends SentryAlert {
     protected Map<String, Object> templateRenderMap;
 
     @Schema(
-        title = "Hexadecimal string representing a uuid4 value. The length is exactly 32 characters. Dashes are not allowed. Has to be lowercase",
+        title = "Hexadecimal string representing a uuid4 value. The length is exactly 32 characters. Dashes are not allowed. It has to be lowercase.",
         defaultValue = "a generated unique identifier"
     )
     @Pattern(regexp = "[0-9a-f]{8}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{12}")
@@ -46,7 +46,7 @@ public abstract class SentryTemplate extends SentryAlert {
     protected String eventId = UUID.randomUUID().toString().toLowerCase().replace("-", "");
 
     @Schema(
-        title = "A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface"
+        title = "A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components."
     )
     @NotNull
     @Builder.Default
@@ -55,14 +55,14 @@ public abstract class SentryTemplate extends SentryAlert {
 
     @Schema(
         title = "The record severity",
-        description = "Acceptable values are: fatal, error, warning, info, debug"
+        description = "Acceptable values are: `fatal`, `error`, `warning`, `info`, `debug`."
     )
     @Builder.Default
     @PluginProperty(dynamic = true)
     protected ErrorLevel level = ErrorLevel.ERROR;
 
     @Schema(
-        title = "The name of the transaction which caused this exception",
+        title = "The name of the transaction which caused this alert",
         description = "For example, in a web app, this might be the route name"
     )
     @PluginProperty(dynamic = true)

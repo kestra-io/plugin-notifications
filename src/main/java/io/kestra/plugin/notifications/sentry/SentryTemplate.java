@@ -37,7 +37,7 @@ public abstract class SentryTemplate extends SentryAlert {
 
     @Schema(
         title = "Hexadecimal string representing a uuid4 value. The length is exactly 32 characters. Dashes are not allowed. Has to be lowercase",
-        defaultValue = "5231b533ba17478798a3f2df37de2ad7"
+        defaultValue = "a generated unique identifier"
     )
     @Pattern(regexp = "[0-9a-f]{8}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{12}")
     @NotNull

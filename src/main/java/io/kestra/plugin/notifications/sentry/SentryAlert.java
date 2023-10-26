@@ -147,7 +147,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             }
             String payload = runContext.render(this.payload);
 
-            runContext.logger().debug("Send Sentry event: {}", payload);
+            runContext.logger().debug("Sent the following Sentry event: {}", payload);
 
             client.toBlocking().retrieve(HttpRequest.POST(url, payload));
         }

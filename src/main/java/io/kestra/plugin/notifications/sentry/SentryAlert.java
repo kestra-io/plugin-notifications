@@ -1,7 +1,6 @@
 package io.kestra.plugin.notifications.sentry;
 
-import com.google.common.base.Charsets;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -10,7 +9,6 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
-import io.kestra.plugin.notifications.services.ExecutionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,15 +17,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.io.IOUtils;
 
 import javax.validation.constraints.NotBlank;
-import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @SuperBuilder
@@ -127,7 +123,6 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "Sentry event payload"
     )
-    @NotBlank
     @PluginProperty(dynamic = true)
     protected String payload;
 
@@ -147,6 +142,9 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         }
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
+            if (this.payload == null) {
+                setDefaultPayload();
+            }
             String payload = runContext.render(this.payload);
 
             runContext.logger().debug("Send Sentry event: {}", payload);
@@ -155,5 +153,18 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         }
 
         return null;
+    }
+
+    private void setDefaultPayload() throws JsonProcessingException {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("event_id", UUID.randomUUID().toString().toLowerCase().replace("-", ""));
+        map.put("timestamp", Instant.now().toString());
+        map.put("platform", Platform.JAVA.name().toLowerCase());
+        map.put("level", ErrorLevel.INFO.name().toLowerCase());
+
+        map.put("exception", Map.of("values", List.of(Map.of("type", "Kestra Alert"))));
+
+        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
     }
 }

@@ -164,6 +164,9 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         map.put("level", ErrorLevel.INFO.name().toLowerCase());
 
         map.put("exception", Map.of("values", List.of(Map.of("type", "Kestra Alert"))));
+        if (this.id != null) {
+            map.put("extra", Map.of("Execution ID", this.id));
+        }
 
         this.payload = JacksonMapper.ofJson().writeValueAsString(map);
     }

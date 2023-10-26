@@ -40,6 +40,7 @@ public class SentryAlertTest {
         embeddedServer.start();
 
         SentryAlert task = SentryAlert.builder()
+            .id(IdUtils.create())
             .dsn(embeddedServer.getURI() + "/webhook-unit-test")
             .payload(
                 Files.asCharSource(

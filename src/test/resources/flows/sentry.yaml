@@ -1,0 +1,25 @@
+id: sentry
+namespace: io.kestra.tests
+
+inputs:
+  - name: url
+    type: STRING
+
+listeners:
+  - tasks:
+      - id: sentry
+        type: io.kestra.plugin.notifications.sentry.SentryExecution
+        dsn: "{{ inputs.url }}/webhook-unit-test"
+        level: ERROR
+        serverName: "{{ inputs.url }}"
+        platform: JAVA
+        extra:
+          title: "Kestra Sentry alert"
+          service: "Failed on task `failed`"
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+    - id: failed
+      type: io.kestra.core.tasks.executions.Fail

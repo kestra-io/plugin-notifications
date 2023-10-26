@@ -1,0 +1,35 @@
+{
+{% if eventId is defined %}
+    "event_id": "{{eventId}}",
+{% endif %}
+{% if timestamp is defined %}
+    "timestamp": "{{timestamp}}",
+{% endif %}
+{% if platform is defined %}
+    "platform": "{{platform}}",
+{% endif %}
+{% if level is defined %}
+    "level": "{{level}}",
+{% endif %}
+{% if serverName is defined %}
+    "server_name": "{{serverName}}",
+{% endif %}
+{% if errors is defined %}
+    "errors": [
+{% for entry in extra %}
+      {
+         "type": "unknown_error",
+         "path": {{entry.key}},
+         "details": "{{entry.value}}"
+      },
+{% endfor %}
+    ]
+{% endif %}
+    "extra": {
+        {% if extra is defined %}
+        {% for entry in extra %}
+        ,"{{entry.key}}": {{entry.value}}
+        {% endfor %}
+        {% endif %}
+    }
+}

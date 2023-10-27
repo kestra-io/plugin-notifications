@@ -2,7 +2,6 @@ package io.kestra.plugin.notifications.sendgrid;
 
 import com.google.common.base.Charsets;
 import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
@@ -45,7 +44,7 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
             );
         }
 
-        this.htmlTextContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
+        this.htmlContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
 
         return super.run(runContext);
     }

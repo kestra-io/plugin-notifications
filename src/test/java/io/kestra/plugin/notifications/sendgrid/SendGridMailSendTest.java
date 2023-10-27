@@ -75,7 +75,7 @@ public class SendGridMailSendTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Need a SendGrid API key")
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
         URL resource = SendGridMailSendTest.class.getClassLoader().getResource("application.yml");
@@ -91,7 +91,7 @@ public class SendGridMailSendTest {
             .from(from)
             .to(List.of(to))
             .subject(subject)
-            .htmlTextContent(template)
+            .htmlContent(template)
             .attachments(List.of(SendGridMailSend.Attachment.builder()
                 .name("application.yml")
                 .uri(put.toString())

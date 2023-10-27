@@ -9,10 +9,8 @@ import com.sendgrid.helpers.mail.objects.*;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.models.tasks.Output;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
-import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -67,31 +65,6 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     subject: "Kestra workflow failed for the flow {{flow.id}} in the namespace {{flow.namespace}}"
                     htmlTextContent: "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
                 """
-        ),
-        @Example(
-            title = "Send an email on a failed flow execution",
-            full = true,
-            code = """
-                id: unreliable_flow
-                namespace: prod
-
-                tasks:
-                  - id: fail
-                    type: io.kestra.plugin.scripts.shell.Commands
-                    runner: PROCESS
-                    commands:
-                      - exit 1
-
-                errors:
-                  - id: send_email
-                    type: io.kestra.plugin.notifications.sendgrid.SendGridMailSend
-                    from: hello@kestra.io
-                    to:
-                      - hello@kestra.io
-                    sendgridApiKey: "{{ secret('SENDGRID_API_KEY') }}"
-                    subject: "Kestra workflow failed for the flow {{flow.id}} in the namespace {{flow.namespace}}"
-                    htmlTextContent: "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
-                """
         )
     }
 )
@@ -110,6 +83,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         title = "The address of the sender of this email"
     )
     @PluginProperty(dynamic = true)
+    @NotBlank
     private String from;
 
     @Schema(
@@ -134,12 +108,20 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
     private String subject;
 
     @Schema(
-        title = "The optional email message body in HTML text",
+        title = "The optional email message body in HTML",
         description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
     @PluginProperty(dynamic = true)
-    protected String htmlTextContent;
+    protected String htmlContent;
+
+    @Schema(
+        title = "The optional email message body in text",
+        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+    )
+    @PluginProperty(dynamic = true)
+    protected String textContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
@@ -175,11 +157,15 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
 
         personalization.setSubject(runContext.render(this.subject));
 
-        Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), "Please view this email in a modern email client");
-        mail.addContent(plainTextContent);
+        if (this.textContent != null) {
+            Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), runContext.render(this.htmlContent));
+            mail.addContent(plainTextContent);
+        }
 
-        Content htmlContent = new Content(ContentType.TEXT_HTML.getMimeType(), runContext.render(this.htmlTextContent));
-        mail.addContent(htmlContent);
+        if (this.htmlContent != null) {
+            Content htmlContent = new Content(ContentType.TEXT_HTML.getMimeType(), runContext.render(this.htmlContent));
+            mail.addContent(htmlContent);
+        }
 
         if (this.attachments != null) {
             this.attachmentResources(this.attachments, runContext).stream()

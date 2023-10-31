@@ -36,6 +36,7 @@ import java.util.Map;
                     type: io.kestra.plugin.notifications.telegram.TelegramExecution
                     token: "{{ secret('TELEGRAM_TOKEN') }}" # format: 6090305634:xyz
                     channel: "2072728690"
+                    executionId: "{{ trigger.executionId }}"
 
                 triggers:
                   - id: failed_prod_workflows

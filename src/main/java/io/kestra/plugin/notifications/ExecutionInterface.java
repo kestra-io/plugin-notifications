@@ -8,7 +8,8 @@ import java.util.Map;
 public interface ExecutionInterface {
     @Schema(
         title = "The execution id to use",
-        description = "Default is the current execution"
+        description = "Default is the current execution, " +
+            "change it to {{ trigger.executionId }} if you use this task with a Flow trigger to use the original execution."
     )
     @PluginProperty(dynamic = true)
     String getExecutionId();

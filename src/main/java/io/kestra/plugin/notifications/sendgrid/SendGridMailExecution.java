@@ -38,6 +38,7 @@ import java.util.Map;
                     from: hello@kestra.io
                     subject: "The workflow execution {{trigger.executionId}} failed for the flow {{trigger.flowId}} in the namespace {{trigger.namespace}}"
                     sendgridApiKey: "{{ secret('SENDGRID_API_KEY') }}"
+                    executionId: "{{ trigger.executionId }}"
 
                 triggers:
                   - id: failed_prod_workflows

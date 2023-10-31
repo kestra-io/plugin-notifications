@@ -38,6 +38,7 @@ import java.util.Map;
                     transaction: "/execution/id/{{ trigger.executionId} }"
                     dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx
                     level: ERROR
+                    executionId: "{{ trigger.executionId }}"
 
                 triggers:
                   - id: failed_prod_workflows

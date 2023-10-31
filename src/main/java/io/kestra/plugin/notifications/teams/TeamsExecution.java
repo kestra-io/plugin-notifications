@@ -40,6 +40,7 @@ import java.util.Map;
                     type: io.kestra.plugin.notifications.teams.TeamsExecution
                     url: "{{ secret('TEAMS_WEBHOOK') }}" # format: https://microsoft.webhook.office.com/webhook/xyz
                     activityTitle: "Kestra Teams notification"
+                    executionId: "{{ trigger.executionId }}"
 
                 triggers:
                   - id: failed_prod_workflows

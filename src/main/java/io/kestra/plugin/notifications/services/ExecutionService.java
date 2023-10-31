@@ -34,11 +34,15 @@ public class ExecutionService {
         String executionRendererId = runContext.render(runContext.render(executionId));
 
         var flowVars = (Map<String, String>) runContext.getVariables().get("flow");
+        var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
+        var isCurrentExecution = executionRendererId.equals(executionVars.get("id"));
 
         return retryInstance.run(
             NoSuchElementException.class,
             () -> executionRepository.findById(flowVars.get("tenantId"), executionRendererId)
-                .filter(e -> e.getState().getCurrent().isTerminated())
+                // we don't wait for current execution to be terminated as it could not be possible as long as this task is running
+                // note that this check may exist due to previous usage with listeners, we may revisit this later
+                .filter(e -> isCurrentExecution || e.getState().getCurrent().isTerminated())
                 .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionRendererId + "'"))
         );
     }

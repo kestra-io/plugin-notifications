@@ -41,6 +41,7 @@ import java.util.Map;
                     port: 465
                     username: "{{ secret('EMAIL_USERNAME') }}"
                     password: "{{ secret('EMAIL_PASSWORD') }}"
+                    executionId: "{{ trigger.executionId }}"
 
                 triggers:
                   - id: failed_prod_workflows

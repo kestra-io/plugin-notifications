@@ -1,6 +1,5 @@
 package io.kestra.plugin.notifications.sentry;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -8,7 +7,6 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.serializers.JacksonMapper;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,11 +18,6 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URI;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @SuperBuilder
 @ToString
@@ -74,6 +67,9 @@ import java.util.UUID;
                           "level": "error",
                           "transaction": "/execution/id/{{ execution.id }}",
                           "server_name": "localhost:8080",
+                          "message": {
+                            "message": "Execution {{ execution.id }} fail"
+                          },
                           "extra": {
                             "Namespace": "{{ flow.namespace }}",
                             "Flow ID": "{{ flow.id }}",
@@ -85,10 +81,24 @@ import java.util.UUID;
     }
 )
 public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
-
     public static final String SENTRY_VERSION = "7";
     public static final String SENTRY_CLIENT = "java";
     public static final String SENTRY_DSN_REGEXP = "^(https?://[a-f0-9]+@o[0-9]+\\.ingest\\.sentry\\.io/[0-9]+)$";
+
+    private static final String DEFAULT_PAYLOAD = """
+        {
+          "timestamp": "{{ execution.startDate }}",
+          "platform": "java",
+          "level": "error",
+          "message": {
+            "message": "Execution {{ execution.id }} fail"
+          },
+          "extra": {
+            "Namespace": "{{ flow.namespace }}",
+            "Flow ID": "{{ flow.id }}",
+            "Execution ID": "{{ execution.id }}"
+          }
+        }""";
 
     @Schema(
         title = "Sentry DSN"
@@ -123,10 +133,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         }
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
-            if (this.payload == null) {
-                setDefaultPayload();
-            }
-            String payload = runContext.render(this.payload);
+            String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
 
             runContext.logger().debug("Sent the following Sentry event: {}", payload);
 
@@ -134,21 +141,5 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         }
 
         return null;
-    }
-
-    private void setDefaultPayload() throws JsonProcessingException {
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("event_id", UUID.randomUUID().toString().toLowerCase().replace("-", ""));
-        map.put("timestamp", Instant.now().toString());
-        map.put("platform", Platform.JAVA.name().toLowerCase());
-        map.put("level", ErrorLevel.INFO.name().toLowerCase());
-
-        map.put("exception", Map.of("values", List.of(Map.of("type", "Kestra Alert"))));
-        if (this.id != null) {
-            map.put("extra", Map.of("Execution ID", this.id));
-        }
-
-        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
     }
 }

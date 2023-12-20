@@ -34,9 +34,9 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.sentry.SentryExecution
-                    executionId: "{{ trigger.executionId} }"
-                    transaction: "/execution/id/{{ trigger.executionId} }"
-                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx
+                    executionId: "{{ trigger.executionId }}"
+                    transaction: "/execution/id/{{ trigger.executionId }}"
+                    dsn: "{{ secret('SENTRY_DSN') }}"
                     level: ERROR
                     executionId: "{{ trigger.executionId }}"
 

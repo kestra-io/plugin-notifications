@@ -68,7 +68,7 @@ import java.net.URI;
                           "transaction": "/execution/id/{{ execution.id }}",
                           "server_name": "localhost:8080",
                           "message": {
-                            "message": "Execution {{ execution.id }} fail"
+                            "message": "Execution {{ execution.id }} failed"
                           },
                           "extra": {
                             "Namespace": "{{ flow.namespace }}",
@@ -91,7 +91,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
           "platform": "java",
           "level": "error",
           "message": {
-            "message": "Execution {{ execution.id }} fail"
+            "message": "Execution {{ execution.id }} failed"
           },
           "extra": {
             "Namespace": "{{ flow.namespace }}",

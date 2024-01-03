@@ -51,9 +51,9 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:8.3.1'
+    api 'org.simplejavamail:simple-java-mail:8.5.1'
     api 'org.eclipse.angus:jakarta.mail:2.0.2'
-    api 'com.sendgrid:sendgrid-java:4.9.3'
+    api 'com.sendgrid:sendgrid-java:4.10.1'
 }
 
 
@@ -95,7 +95,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation "org.hamcrest:hamcrest-library:2.2"
 
-    testImplementation group: 'com.icegreen', name: 'greenmail-junit5', version: '2.0.0'
+    testImplementation group: 'com.icegreen', name: 'greenmail-junit5', version: '2.0.1'
     testImplementation "io.micronaut:micronaut-http-client"
     testImplementation "io.micronaut:micronaut-http-server-netty"
     testImplementation "io.micronaut.rxjava2:micronaut-rxjava2-http-client"

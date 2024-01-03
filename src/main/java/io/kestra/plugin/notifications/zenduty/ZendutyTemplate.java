@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

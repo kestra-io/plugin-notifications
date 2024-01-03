@@ -20,9 +20,9 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;

@@ -2,7 +2,7 @@ id: opsgenie
 namespace: io.kestra.tests
 
 inputs:
-  - name: url
+  - id: url
     type: STRING
 
 listeners:

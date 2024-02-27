@@ -26,7 +26,7 @@ import java.net.URI;
 @NoArgsConstructor
 @Schema(
     title = "Send a Slack message using an Incoming Webhook",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the <a href=\"https://api.slack.com/messaging/webhooks\">Slack documentation</a> for more details.."
+    description = "Add this task to send direct Slack notifications. Check the <a href=\"https://api.slack.com/messaging/webhooks\">Slack documentation</a> for more details.."
 )
 @Plugin(
     examples = {

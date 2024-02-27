@@ -51,9 +51,9 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:8.5.1'
+    api 'org.simplejavamail:simple-java-mail:8.6.3'
     api 'org.eclipse.angus:jakarta.mail:2.0.2'
-    api 'com.sendgrid:sendgrid-java:4.10.1'
+    api 'com.sendgrid:sendgrid-java:4.10.2'
 }
 
 

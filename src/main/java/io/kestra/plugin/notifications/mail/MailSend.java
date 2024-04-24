@@ -7,7 +7,6 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
-import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.mail.util.ByteArrayDataSource;
 import lombok.*;
@@ -227,7 +226,6 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     @Getter
     @Builder
     @Jacksonized
-    @Introspected
     public static class Attachment {
         @Schema(
             title = "An attachment URI from Kestra internal storage"

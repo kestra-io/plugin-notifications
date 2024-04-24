@@ -4,7 +4,6 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
-import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -120,7 +119,6 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     @Getter
     @Builder
     @Jacksonized
-    @Introspected
     public static class Embed {
 
         @Schema(

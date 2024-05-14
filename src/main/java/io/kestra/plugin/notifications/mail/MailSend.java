@@ -213,7 +213,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         return list
             .stream()
             .map(throwFunction(attachment -> {
-                InputStream inputStream = runContext.uriToInputStream(URI.create(runContext.render(attachment.getUri())));
+                InputStream inputStream = runContext.storage().getFile(URI.create(runContext.render(attachment.getUri())));
 
                 return new AttachmentResource(
                     runContext.render(attachment.getName()),

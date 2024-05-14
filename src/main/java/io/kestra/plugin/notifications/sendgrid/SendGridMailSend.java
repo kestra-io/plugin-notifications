@@ -202,7 +202,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         return list
             .stream()
             .map(throwFunction(attachment -> {
-                InputStream inputStream = runContext.uriToInputStream(URI.create(runContext.render(attachment.getUri())));
+                InputStream inputStream = runContext.storage().getFile(URI.create(runContext.render(attachment.getUri())));
 
                 return new Attachments.Builder(runContext.render(attachment.getName()), inputStream)
                     .withType(runContext.render(attachment.getContentType())).build();

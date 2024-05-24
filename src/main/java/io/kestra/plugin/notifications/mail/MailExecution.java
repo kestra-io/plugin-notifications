@@ -45,13 +45,13 @@ import java.util.Map;
 
                 triggers:
                   - id: failed_prod_workflows
-                    type: io.kestra.core.models.triggers.types.Flow
+                    type: io.kestra.plugin.core.trigger.Flow
                     conditions:
-                      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+                      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
                         in:
                           - FAILED
                           - WARNING
-                      - type: io.kestra.core.models.conditions.types.ExecutionNamespaceCondition
+                      - type: io.kestra.plugin.core.condition.ExecutionNamespaceCondition
                         namespace: prod
                         prefix: true
                 """

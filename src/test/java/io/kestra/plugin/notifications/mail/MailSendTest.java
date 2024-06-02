@@ -18,6 +18,7 @@ import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.simplejavamail.MailException;
@@ -41,10 +42,11 @@ public class MailSendTest {
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
 
-    private final String from = "from@mail.com";
-    private final String to = "to@mail.com";
-    private final String subject = "Mail subject";
+    private static final String FROM = "from@mail.com";
+    private static final String TO = "to@mail.com";
+    private static final String SUBJECT = "Mail subject";
     private static String template = null;
+    private static String textTemplate = null;
 
     @Inject
     StorageInterface storageInterface;
@@ -55,6 +57,13 @@ public class MailSendTest {
         template = Files.asCharSource(
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
                 .getResource("mail-template.hbs.peb"))
+                .toURI()),
+            Charsets.UTF_8
+        ).read();
+
+        textTemplate = Files.asCharSource(
+            new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
+                .getResource("text-template.hbs.peb"))
                 .toURI()),
             Charsets.UTF_8
         ).read();
@@ -87,6 +96,7 @@ public class MailSendTest {
     }
 
     @Test
+    @DisplayName("Send email with html and plain text contents")
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
         URL resource = MailSendTest.class.getClassLoader().getResource("application.yml");
@@ -100,10 +110,11 @@ public class MailSendTest {
         MailSend mailSend = MailSend.builder()
             .host("localhost")
             .port(greenMail.getSmtp().getPort())
-            .from(from)
-            .to(to)
-            .subject(subject)
+            .from(FROM)
+            .to(TO)
+            .subject(SUBJECT)
             .htmlTextContent(template)
+            .plainTextContent(textTemplate)
             .transportStrategy(TransportStrategy.SMTP)
             .attachments(List.of(MailSend.Attachment.builder()
                 .name("application.yml")
@@ -127,9 +138,10 @@ public class MailSendTest {
         MimeBodyPart bodyPart = ((MimeBodyPart) content.getBodyPart(0));
         String body = IOUtils.toString(bodyPart.getInputStream(), Charsets.UTF_8);
 
-        assertThat(mimeMessage.getFrom()[0].toString(), is(from));
-        assertThat(((InternetAddress) mimeMessage.getRecipients(Message.RecipientType.TO)[0]).getAddress(), is(to));
-        assertThat(mimeMessage.getSubject(), is(subject));
+        assertThat(mimeMessage.getFrom()[0].toString(), is(FROM));
+        assertThat(((InternetAddress) mimeMessage.getRecipients(Message.RecipientType.TO)[0]).getAddress(), is(TO));
+        assertThat(mimeMessage.getSubject(), is(SUBJECT));
+        assertThat(body, containsString("Please view this email in a modern email client"));
         assertThat(body, containsString("<strong>Namespace :</strong> or=\r\ng.test"));
         assertThat(body, containsString("<strong>Flow :</strong> mail"));
         assertThat(body, containsString("<strong>Execution :</strong> #a=\r\nBcDeFgH"));
@@ -146,17 +158,19 @@ public class MailSendTest {
     }
 
     @Test
+    @DisplayName("Send email with exception with an html and plain text contents")
     void testThrowsMailException() {
         RunContext runContext = getRunContext();
 
         Assertions.assertThrows(MailException.class, () -> {
-            MailSend mailSend = MailSend.builder()
+        MailSend mailSend = MailSend.builder()
                 .host("fake-host-unknown.com")
                 .port(465)
-                .from(from)
-                .to(to)
-                .subject(subject)
+                .from(FROM)
+                .to(TO)
+                .subject(SUBJECT)
                 .htmlTextContent(template)
+                .plainTextContent(textTemplate)
                 .transportStrategy(TransportStrategy.SMTP)
                 .build();
 

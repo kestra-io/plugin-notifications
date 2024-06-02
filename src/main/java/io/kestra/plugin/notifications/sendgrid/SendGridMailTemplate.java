@@ -14,6 +14,8 @@ import org.apache.commons.io.IOUtils;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.micronaut.core.util.StringUtils.EMPTY_STRING;
+
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
@@ -28,6 +30,13 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
     protected String templateUri;
 
     @Schema(
+        title = "Text template to use",
+        hidden = true
+    )
+    @PluginProperty(dynamic = true)
+    protected String textTemplateUri;
+
+    @Schema(
         title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
@@ -35,7 +44,8 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
-        String htmlTextTemplate = "";
+        String plainTextTemplate = EMPTY_STRING;
+        String htmlTextTemplate = EMPTY_STRING;
 
         if (this.templateUri != null) {
             htmlTextTemplate = IOUtils.toString(
@@ -44,7 +54,15 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
             );
         }
 
+        if (this.textTemplateUri != null) {
+            plainTextTemplate = IOUtils.toString(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.textTemplateUri)),
+                Charsets.UTF_8
+            );
+        }
+
         this.htmlContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
+        this.textContent = runContext.render(plainTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
 
         return super.run(runContext);
     }

@@ -64,6 +64,7 @@ public class SendGridMailExecution extends SendGridMailTemplate implements Execu
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
         this.templateUri = "sendgrid-mail-template.hbs.peb";
+        this.textTemplateUri = "sendgrid-text-template.hbs.peb";
         this.templateRenderMap = ExecutionService.executionMap(runContext, this);
 
         return super.run(runContext);

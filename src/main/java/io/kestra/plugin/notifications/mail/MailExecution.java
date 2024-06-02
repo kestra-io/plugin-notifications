@@ -67,6 +67,7 @@ public class MailExecution extends MailTemplate implements ExecutionInterface {
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         this.templateUri = "mail-template.hbs.peb";
+        this.textTemplateUri = "text-template.hbs.peb";
         this.templateRenderMap = ExecutionService.executionMap(runContext, this);
 
         return super.run(runContext);

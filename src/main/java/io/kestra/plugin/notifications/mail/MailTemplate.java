@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.utils.MapUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,8 +15,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.util.Map;
 import java.util.Objects;
-
-import static io.micronaut.core.util.StringUtils.EMPTY_STRING;
 
 @SuperBuilder
 @ToString
@@ -45,8 +44,8 @@ public abstract class MailTemplate extends MailSend {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        String htmlTextTemplate = EMPTY_STRING;
-        String plainTextTemplate = EMPTY_STRING;
+        String htmlTextTemplate = "";
+        String plainTextTemplate = "";
 
         if (this.templateUri != null) {
             htmlTextTemplate = IOUtils.toString(
@@ -62,8 +61,8 @@ public abstract class MailTemplate extends MailSend {
             );
         }
 
-        this.htmlTextContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
-        this.plainTextContent = runContext.render(plainTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
+        this.htmlTextContent = runContext.render(htmlTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
+        this.plainTextContent = runContext.render(plainTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
 
         return super.run(runContext);
     }

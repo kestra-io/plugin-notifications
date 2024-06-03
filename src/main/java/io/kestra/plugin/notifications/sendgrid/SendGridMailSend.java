@@ -157,7 +157,8 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         personalization.setSubject(runContext.render(this.subject));
 
         if (this.textContent != null) {
-            Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), runContext.render(this.textContent));
+            final String textContent = runContext.render(this.textContent) == null ? "Please view this email in a modern email client" : runContext.render(this.textContent);
+            Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), textContent);
             mail.addContent(plainTextContent);
         }
 

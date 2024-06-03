@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.sendgrid;
 import com.google.common.base.Charsets;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.utils.MapUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,8 +14,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.util.Map;
 import java.util.Objects;
-
-import static io.micronaut.core.util.StringUtils.EMPTY_STRING;
 
 @SuperBuilder
 @ToString
@@ -44,8 +43,8 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
-        String plainTextTemplate = EMPTY_STRING;
-        String htmlTextTemplate = EMPTY_STRING;
+        String plainTextTemplate = "";
+        String htmlTextTemplate = "";
 
         if (this.templateUri != null) {
             htmlTextTemplate = IOUtils.toString(
@@ -61,8 +60,8 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
             );
         }
 
-        this.htmlContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
-        this.textContent = runContext.render(plainTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
+        this.htmlContent = runContext.render(htmlTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
+        this.textContent = runContext.render(plainTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
 
         return super.run(runContext);
     }

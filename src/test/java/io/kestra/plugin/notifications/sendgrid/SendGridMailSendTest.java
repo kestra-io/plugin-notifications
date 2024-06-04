@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -29,10 +30,11 @@ import static org.hamcrest.Matchers.is;
 @MicronautTest
 public class SendGridMailSendTest {
 
-    private final String from = "from@mail.com";
-    private final String to = "to@mail.com";
-    private final String subject = "Mail subject";
+    private static final String FROM = "from@mail.com";
+    private static final String TO = "to@mail.com";
+    private static final String SUBJECT = "Mail subject";
     private static String template = null;
+    private static String textTemplate = null;
 
     @Inject
     StorageInterface storageInterface;
@@ -43,6 +45,13 @@ public class SendGridMailSendTest {
         template = Files.asCharSource(
             new File(Objects.requireNonNull(SendGridMailExecution.class.getClassLoader()
                 .getResource("sendgrid-mail-template.hbs.peb"))
+                .toURI()),
+            Charsets.UTF_8
+        ).read();
+
+        textTemplate = Files.asCharSource(
+            new File(Objects.requireNonNull(SendGridMailExecution.class.getClassLoader()
+                .getResource("sendgrid-text-template.hbs.peb"))
                 .toURI()),
             Charsets.UTF_8
         ).read();
@@ -76,6 +85,7 @@ public class SendGridMailSendTest {
 
     @Test
     @Disabled("Need a SendGrid API key")
+    @DisplayName("Send email with html and plain text contents")
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
         URL resource = SendGridMailSendTest.class.getClassLoader().getResource("application.yml");
@@ -88,10 +98,11 @@ public class SendGridMailSendTest {
 
         SendGridMailSend mailSend = SendGridMailSend.builder()
             .sendgridApiKey("")
-            .from(from)
-            .to(List.of(to))
-            .subject(subject)
+            .from(FROM)
+            .to(List.of(TO))
+            .subject(SUBJECT)
             .htmlContent(template)
+            .textContent(textTemplate)
             .attachments(List.of(SendGridMailSend.Attachment.builder()
                 .name("application.yml")
                 .uri(put.toString())
@@ -106,6 +117,7 @@ public class SendGridMailSendTest {
 
         String body = IOUtils.toString(output.getBody().getBytes(), String.valueOf(Charsets.UTF_8));
 
+        assertThat(body, containsString("Please view this email in a modern email client"));
         assertThat(body, containsString("<strong>Namespace :</strong> or=\r\ng.test"));
         assertThat(body, containsString("<strong>Flow :</strong> sendgrid"));
         assertThat(body, containsString("<strong>Execution :</strong> #a=\r\nBcDeFgH"));

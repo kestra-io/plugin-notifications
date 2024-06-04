@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.utils.MapUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,6 +30,13 @@ public abstract class MailTemplate extends MailSend {
     protected String templateUri;
 
     @Schema(
+        title = "Text template to use",
+        hidden = true
+    )
+    @PluginProperty(dynamic = true)
+    protected String textTemplateUri;
+
+    @Schema(
         title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
@@ -37,6 +45,7 @@ public abstract class MailTemplate extends MailSend {
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String htmlTextTemplate = "";
+        String plainTextTemplate = "";
 
         if (this.templateUri != null) {
             htmlTextTemplate = IOUtils.toString(
@@ -45,7 +54,15 @@ public abstract class MailTemplate extends MailSend {
             );
         }
 
-        this.htmlTextContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
+        if (this.textTemplateUri != null) {
+            plainTextTemplate = IOUtils.toString(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.textTemplateUri)),
+                Charsets.UTF_8
+            );
+        }
+
+        this.htmlTextContent = runContext.render(htmlTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
+        this.plainTextContent = runContext.render(plainTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
 
         return super.run(runContext);
     }

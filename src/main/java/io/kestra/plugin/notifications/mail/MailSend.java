@@ -144,6 +144,14 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     protected String htmlTextContent;
 
     @Schema(
+        title = "The optional email message body in plain text",
+        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+    )
+    @PluginProperty(dynamic = true)
+    protected String plainTextContent;
+
+    @Schema(
         title = "Adds an attachment to the email message",
         description = "The attachment will be shown in the email client as separate files available for download, or displayed " +
             "inline if the client supports it (for example, most browsers display PDF's in a popup window)"
@@ -167,6 +175,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         logger.debug("Sending an email to {}", to);
 
         final String htmlContent = runContext.render(this.htmlTextContent);
+        final String textContent = runContext.render(this.plainTextContent) == null ? "Please view this email in a modern email client" : runContext.render(this.plainTextContent);
 
         // Building email to send
         EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
@@ -174,7 +183,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             .from(runContext.render(from))
             .withSubject(runContext.render(subject))
             .withHTMLText(htmlContent)
-            .withPlainText("Please view this email in a modern email client")
+            .withPlainText(textContent)
             .withReturnReceiptTo();
 
         if (this.attachments != null) {

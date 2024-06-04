@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.sendgrid;
 import com.google.common.base.Charsets;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.utils.MapUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,6 +29,13 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
     protected String templateUri;
 
     @Schema(
+        title = "Text template to use",
+        hidden = true
+    )
+    @PluginProperty(dynamic = true)
+    protected String textTemplateUri;
+
+    @Schema(
         title = "Map of variables to use for the message template"
     )
     @PluginProperty(dynamic = true)
@@ -35,6 +43,7 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
+        String plainTextTemplate = "";
         String htmlTextTemplate = "";
 
         if (this.templateUri != null) {
@@ -44,7 +53,15 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
             );
         }
 
-        this.htmlContent = runContext.render(htmlTextTemplate, templateRenderMap != null ? templateRenderMap : Map.of());
+        if (this.textTemplateUri != null) {
+            plainTextTemplate = IOUtils.toString(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.textTemplateUri)),
+                Charsets.UTF_8
+            );
+        }
+
+        this.htmlContent = runContext.render(htmlTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
+        this.textContent = runContext.render(plainTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
 
         return super.run(runContext);
     }

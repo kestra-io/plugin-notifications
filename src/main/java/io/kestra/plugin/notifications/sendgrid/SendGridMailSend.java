@@ -115,7 +115,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
     protected String htmlContent;
 
     @Schema(
-        title = "The optional email message body in text",
+        title = "The optional email message body in plain text",
         description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
@@ -157,7 +157,8 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         personalization.setSubject(runContext.render(this.subject));
 
         if (this.textContent != null) {
-            Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), runContext.render(this.htmlContent));
+            final String textContent = runContext.render(this.textContent) == null ? "Please view this email in a modern email client" : runContext.render(this.textContent);
+            Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), textContent);
             mail.addContent(plainTextContent);
         }
 

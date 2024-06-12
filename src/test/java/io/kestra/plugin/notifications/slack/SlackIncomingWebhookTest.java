@@ -6,7 +6,7 @@ import com.google.common.io.Files;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.kestra.core.junit.annotations.KestraTest;
 import org.junit.jupiter.api.Test;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
@@ -19,7 +19,7 @@ import jakarta.inject.Inject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-@MicronautTest
+@KestraTest
 class SlackIncomingWebhookTest {
     @Inject
     private ApplicationContext applicationContext;

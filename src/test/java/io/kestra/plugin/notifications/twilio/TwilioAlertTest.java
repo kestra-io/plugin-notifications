@@ -8,7 +8,7 @@ import io.kestra.core.utils.IdUtils;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.kestra.core.junit.annotations.KestraTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ import java.util.UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-@MicronautTest
+@KestraTest
 public class TwilioAlertTest {
 
     @Inject

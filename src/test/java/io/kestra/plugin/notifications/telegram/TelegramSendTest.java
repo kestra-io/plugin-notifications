@@ -4,7 +4,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.kestra.core.junit.annotations.KestraTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.equalToObject;
  * This test will only test the main task, this allow you to send any input
  * parameters to your task and test the returning behaviour easily.
  */
-@MicronautTest
+@KestraTest
 class TelegramSendTest {
 
     @Inject

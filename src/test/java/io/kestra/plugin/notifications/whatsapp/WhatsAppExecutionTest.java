@@ -5,10 +5,10 @@ import io.kestra.core.models.executions.Execution;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.kestra.runner.memory.MemoryRunner;
+import io.kestra.core.runners.StandAloneRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.kestra.core.junit.annotations.KestraTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,14 +23,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
-@MicronautTest
+@KestraTest
 public class WhatsAppExecutionTest {
 
     @Inject
     private ApplicationContext applicationContext;
 
     @Inject
-    protected MemoryRunner runner;
+    protected StandAloneRunner runner;
 
     @Inject
     protected RunnerUtils runnerUtils;

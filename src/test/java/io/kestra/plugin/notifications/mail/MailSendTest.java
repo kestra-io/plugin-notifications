@@ -99,7 +99,7 @@ public class MailSendTest {
     @DisplayName("Send email with html and plain text contents")
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
-        URL resource = MailSendTest.class.getClassLoader().getResource("application.yml");
+        URL resource = MailSendTest.class.getClassLoader().getResource("application-test.yml");
 
         URI put = storageInterface.put(
             null,

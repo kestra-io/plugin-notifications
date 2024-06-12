@@ -6,6 +6,7 @@ import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.tasks.retrys.Exponential;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
+import io.kestra.core.runners.DefaultRunContext;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.utils.RetryUtils;
@@ -19,8 +20,8 @@ import java.util.NoSuchElementException;
 
 public class ExecutionService {
     public static Execution findExecution(RunContext runContext, String executionId) throws IllegalVariableEvaluationException, NoSuchElementException {
-        ExecutionRepositoryInterface executionRepository = runContext.getApplicationContext().getBean(ExecutionRepositoryInterface.class);
-        RetryUtils.Instance<Execution, NoSuchElementException> retryInstance = runContext.getApplicationContext().getBean(RetryUtils.class)
+        ExecutionRepositoryInterface executionRepository = ((DefaultRunContext)runContext).getApplicationContext().getBean(ExecutionRepositoryInterface.class);
+        RetryUtils.Instance<Execution, NoSuchElementException> retryInstance = ((DefaultRunContext)runContext).getApplicationContext().getBean(RetryUtils.class)
             .of(Exponential.builder()
                 .delayFactor(2.0)
                 .interval(Duration.ofSeconds(1))
@@ -53,7 +54,7 @@ public class ExecutionService {
     @SuppressWarnings("UnstableApiUsage")
     public static Map<String, Object> executionMap(RunContext runContext, ExecutionInterface executionInterface) throws IllegalVariableEvaluationException {
         Execution execution = ExecutionService.findExecution(runContext, executionInterface.getExecutionId());
-        UriProvider uriProvider = runContext.getApplicationContext().getBean(UriProvider.class);
+        UriProvider uriProvider = ((DefaultRunContext)runContext).getApplicationContext().getBean(UriProvider.class);
 
         Map<String, Object> templateRenderMap = new HashMap<>();
         templateRenderMap.put("duration", execution.getState().humanDuration());

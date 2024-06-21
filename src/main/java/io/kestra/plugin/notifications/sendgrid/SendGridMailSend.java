@@ -45,7 +45,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
             full = true,
             code = """
                 id: unreliable_flow
-                namespace: prod
+                namespace: company.team
 
                 tasks:
                   - id: fail

@@ -35,7 +35,7 @@ import java.net.URI;
             full = true,
             code = """
                 id: unreliable_flow
-                namespace: prod
+                namespace: company.team
 
                 tasks:
                   - id: fail
@@ -54,7 +54,7 @@ import java.net.URI;
             full = true,
             code = """
                 id: sentry_alert
-                namespace: dev
+                namespace: company.team
 
                 tasks:
                   - id: send_sentry_message

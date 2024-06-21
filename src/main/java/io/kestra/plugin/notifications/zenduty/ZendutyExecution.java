@@ -29,7 +29,7 @@ import java.util.Map;
             full = true,
             code = """
                 id: zenduty_failure_alert
-                namespace: prod.monitoring
+                namespace: company.team
 
                 tasks:
                   - id: send_alert

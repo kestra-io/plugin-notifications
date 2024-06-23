@@ -36,7 +36,7 @@ import java.net.URI;
             full = true,
             code = """
                 id: unreliable_flow
-                namespace: prod
+                namespace: company.team
 
                 tasks:
                   - id: fail
@@ -74,7 +74,7 @@ import java.net.URI;
             full = true,
             code = """
                 id: opsgenie_incoming_webhook
-                namespace: dev
+                namespace: company.team
 
                 tasks:
                   - id: send_opsgenie_message

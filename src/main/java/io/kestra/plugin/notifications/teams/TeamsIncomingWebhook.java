@@ -35,7 +35,7 @@ import java.net.URI;
             full = true,
             code = """
                 id: unreliable_flow
-                namespace: prod
+                namespace: company.team
 
                 tasks:
                   - id: fail

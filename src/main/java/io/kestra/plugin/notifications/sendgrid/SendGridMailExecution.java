@@ -28,7 +28,7 @@ import java.util.Map;
             full = true,
             code = """
                 id: failure_alert
-                namespace: prod.monitoring
+                namespace: company.team
 
                 tasks:
                   - id: send_alert

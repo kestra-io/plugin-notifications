@@ -50,13 +50,12 @@ import java.net.URI;
                     url: "{{ secret('SLACK_WEBHOOK') }}" # https://hooks.slack.com/services/xzy/xyz/xyz
                     payload: |
                       {
-                        "channel": "#alerts",
                         "text": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
                       }
                 """
         ),
         @Example(
-            title = "Send a Slack message via incoming webhook",
+            title = "Send a Slack message via incoming webhook with a text argument",
             full = true,
             code = """
                 id: slack_incoming_webhook
@@ -68,11 +67,35 @@ import java.net.URI;
                     url: "{{ secret('SLACK_WEBHOOK') }}"
                     payload: |
                       {
-                        "channel": "#general",
                         "text": "Hello from the workflow {{ flow.id }}"
                       }            
                 """
-        ),        
+        ),
+        @Example(
+            title = "Send a Slack message via incoming webhook with a blocks argument, read more on blocks <a href=\"https://api.slack.com/reference/block-kit/blocks\">here</a>",
+            full = true,
+            code = """
+                id: slack_incoming_webhook
+                namespace: company.team
+
+                tasks:
+                  - id: send_slack_message
+                    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+                    url: "{{ secret('SLACK_WEBHOOK') }}"
+                    payload: |
+                      {
+                        "blocks": [
+                    		{
+                    			"type": "section",
+                    			"text": {
+                    				"type": "mrkdwn",
+                    				"text": "Hello from the workflow *{{ flow.id }}*"
+                    			}
+                    		}
+                    	]
+                      }            
+                """
+        ),
     }
 )
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {

@@ -57,7 +57,7 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:8.11.0'
+    api 'org.simplejavamail:simple-java-mail:8.11.2'
     api 'org.eclipse.angus:jakarta.mail:2.0.3'
     api ('com.sendgrid:sendgrid-java:4.10.2')
     // this will enforce Jackson to the version defined in the Platform

@@ -38,7 +38,7 @@ public class ExecutionService {
         var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
         var isCurrentExecution = executionRendererId.equals(executionVars.get("id"));
         if (isCurrentExecution) {
-            runContext.logger().info("Loading execution data for the current execution (this should only be done in a listener).");
+            runContext.logger().info("Loading execution data for the current execution.");
         }
 
         return retryInstance.run(

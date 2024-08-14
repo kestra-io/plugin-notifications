@@ -23,7 +23,7 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "{{ title(link, execution) }}\n> {% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+				"text": "{{ title(link, execution) }}\n> {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
 			}
 			{% if link is defined %},
 			"accessory": {

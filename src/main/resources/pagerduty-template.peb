@@ -26,6 +26,6 @@
         "links": [
           {
                 "href": "*<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>*\n>",
-                "text": "{% if firstFailed == false %}Succeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+                "text": "{% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
           }]
 }

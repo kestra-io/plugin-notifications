@@ -8,6 +8,7 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,10 @@ import lombok.experimental.SuperBuilder;
 
 import jakarta.validation.constraints.NotBlank;
 import java.net.URI;
+import java.time.Instant;
+import java.util.UUID;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SuperBuilder
 @ToString
@@ -84,6 +89,8 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     public static final String SENTRY_VERSION = "7";
     public static final String SENTRY_CLIENT = "java";
     public static final String SENTRY_DSN_REGEXP = "^(https?://[a-f0-9]+@o[0-9]+\\.ingest\\.sentry\\.io/[0-9]+)$";
+    public static final int PAYLOAD_SIZE_THRESHOLD = 1024 * 1024;    // 1MB for events
+    public static final int ENVELOP_SIZE_THRESHOLD = 100 * 1024 * 1024;  // 100MB decompressed
 
     private static final String DEFAULT_PAYLOAD = """
         {
@@ -117,29 +124,87 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     public VoidOutput run(RunContext runContext) throws Exception {
         String dsn = runContext.render(this.dsn);
 
-        String url = dsn;
+        String storeUrl = dsn;
+        String envelopeUrl = dsn;
         if (dsn.matches(SENTRY_DSN_REGEXP)) {
             String protocol = dsn.split("://")[0];
             String publicKey = dsn.split("@")[0].replace(protocol + "://", "");
             String host = dsn.split("@")[1].split("/")[0];
             String projectId = dsn.split("@")[1].split("/")[1];
             /*
-            To make passing the correct API endpoint URL easier, 
+            To make passing the correct API endpoint URL easier,
             users only need to provide the Sentry DSN, and we parse the required attributes for the URL
-            using the format https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            using the following formats:
+            STORE_URL: https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            ENVELOP_URL: https://{HOST}/api/{PROJECT_ID}/envelope/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
             */
-            url = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s" 
-                .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
+            storeUrl = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s"
+                    .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
+
+            envelopeUrl = "%s://%s/api/%s/envelope/?sentry_version=%s&sentry_client=%s&sentry_key=%s"
+                    .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
         }
 
-        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
+        try (DefaultHttpClient client = new DefaultHttpClient()) {
             String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
 
-            runContext.logger().debug("Sent the following Sentry event: {}", payload);
+            // Constructing the envelope
+            String envelope = constructEnvelope(payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            // Check envelope and payload against threshold sizes
+            handleThresholds(envelope, payload);
+
+            // Trying to send to /envelope endpoint
+            try {
+                runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
+                client.toBlocking().retrieve(HttpRequest.POST(URI.create(envelopeUrl), envelope));
+            } catch (HttpClientResponseException e) { // Backward Compatibility cases
+                int errorCode = e.getStatus().getCode();
+                if (errorCode == 401 || errorCode == 404) {
+                    // If the /envelopes endpoint is Not Found or Unauthorized ("missing authorization information"), fall back to /store endpoint
+                    runContext.logger().debug("Envelope endpoint not supported; falling back to store endpoint.");
+                    runContext.logger().debug("Sent the following Sentry event: {}", payload);
+                    client.toBlocking().retrieve(HttpRequest.POST(URI.create(storeUrl), payload));
+                } else {
+                    // Rethrow the exception if it's not a 401 or 404 error
+                    throw e;
+                }
+            }
         }
 
         return null;
+    }
+
+    /**
+     * Helper method to construct the Envelope formatted payload.
+     */
+    private String constructEnvelope(String payload) {
+        // Envelope headers
+        String eventId = UUID.randomUUID().toString().replace("-", "");
+        String sentAt = Instant.now().toString();
+        String envelopeHeaders = "{\"event_id\":\"%s\",\"dsn\":\"%s\",\"sdk\":{\"name\":\"%s\",\"version\":\"%s\"},\"sent_at\":\"%s\"}".formatted(eventId, dsn, SENTRY_CLIENT, SENTRY_VERSION, sentAt);
+
+        // Item headers and payload
+        String itemHeaders = "{\"type\":\"event\",\"length\":%d, \"content_type\":\"application/json\", \"filename\":\"application.log\"}".formatted(payload.length());
+
+        return "%s%n%s%n%s".formatted(envelopeHeaders, itemHeaders, payload);
+    }
+
+    /**
+     * Helper method to Check envelope and payload against threshold sizes.
+     */
+    private static void handleThresholds(String envelope, String payload) {
+        // Calculate the size of the envelope
+        int envelopeSize = envelope.getBytes(UTF_8).length;
+        int payloadSize = payload.getBytes(UTF_8).length;
+
+        // Enforce size limits based on Sentry's documentation
+        if (envelopeSize > ENVELOP_SIZE_THRESHOLD) {
+            throw new IllegalArgumentException("Envelope size exceeds 100MB limit for decompressed data");
+        }
+
+        if (payloadSize > PAYLOAD_SIZE_THRESHOLD) {
+            throw new IllegalArgumentException("Event payload size exceeds 1MB limit");
+        }
     }
 }

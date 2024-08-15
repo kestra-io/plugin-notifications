@@ -163,7 +163,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             } catch (HttpClientResponseException e) { // Backward Compatibility cases
                 int errorCode = e.getStatus().getCode();
                 if (errorCode == 401 || errorCode == 404) {
-                    // If the /envelopes endpoint is Not Found or Unauthorized ("missing authorization information"), fall back to /store endpoint
+                    // If the /envelope endpoint is Not Found or Unauthorized ("missing authorization information"), fall back to /store endpoint
                     runContext.logger().debug("Envelope endpoint not supported; falling back to store endpoint.");
                     runContext.logger().debug("Sent the following Sentry event: {}", payload);
                     client.toBlocking().retrieve(HttpRequest.POST(URI.create(storeUrl), payload));
@@ -189,7 +189,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         // Item headers and payload
         String itemHeaders = "{\"type\":\"event\",\"length\":%d, \"content_type\":\"application/json\", \"filename\":\"application.log\"}".formatted(payload.length());
 
-        return "%s%n%s%n%s".formatted(envelopeHeaders, itemHeaders, payload);
+        return "%s%n%s%n%s%n".formatted(envelopeHeaders, itemHeaders, payload);
     }
 
     /**

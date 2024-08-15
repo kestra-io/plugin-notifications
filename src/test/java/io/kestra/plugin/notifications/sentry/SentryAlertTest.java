@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -30,7 +31,7 @@ public class SentryAlertTest {
 
     @Test
     void run() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of("extra", Map.of(
+        RunContext runContext = runContextFactory.of(Map.of("eventId", UUID.randomUUID().toString().toLowerCase().replace("-", ""),"extra", Map.of(
                 "title", "Sentry test alert notification",
                 "text", "ge *with some bold text* an",
                 "service", IdUtils.create()))

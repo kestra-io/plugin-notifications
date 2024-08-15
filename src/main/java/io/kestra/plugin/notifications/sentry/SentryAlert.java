@@ -20,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 import jakarta.validation.constraints.NotBlank;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -149,7 +150,8 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
 
             // Constructing the envelope
-            String envelope = constructEnvelope(payload);
+            var eventId = (String) runContext.getVariables().get("eventId");
+            String envelope = constructEnvelope(eventId, payload);
 
             // Check envelope and payload against threshold sizes
             handleThresholds(envelope, payload);
@@ -178,9 +180,9 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     /**
      * Helper method to construct the Envelope formatted payload.
      */
-    private String constructEnvelope(String payload) {
+    private String constructEnvelope(String eventId, String payload) {
         // Envelope headers
-        String eventId = UUID.randomUUID().toString().replace("-", "");
+        eventId = Objects.isNull(eventId) ? UUID.randomUUID().toString().toLowerCase().replace("-", "") : eventId;
         String sentAt = Instant.now().toString();
         String envelopeHeaders = "{\"event_id\":\"%s\",\"dsn\":\"%s\",\"sdk\":{\"name\":\"%s\",\"version\":\"%s\"},\"sent_at\":\"%s\"}".formatted(eventId, dsn, SENTRY_CLIENT, SENTRY_VERSION, sentAt);
 

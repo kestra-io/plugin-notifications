@@ -53,7 +53,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx"""
+                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx
+                    endpointType: envelope"""
         ),
         @Example(
             title = "Send a custom Sentry alert",
@@ -66,6 +67,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                   - id: send_sentry_message
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
                     dsn: "{{ secret('SENTRY_DSN') }}"
+                    endpointType: "envelope"
                     payload: |
                       {
                           "timestamp": "{{ execution.startDate }}",
@@ -89,6 +91,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     public static final String SENTRY_VERSION = "7";
     public static final String SENTRY_CLIENT = "java";
+    public static final String SENTRY_DATA_MODEL = "event";
+    public static final String SENTRY_FILE_NAME = "application.log";
+    public static final String SENTRY_CONTENT_TYPE = "application/json";
     public static final String SENTRY_DSN_REGEXP = "^(https?://[a-f0-9]+@o[0-9]+\\.ingest\\.sentry\\.io/[0-9]+)$";
     public static final int PAYLOAD_SIZE_THRESHOLD = 1024 * 1024;    // 1MB for events
     public static final int ENVELOP_SIZE_THRESHOLD = 100 * 1024 * 1024;  // 100MB decompressed
@@ -116,6 +121,12 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     protected String dsn;
 
     @Schema(
+        title = "Sentry endpoint type"
+    )
+    @PluginProperty(dynamic = true)
+    protected EndpointType endpointType = EndpointType.ENVELOP;
+
+    @Schema(
         title = "Sentry event payload"
     )
     @PluginProperty(dynamic = true)
@@ -125,13 +136,8 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     public VoidOutput run(RunContext runContext) throws Exception {
         String dsn = runContext.render(this.dsn);
 
-        String storeUrl = dsn;
-        String envelopeUrl = dsn;
+        String url = dsn;
         if (dsn.matches(SENTRY_DSN_REGEXP)) {
-            String protocol = dsn.split("://")[0];
-            String publicKey = dsn.split("@")[0].replace(protocol + "://", "");
-            String host = dsn.split("@")[1].split("/")[0];
-            String projectId = dsn.split("@")[1].split("/")[1];
             /*
             To make passing the correct API endpoint URL easier,
             users only need to provide the Sentry DSN, and we parse the required attributes for the URL
@@ -139,37 +145,28 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             STORE_URL: https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
             ENVELOP_URL: https://{HOST}/api/{PROJECT_ID}/envelope/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
             */
-            storeUrl = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s"
-                    .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
-
-            envelopeUrl = "%s://%s/api/%s/envelope/?sentry_version=%s&sentry_client=%s&sentry_key=%s"
-                    .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
+            url = switch (endpointType) {
+                case ENVELOP -> EndpointType.ENVELOP.getEnvelopeUrl(dsn);
+                case STORE -> EndpointType.STORE.getEnvelopeUrl(dsn);
+            };
         }
 
         try (DefaultHttpClient client = new DefaultHttpClient()) {
             String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
 
-            // Constructing the envelope
-            var eventId = (String) runContext.getVariables().get("eventId");
-            String envelope = constructEnvelope(eventId, payload);
-
-            // Check envelope and payload against threshold sizes
-            handleThresholds(envelope, payload);
+            // Constructing the envelope payload
+            String envelope = constructEnvelope((String) runContext.getVariables().get("eventId"), payload);
 
             // Trying to send to /envelope endpoint
             try {
                 runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
-                client.toBlocking().retrieve(HttpRequest.POST(URI.create(envelopeUrl), envelope));
-            } catch (HttpClientResponseException e) { // Backward Compatibility cases
-                int errorCode = e.getStatus().getCode();
-                if (errorCode == 401 || errorCode == 404) {
-                    // If the /envelope endpoint is Not Found or Unauthorized ("missing authorization information"), fall back to /store endpoint
-                    runContext.logger().debug("Envelope endpoint not supported; falling back to store endpoint.");
-                    runContext.logger().debug("Sent the following Sentry event: {}", payload);
-                    client.toBlocking().retrieve(HttpRequest.POST(URI.create(storeUrl), payload));
-                } else {
-                    // Rethrow the exception if it's not a 401 or 404 error
-                    throw e;
+                client.toBlocking().retrieve(HttpRequest.POST(URI.create(url), envelope));
+            } catch (HttpClientResponseException exception) { // Backward Compatibility cases
+                int errorCode = exception.getStatus().getCode();
+                if ((errorCode == 401 || errorCode == 404) && endpointType.equals(EndpointType.ENVELOP)) {
+                    // If the /envelope endpoint is Not Found or Unauthorized ("missing authorization information"), request UI to configure endpointType: store to send the request to /store endpoint.
+                    runContext.logger().error("Envelope endpoint not supported; Please try to configure the store endpoint instead: endpointType: store");
+                    throw exception;
                 }
             }
         }
@@ -181,21 +178,40 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
      * Helper method to construct the Envelope formatted payload.
      */
     private String constructEnvelope(String eventId, String payload) {
-        // Envelope headers
+        return switch (endpointType) {
+            case ENVELOP -> {
+                // Build Envelope Payload
+                String envelope = "%s%n%s%n%s%n".formatted(getEnvelopeHeaders(eventId, dsn), getItemHeaders(payload.length()), payload);
+
+                // Check envelope and payload against threshold sizes
+                checkEnvelopeAndPayloadThresholds(envelope, payload);
+
+                yield envelope;
+            }
+            case STORE -> payload;
+        };
+    }
+
+    /**
+     * Helper method to build envelope headers
+     */
+    private static String getEnvelopeHeaders(String eventId, String dsn) {
         eventId = Objects.isNull(eventId) ? UUID.randomUUID().toString().toLowerCase().replace("-", "") : eventId;
         String sentAt = Instant.now().toString();
-        String envelopeHeaders = "{\"event_id\":\"%s\",\"dsn\":\"%s\",\"sdk\":{\"name\":\"%s\",\"version\":\"%s\"},\"sent_at\":\"%s\"}".formatted(eventId, dsn, SENTRY_CLIENT, SENTRY_VERSION, sentAt);
+        return "{\"event_id\":\"%s\",\"dsn\":\"%s\",\"sdk\":{\"name\":\"%s\",\"version\":\"%s\"},\"sent_at\":\"%s\"}".formatted(eventId, dsn, SENTRY_CLIENT, SENTRY_VERSION, sentAt);
+    }
 
-        // Item headers and payload
-        String itemHeaders = "{\"type\":\"event\",\"length\":%d, \"content_type\":\"application/json\", \"filename\":\"application.log\"}".formatted(payload.length());
-
-        return "%s%n%s%n%s%n".formatted(envelopeHeaders, itemHeaders, payload);
+    /**
+     * Helper method to build item headers
+     */
+    private static String getItemHeaders(int payloadLength) {
+        return "{\"type\":\"%s\",\"length\":%d,\"content_type\":\"%s\",\"filename\":\"%s\"}".formatted(SENTRY_DATA_MODEL, payloadLength, SENTRY_CONTENT_TYPE, SENTRY_FILE_NAME);
     }
 
     /**
      * Helper method to Check envelope and payload against threshold sizes.
      */
-    private static void handleThresholds(String envelope, String payload) {
+    private static void checkEnvelopeAndPayloadThresholds(String envelope, String payload) {
         // Calculate the size of the envelope
         int envelopeSize = envelope.getBytes(UTF_8).length;
         int payloadSize = payload.getBytes(UTF_8).length;

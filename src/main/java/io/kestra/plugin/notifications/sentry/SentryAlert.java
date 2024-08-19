@@ -151,7 +151,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             };
         }
 
-        try (DefaultHttpClient client = new DefaultHttpClient()) {
+        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
 
             // Constructing the envelope payload
@@ -160,7 +160,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             // Trying to send to /envelope endpoint
             try {
                 runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
-                client.toBlocking().retrieve(HttpRequest.POST(URI.create(url), envelope));
+                client.toBlocking().retrieve(HttpRequest.POST(url, envelope));
             } catch (HttpClientResponseException exception) { // Backward Compatibility cases
                 int errorCode = exception.getStatus().getCode();
                 if ((errorCode == 401 || errorCode == 404) && endpointType.equals(EndpointType.ENVELOP)) {

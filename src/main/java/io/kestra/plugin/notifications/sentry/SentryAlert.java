@@ -11,6 +11,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,7 +55,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
                     dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx
-                    endpointType: envelope"""
+                    endpointType: ENVELOPE"""
         ),
         @Example(
             title = "Send a custom Sentry alert",
@@ -67,7 +68,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                   - id: send_sentry_message
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
                     dsn: "{{ secret('SENTRY_DSN') }}"
-                    endpointType: "envelope"
+                    endpointType: "ENVELOPE"
                     payload: |
                       {
                           "timestamp": "{{ execution.startDate }}",
@@ -124,7 +125,8 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         title = "Sentry endpoint type"
     )
     @PluginProperty(dynamic = true)
-    protected EndpointType endpointType = EndpointType.ENVELOP;
+    @Builder.Default
+    protected EndpointType endpointType = EndpointType.ENVELOPE;
 
     @Schema(
         title = "Sentry event payload"
@@ -143,10 +145,10 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             users only need to provide the Sentry DSN, and we parse the required attributes for the URL
             using the following formats:
             STORE_URL: https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
-            ENVELOP_URL: https://{HOST}/api/{PROJECT_ID}/envelope/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            ENVELOPE_URL: https://{HOST}/api/{PROJECT_ID}/envelope/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
             */
             url = switch (endpointType) {
-                case ENVELOP -> EndpointType.ENVELOP.getEnvelopeUrl(dsn);
+                case ENVELOPE -> EndpointType.ENVELOPE.getEnvelopeUrl(dsn);
                 case STORE -> EndpointType.STORE.getEnvelopeUrl(dsn);
             };
         }
@@ -163,7 +165,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
                 client.toBlocking().retrieve(HttpRequest.POST(url, envelope));
             } catch (HttpClientResponseException exception) { // Backward Compatibility cases
                 int errorCode = exception.getStatus().getCode();
-                if ((errorCode == 401 || errorCode == 404) && endpointType.equals(EndpointType.ENVELOP)) {
+                if ((errorCode == 401 || errorCode == 404) && endpointType.equals(EndpointType.ENVELOPE)) {
                     // If the /envelope endpoint is Not Found or Unauthorized ("missing authorization information"), request UI to configure endpointType: store to send the request to /store endpoint.
                     runContext.logger().error("Envelope endpoint not supported; Please try to configure the store endpoint instead: endpointType: store");
                     throw exception;
@@ -179,7 +181,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
      */
     private String constructEnvelope(String eventId, String payload) {
         return switch (endpointType) {
-            case ENVELOP -> {
+            case ENVELOPE -> {
                 // Build Envelope Payload
                 String envelope = "%s%n%s%n%s%n".formatted(getEnvelopeHeaders(eventId, dsn), getItemHeaders(payload.length()), payload);
 

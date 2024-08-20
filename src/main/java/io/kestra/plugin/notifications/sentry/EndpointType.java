@@ -1,7 +1,7 @@
 package io.kestra.plugin.notifications.sentry;
 
 public enum EndpointType {
-    ENVELOP {
+    ENVELOPE {
         public String getEnvelopeUrl(String dsn) {
             String protocol = getProtocol(dsn);
 

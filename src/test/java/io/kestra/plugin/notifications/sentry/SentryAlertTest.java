@@ -80,7 +80,7 @@ public class SentryAlertTest {
         SentryAlert task = SentryAlert.builder()
                 .id(IdUtils.create())
                 .dsn(embeddedServer.getURI() + "/webhook-unit-test")
-                .endpointType(EndpointType.ENVELOP)
+                .endpointType(EndpointType.ENVELOPE)
                 .payload(
                         Files.asCharSource(
                                 new File(Objects.requireNonNull(SentryAlertTest.class.getClassLoader()

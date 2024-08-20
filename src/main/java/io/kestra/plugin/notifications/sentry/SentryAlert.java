@@ -8,8 +8,10 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,11 @@ import lombok.experimental.SuperBuilder;
 
 import jakarta.validation.constraints.NotBlank;
 import java.net.URI;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SuperBuilder
 @ToString
@@ -47,7 +54,8 @@ import java.net.URI;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
-                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx"""
+                    dsn: "{{ secret('SENTRY_DSN') }}" # format: https://xxx@xxx.ingest.sentry.io/xxx
+                    endpointType: ENVELOPE"""
         ),
         @Example(
             title = "Send a custom Sentry alert",
@@ -60,6 +68,7 @@ import java.net.URI;
                   - id: send_sentry_message
                     type: io.kestra.plugin.notifications.sentry.SentryAlert
                     dsn: "{{ secret('SENTRY_DSN') }}"
+                    endpointType: "ENVELOPE"
                     payload: |
                       {
                           "timestamp": "{{ execution.startDate }}",
@@ -83,7 +92,12 @@ import java.net.URI;
 public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     public static final String SENTRY_VERSION = "7";
     public static final String SENTRY_CLIENT = "java";
+    public static final String SENTRY_DATA_MODEL = "event";
+    public static final String SENTRY_FILE_NAME = "application.log";
+    public static final String SENTRY_CONTENT_TYPE = "application/json";
     public static final String SENTRY_DSN_REGEXP = "^(https?://[a-f0-9]+@o[0-9]+\\.ingest\\.sentry\\.io/[0-9]+)$";
+    public static final int PAYLOAD_SIZE_THRESHOLD = 1024 * 1024;    // 1MB for events
+    public static final int ENVELOP_SIZE_THRESHOLD = 100 * 1024 * 1024;  // 100MB decompressed
 
     private static final String DEFAULT_PAYLOAD = """
         {
@@ -108,6 +122,13 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     protected String dsn;
 
     @Schema(
+        title = "Sentry endpoint type"
+    )
+    @PluginProperty(dynamic = true)
+    @Builder.Default
+    protected EndpointType endpointType = EndpointType.ENVELOPE;
+
+    @Schema(
         title = "Sentry event payload"
     )
     @PluginProperty(dynamic = true)
@@ -119,27 +140,91 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
 
         String url = dsn;
         if (dsn.matches(SENTRY_DSN_REGEXP)) {
-            String protocol = dsn.split("://")[0];
-            String publicKey = dsn.split("@")[0].replace(protocol + "://", "");
-            String host = dsn.split("@")[1].split("/")[0];
-            String projectId = dsn.split("@")[1].split("/")[1];
             /*
-            To make passing the correct API endpoint URL easier, 
+            To make passing the correct API endpoint URL easier,
             users only need to provide the Sentry DSN, and we parse the required attributes for the URL
-            using the format https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            using the following formats:
+            STORE_URL: https://{HOST}/api/{PROJECT_ID}/store/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
+            ENVELOPE_URL: https://{HOST}/api/{PROJECT_ID}/envelope/?sentry_version=7&sentry_client=java&sentry_key={PUBLIC_KEY}
             */
-            url = "%s://%s/api/%s/store/?sentry_version=%s&sentry_client=%s&sentry_key=%s" 
-                .formatted(protocol, host, projectId, SENTRY_VERSION, SENTRY_CLIENT, publicKey);
+            url = switch (endpointType) {
+                case ENVELOPE -> EndpointType.ENVELOPE.getEnvelopeUrl(dsn);
+                case STORE -> EndpointType.STORE.getEnvelopeUrl(dsn);
+            };
         }
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
 
-            runContext.logger().debug("Sent the following Sentry event: {}", payload);
+            // Constructing the envelope payload
+            String envelope = constructEnvelope((String) runContext.getVariables().get("eventId"), payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            // Trying to send to /envelope endpoint
+            try {
+                runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
+                client.toBlocking().retrieve(HttpRequest.POST(url, envelope));
+            } catch (HttpClientResponseException exception) { // Backward Compatibility cases
+                int errorCode = exception.getStatus().getCode();
+                if ((errorCode == 401 || errorCode == 404) && endpointType.equals(EndpointType.ENVELOPE)) {
+                    // If the /envelope endpoint is Not Found or Unauthorized ("missing authorization information"), request UI to configure endpointType: store to send the request to /store endpoint.
+                    runContext.logger().error("Envelope endpoint not supported; Please try to configure the store endpoint instead: endpointType: store");
+                    throw exception;
+                }
+            }
         }
 
         return null;
+    }
+
+    /**
+     * Helper method to construct the Envelope formatted payload.
+     */
+    private String constructEnvelope(String eventId, String payload) {
+        return switch (endpointType) {
+            case ENVELOPE -> {
+                // Build Envelope Payload
+                String envelope = "%s%n%s%n%s%n".formatted(getEnvelopeHeaders(eventId, dsn), getItemHeaders(payload.length()), payload);
+
+                // Check envelope and payload against threshold sizes
+                checkEnvelopeAndPayloadThresholds(envelope, payload);
+
+                yield envelope;
+            }
+            case STORE -> payload;
+        };
+    }
+
+    /**
+     * Helper method to build envelope headers
+     */
+    private static String getEnvelopeHeaders(String eventId, String dsn) {
+        eventId = Objects.isNull(eventId) ? UUID.randomUUID().toString().toLowerCase().replace("-", "") : eventId;
+        String sentAt = Instant.now().toString();
+        return "{\"event_id\":\"%s\",\"dsn\":\"%s\",\"sdk\":{\"name\":\"%s\",\"version\":\"%s\"},\"sent_at\":\"%s\"}".formatted(eventId, dsn, SENTRY_CLIENT, SENTRY_VERSION, sentAt);
+    }
+
+    /**
+     * Helper method to build item headers
+     */
+    private static String getItemHeaders(int payloadLength) {
+        return "{\"type\":\"%s\",\"length\":%d,\"content_type\":\"%s\",\"filename\":\"%s\"}".formatted(SENTRY_DATA_MODEL, payloadLength, SENTRY_CONTENT_TYPE, SENTRY_FILE_NAME);
+    }
+
+    /**
+     * Helper method to Check envelope and payload against threshold sizes.
+     */
+    private static void checkEnvelopeAndPayloadThresholds(String envelope, String payload) {
+        // Calculate the size of the envelope
+        int envelopeSize = envelope.getBytes(UTF_8).length;
+        int payloadSize = payload.getBytes(UTF_8).length;
+
+        // Enforce size limits based on Sentry's documentation
+        if (envelopeSize > ENVELOP_SIZE_THRESHOLD) {
+            throw new IllegalArgumentException("Envelope size exceeds 100MB limit for decompressed data");
+        }
+
+        if (payloadSize > PAYLOAD_SIZE_THRESHOLD) {
+            throw new IllegalArgumentException("Event payload size exceeds 1MB limit");
+        }
     }
 }

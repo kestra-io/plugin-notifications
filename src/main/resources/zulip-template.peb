@@ -1,0 +1,77 @@
+{%- macro title(link, execution) -%}
+*
+{%- if link is defined -%}
+<{{link}}|[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}>
+{%- else -%}
+[{{execution.namespace}}] {{execution.flowId}} ➛ {{execution.state.current}}
+{%- endif -%}
+*
+{%- endmacro -%}
+{
+    "text": "{{ title(link, execution) }}\n> {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}",
+    "blocks": [
+        {% if customMessage is defined %}
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": {{ customMessage | json }}
+            }
+        },
+        {% endif %}
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "{{ title(link, execution) }}\n> {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
+            }
+            {% if link is defined %},
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Details"
+                },
+                "url": "{{link}}"
+            }
+            {% endif %}
+        }
+    ],
+    "attachments": [
+       {
+          "color": "{{ execution.state.current == "SUCCESS" ? 'good' : (execution.state.current == "WARNING" ? 'warning' : 'danger') }}",
+          "fields": [
+              {
+                  "title": "Namespace",
+                  "value": {{execution.namespace | json }},
+                  "short": true
+              },
+              {
+                  "title": "Flow ID",
+                  "value": {{execution.flowId | json}},
+                  "short": true
+              },
+              {
+                  "title": "Execution ID",
+                  "value": {{execution.id | json}},
+                  "short": true
+              },
+              {
+                  "title": "Execution Status",
+                  "value": {{execution.state.current | json }},
+                  "short": true
+              }
+              {% if customFields is defined %}
+              {% for entry in customFields %}
+              ,{
+                  "title": {{entry.key | json}},
+                  "value": {{entry.value | json }},
+                  "short": true
+              }
+              {% endfor %}
+              {% endif %}
+          ],
+          "ts": {{ startDate  | timestamp }}
+      }
+    ]
+}

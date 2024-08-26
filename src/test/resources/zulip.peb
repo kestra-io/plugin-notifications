@@ -1,0 +1,30 @@
+{
+    "channel": "#random",
+    "blocks": [
+    {% for block in blocks %}
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": {{ block.text | json }}
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {% for field in block.fields %}
+                {
+                    "type": "mrkdwn",
+                    "text": {{ field | json }}
+                }
+                {{ loop.last == 'false' ? ',' : '' }}
+                {% endfor %}
+            ]
+        },
+        {
+        "type": "divider"
+        }
+        {{ loop.last == 'false' ? ',' : '' }}
+    {% endfor %}
+    ]
+}

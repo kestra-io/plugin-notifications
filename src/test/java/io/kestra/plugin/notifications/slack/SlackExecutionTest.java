@@ -1,6 +1,7 @@
 package io.kestra.plugin.notifications.slack;
 
 import com.google.common.collect.ImmutableMap;
+import io.kestra.core.queues.QueueException;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -43,7 +44,7 @@ class SlackExecutionTest {
     }
 
     @Test
-    void flow() throws TimeoutException {
+    void flow() throws TimeoutException, QueueException {
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
 

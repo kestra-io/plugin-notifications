@@ -2,6 +2,7 @@ package io.kestra.plugin.notifications.teams;
 
 import com.google.common.collect.ImmutableMap;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.plugin.notifications.FakeWebhookController;
@@ -43,7 +44,7 @@ class TeamsExecutionTest {
     }
 
     @Test
-    void flow() throws TimeoutException {
+    void flow() throws TimeoutException, QueueException {
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
 

@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.zulip;
 import com.google.common.collect.ImmutableMap;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
@@ -43,7 +44,7 @@ class ZulipExecutionTest {
     }
 
     @Test
-    void flow() throws TimeoutException {
+    void flow() throws TimeoutException, QueueException {
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
 

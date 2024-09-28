@@ -50,7 +50,36 @@ import java.util.Map;
                         namespace: prod
                         prefix: true
                 """
-        )
+        ),
+        @Example(
+            title = "Send a Rocket Chat notification on a failed flow execution",
+            full = true,
+            code = """
+                id: failure_alert
+                namespace: debug
+
+                tasks:
+                  - id: send_alert_to_rocket_chat
+                    type: io.kestra.plugin.notifications.slack.SlackExecution
+                    url: "{{ secret('ROCKET_CHAT_WEBHOOK') }}"
+                    channel: "#errors"
+                    executionId: "{{ trigger.executionId }}"
+                    username: "Kestra TEST"
+                    iconUrl: "https://avatars.githubusercontent.com/u/59033362?s=48"
+
+                triggers:
+                  - id: failed_prod_workflows
+                    type: io.kestra.plugin.core.trigger.Flow
+                    conditions:
+                      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
+                        in:
+                          - FAILED
+                          - WARNING
+                      - type: io.kestra.plugin.core.condition.ExecutionNamespaceCondition
+                        namespace: debug
+                        prefix: true
+                """
+        )        
     }
 )
 public class SlackExecution extends SlackTemplate implements ExecutionInterface {

@@ -96,6 +96,49 @@ import java.net.URI;
                       }            
                 """
         ),
+        @Example(
+            title = "Send a [Rocket Chat](https://www.rocket.chat/) message via [incoming webhook](https://docs.rocket.chat/docs/integrations#incoming-webhook-script)",
+            full = true,
+            code = """
+                id: rocket_chat_notification
+                namespace: company.team
+                tasks:
+                  - id: send_rocket_chat_message
+                    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+                    url: "{{ secret('ROCKET_CHAT_WEBHOOK') }}"
+                    payload: |
+                      {
+                        "alias": "Kestra TEST",
+                        "avatar": "https://avatars.githubusercontent.com/u/59033362?s=48",
+                        "emoji": ":smirk:",
+                        "roomId": "#my-channel",
+                        "text": "Sample",
+                        "tmshow": true,
+                        "attachments": [
+                          {
+                            "collapsed": false,
+                            "color": "#ff0000",
+                            "text": "Yay!",
+                            "title": "Attachment Example",
+                            "title_link": "https://rocket.chat",
+                            "title_link_download": false,
+                            "fields": [
+                              {
+                                "short": false,
+                                "title": "Test title",
+                                "value": "Test value"
+                              },
+                              {
+                                "short": true,
+                                "title": "Test title",
+                                "value": "Test value"
+                              }
+                            ]
+                          }		
+                        ]
+                      }                
+                """
+        ),        
     }
 )
 public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutput> {

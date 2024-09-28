@@ -52,7 +52,7 @@ import java.util.Map;
                 """
         ),
         @Example(
-            title = "Send a Rocket Chat notification on a failed flow execution",
+            title = "Send a [Rocket.Chat](https://www.rocket.chat/) notification on a failed flow execution",
             full = true,
             code = """
                 id: failure_alert

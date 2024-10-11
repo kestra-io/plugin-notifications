@@ -34,7 +34,9 @@ import java.util.Map;
                 tasks:
                   - id: send_alert
                     type: io.kestra.plugin.notifications.twilio.TwilioExecution
-                    url: "{{ secret('TWILIO_ALERT') }}" # format: https://notify.twilio.com/v1/Services/ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Notifications
+                    url: "{{ secret('TWILIO_NOTIFICATION_URL') }}" # format: https://notify.twilio.com/v1/Services/ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Notifications
+                    accountSID: "{{ secret('TWILIO_ACCOUNT_SID') }}"
+                    authToken: "{{ secret('TWILIO_AUTH_TOKEN') }}"
                     identity: 0000001
                     executionId: "{{trigger.executionId}}"
 

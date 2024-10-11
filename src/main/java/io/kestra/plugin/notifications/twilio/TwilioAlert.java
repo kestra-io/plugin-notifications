@@ -47,7 +47,9 @@ import java.net.URI;
                 errors:
                   - id: alert_on_failure
                     type: io.kestra.plugin.notifications.twilio.TwilioAlert
-                    url: "{{ secret('TWILIO_ALERT') }}" # https://notify.twilio.com/v1/Services/ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Notifications
+                    url: "{{ secret('TWILIO_NOTIFICATION_URL') }}" # https://notify.twilio.com/v1/Services/ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Notifications
+                    accountSID: "{{ secret('TWILIO_ACCOUNT_SID') }}"
+                    authToken: "{{ secret('TWILIO_AUTH_TOKEN') }}"
                     payload: |
                       {
                         "identity": "0000001"
@@ -64,7 +66,9 @@ import java.net.URI;
                 tasks:
                   - id: send_twilio_message
                     type: io.kestra.plugin.notifications.twilio.TwilioAlert
-                    url: "{{ secret('TWILIO_ALERT') }}"
+                    url: "{{ secret('TWILIO_NOTIFICATION_URL') }}"
+                    accountSID: "{{ secret('TWILIO_ACCOUNT_SID') }}"
+                    authToken: "{{ secret('TWILIO_AUTH_TOKEN') }}"
                     payload: |
                       {
                         "identity": "0000001"

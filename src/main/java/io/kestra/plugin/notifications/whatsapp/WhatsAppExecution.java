@@ -18,9 +18,9 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a WhatsApp message with the execution information",
+    title = "Send a WhatsApp message with the execution information.",
     description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
-        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [WhatsAppIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/discord/io.kestra.plugin.notifications.whatsapp.whatsappincomingwebhook) task."
+        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [WhatsAppIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/whatsapp/io.kestra.plugin.notifications.whatsapp.whatsappincomingwebhook) task."
 )
 @Plugin(
     examples = {
@@ -33,8 +33,8 @@ import java.util.Map;
 
                 tasks:
                   - id: send_alert
-                    type: io.kestra.plugin.notifications.discord.WhatsAppExecution
-                    url: "{{ secret('WHATSAPP_WEBHOOK') }}" # format: https://hooks.discord.com/services/xzy/xyz/xyz
+                    type: io.kestra.plugin.notifications.whatsapp.WhatsAppExecution
+                    url: "{{ secret('WHATSAPP_WEBHOOK') }}"
                     profileName: "MyProfile"
                     from: 380999999999
                     whatsAppIds:

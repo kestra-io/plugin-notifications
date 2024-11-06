@@ -155,7 +155,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
             String payload = runContext.render(this.payload).as(String.class).isPresent() ?
-                runContext.render(this.payload).as(String.class).get() :
+                runContext.render(runContext.render(this.payload).as(String.class).get()) :
                 runContext.render(DEFAULT_PAYLOAD.strip());
 
             // Constructing the envelope payload

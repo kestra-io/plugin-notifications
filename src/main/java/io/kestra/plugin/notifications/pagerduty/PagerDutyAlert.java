@@ -100,7 +100,8 @@ public class PagerDutyAlert extends Task implements RunnableTask<VoidOutput> {
         String url = runContext.render(this.url);
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
-            String payload = runContext.render(this.payload).as(String.class).orElse(null);
+            //First render to get the template, second render to populate the payload
+            String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send PagerDuty alert: {}", payload);
 

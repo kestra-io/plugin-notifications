@@ -1,6 +1,5 @@
 package io.kestra.plugin.notifications.mail;
 
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.junit5.GreenMailExtension;

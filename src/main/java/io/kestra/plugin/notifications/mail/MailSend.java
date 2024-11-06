@@ -165,10 +165,10 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         logger.debug("Sending an email to {}", to);
 
-        final String htmlContent = runContext.render(this.htmlTextContent).as(String.class).orElse(null);
+        final String htmlContent = runContext.render(runContext.render(this.htmlTextContent).as(String.class).orElse(null));
         final String textContent = runContext.render(this.plainTextContent).as(String.class).isEmpty() ?
             "Please view this email in a modern email client" :
-            runContext.render(this.plainTextContent).as(String.class).get();
+            runContext.render(runContext.render(this.plainTextContent).as(String.class).get());
 
         // Building email to send
         EmailPopulatingBuilder builder = EmailBuilder.startingBlank()

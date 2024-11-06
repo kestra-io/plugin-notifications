@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 @KestraTest
-public class DiscordExecutionTest {
+class DiscordExecutionTest {
 
     @Inject
     private ApplicationContext applicationContext;

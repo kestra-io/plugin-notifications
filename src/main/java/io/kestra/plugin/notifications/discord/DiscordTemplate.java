@@ -104,8 +104,8 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
                 List<Object> existingEmbeds = (List<Object>) mainMap.get("embeds");
 
                 if (!existingEmbeds.isEmpty()) {
-                    Map<String, Object> map = (Map<String, Object>) existingEmbeds.get(0);
-                    embeds.get(0).putAll(map);
+                    Map<String, Object> map = (Map<String, Object>) existingEmbeds.getFirst();
+                    embeds.getFirst().putAll(map);
                 }
             }
 
@@ -113,7 +113,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         }
 
         if (this.content != null) {
-            mainMap.put("content", runContext.render(this.content));
+            mainMap.put("content", runContext.render(this.content).as(String.class).get());
         }
 
         this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(mainMap));

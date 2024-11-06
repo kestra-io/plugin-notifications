@@ -1,6 +1,6 @@
 package io.kestra.plugin.notifications;
 
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Map;
@@ -11,18 +11,15 @@ public interface ExecutionInterface {
         description = "Default is the current execution, " +
             "change it to {{ trigger.executionId }} if you use this task with a Flow trigger to use the original execution."
     )
-    @PluginProperty(dynamic = true)
-    String getExecutionId();
+    Property<String> getExecutionId();
 
     @Schema(
         title = "Custom fields to be added on notification"
     )
-    @PluginProperty(dynamic = true)
-    Map<String, Object> getCustomFields();
+    Property<Map<String, Object>> getCustomFields();
 
     @Schema(
         title = "Custom message to be added on notification"
     )
-    @PluginProperty(dynamic = true)
-    String getCustomMessage();
+    Property<String> getCustomMessage();
 }

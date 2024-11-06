@@ -1,7 +1,8 @@
 package io.kestra.plugin.notifications.opsgenie;
 
-import com.google.common.base.Charsets;
+
 import com.google.common.io.Files;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.notifications.FakeWebhookController;
@@ -12,6 +13,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -41,15 +43,15 @@ public class OpsgenieAlertTest {
 
         OpsgenieAlert task = OpsgenieAlert.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(
+            .payload(Property.of(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(OpsgenieAlertTest.class.getClassLoader()
                             .getResource("opsgenie.peb"))
                         .toURI()),
-                    Charsets.UTF_8
+                    StandardCharsets.UTF_8
                                   ).read()
-                    )
-            .authorizationToken(UUID.randomUUID().toString())
+                    ))
+            .authorizationToken(Property.of(UUID.randomUUID().toString()))
             .build();
 
         task.run(runContext);

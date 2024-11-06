@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.retrys.Exponential;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.runners.DefaultRunContext;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ExecutionService {
-    public static Execution findExecution(RunContext runContext, String executionId) throws IllegalVariableEvaluationException, NoSuchElementException {
+    public static Execution findExecution(RunContext runContext, Property<String> executionId) throws IllegalVariableEvaluationException, NoSuchElementException {
         ExecutionRepositoryInterface executionRepository = ((DefaultRunContext)runContext).getApplicationContext().getBean(ExecutionRepositoryInterface.class);
         RetryUtils.Instance<Execution, NoSuchElementException> retryInstance = ((DefaultRunContext)runContext).getApplicationContext().getBean(RetryUtils.class)
             .of(Exponential.builder()
@@ -32,7 +33,7 @@ public class ExecutionService {
                 runContext.logger()
             );
 
-        String executionRendererId = runContext.render(runContext.render(executionId));
+        String executionRendererId = runContext.render(runContext.render(executionId).as(String.class).orElse(null));
 
         var flowVars = (Map<String, String>) runContext.getVariables().get("flow");
         var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
@@ -62,12 +63,13 @@ public class ExecutionService {
         templateRenderMap.put("link", uriProvider.executionUrl(execution));
         templateRenderMap.put("execution", JacksonMapper.toMap(execution));
 
-        if (executionInterface.getCustomMessage() != null) {
-            templateRenderMap.put("customMessage", runContext.render(executionInterface.getCustomMessage()));
-        }
+        runContext.render(executionInterface.getCustomMessage())
+            .as(String.class)
+            .ifPresent(s -> templateRenderMap.put("customMessage", s));
 
-        if (executionInterface.getCustomFields() != null) {
-            templateRenderMap.put("customFields", runContext.render(executionInterface.getCustomFields()));
+        final Map<String, Object> renderedCustomFields = runContext.render(executionInterface.getCustomFields()).asMap(String.class, Object.class);
+        if (!renderedCustomFields.isEmpty()) {
+            templateRenderMap.put("customFields", renderedCustomFields);
         }
 
         Streams

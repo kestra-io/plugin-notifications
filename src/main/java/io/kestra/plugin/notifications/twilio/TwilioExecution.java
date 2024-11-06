@@ -2,6 +2,7 @@ package io.kestra.plugin.notifications.twilio;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
@@ -57,14 +58,14 @@ import java.util.Map;
 )
 public class TwilioExecution extends TwilioTemplate implements ExecutionInterface {
     @Builder.Default
-    private final String executionId = "{{ execution.id }}";
-    private Map<String, Object> customFields;
-    private String customMessage;
+    private final Property<String> executionId = Property.of("{{ execution.id }}");
+    private Property<Map<String, Object>> customFields;
+    private Property<String> customMessage;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = "twilio-template.peb";
-        this.templateRenderMap = ExecutionService.executionMap(runContext, this);
+        this.templateUri = Property.of("twilio-template.peb");
+        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

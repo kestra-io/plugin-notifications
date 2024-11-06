@@ -1,7 +1,6 @@
 package io.kestra.plugin.notifications.teams;
 
-import com.google.common.base.Charsets;
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
@@ -14,6 +13,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,56 +28,50 @@ public abstract class TeamsTemplate extends TeamsIncomingWebhook {
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
     @Schema(title = "Theme color")
     @Builder.Default
-    @PluginProperty(dynamic = true)
-    protected String themeColor = "0076D7";
+    protected Property<String> themeColor = Property.of("0076D7");
 
     @Schema(title = "Activity Title")
-    @PluginProperty(dynamic = true)
-    protected String activityTitle;
+    protected Property<String> activityTitle;
 
     @Schema(title = "Activity Subtitle")
-    @PluginProperty(dynamic = true)
-    protected String activitySubtitle;
+    protected Property<String> activitySubtitle;
 
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                StandardCharsets.UTF_8
             );
 
             Map<String, Object> copy = new HashMap<>();
-            if (templateRenderMap != null) {
-                copy.putAll(templateRenderMap);
+            final Map<String, Object> renderedTemplateRenderMap = runContext.render(templateRenderMap).asMap(String.class, Object.class);
+            if (!renderedTemplateRenderMap.isEmpty()) {
+                copy.putAll(renderedTemplateRenderMap);
             }
-            copy.put("themeColor", runContext.render(themeColor));
-            if (this.activityTitle != null) {
-                copy.put("activityTitle", runContext.render(this.activityTitle));
-            }
-            if (this.activitySubtitle != null) {
-                copy.put("activitySubtitle", runContext.render(this.activitySubtitle));
-            }
+
+            runContext.render(themeColor).as(String.class).ifPresent(c -> copy.put("themeColor", c));
+            runContext.render(this.activityTitle).as(String.class).ifPresent(c -> copy.put("activityTitle", c));
+            runContext.render(this.activitySubtitle).as(String.class).ifPresent(c -> copy.put("activitySubtitle", c));
 
             String render = runContext.render(template, copy);
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
+        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

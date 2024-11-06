@@ -1,6 +1,6 @@
 package io.kestra.plugin.notifications.opsgenie;
 
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
@@ -10,9 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,100 +29,99 @@ public abstract class OpsgenieTemplate extends OpsgenieAlert {
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
-
-
-    @Schema(
-        title = "Map of variables to use for the message template"
-    )
-    @PluginProperty(dynamic = true)
-    protected String message;
+    protected Property<Map<String, Object>> templateRenderMap;
 
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected String alias;
+    protected Property<String> message;
+
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, String> responders;
+    protected Property<String> alias;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, String> visibleTo;
+    protected Property<Map<String, String>> responders;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected List<String> tags;
+    protected Property<Map<String, String>> visibleTo;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected String priority;
+    protected Property<List<String>> tags;
+
+    @Schema(
+        title = "Map of variables to use for the message template"
+    )
+    protected Property<String> priority;
 
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                StandardCharsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? runContext.render(templateRenderMap) : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
+                Map.of()
+            );
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.message != null) {
-            map.put("message", runContext.render(message));
+        if (runContext.render(message).as(String.class).isPresent()) {
+            map.put("message", runContext.render(message).as(String.class).get());
         }
 
-        if (this.alias != null) {
-            map.put("alias", runContext.render(alias));
+        if (runContext.render(alias).as(String.class).isPresent()) {
+            map.put("alias", runContext.render(alias).as(String.class).get());
         }
 
-        if (this.responders != null) {
-            List<Map<String, String>> respondersList = responders.entrySet().stream()
+        final Map<String, String> renderedResponders = runContext.render(this.responders).asMap(String.class, String.class);
+        if (!renderedResponders.isEmpty()) {
+            List<Map<String, String>> respondersList = renderedResponders.entrySet().stream()
                 .map(entry -> Map.of("id", entry.getKey(), "type", entry.getValue()))
                 .toList();
 
             map.put("responders", respondersList);
         }
 
-        if (this.visibleTo != null) {
-            List<Map<String, String>> visibleToList = visibleTo.entrySet().stream()
+        final Map<String, String> renderedVisibleTo = runContext.render(this.visibleTo).asMap(String.class, String.class);
+        if (!renderedVisibleTo.isEmpty()) {
+            List<Map<String, String>> visibleToList = renderedVisibleTo.entrySet().stream()
                 .map(entry -> Map.of("id", entry.getKey(), "type", entry.getValue()))
                 .toList();
             map.put("visibleTo", visibleToList);
         }
 
-        if (this.tags != null) {
-            map.put("tags", runContext.render(tags));
+        final List<String> renderedTagList = runContext.render(tags).asList(String.class);
+        if (!renderedTagList.isEmpty()) {
+            map.put("tags", renderedTagList);
         }
 
-        if (this.priority != null) {
-            map.put("priority", runContext.render(priority));
+        if (runContext.render(priority).as(String.class).isPresent()) {
+            map.put("priority", runContext.render(priority).as(String.class).get());
         }
 
-        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
+        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

@@ -1,5 +1,6 @@
 package io.kestra.plugin.notifications.telegram;
 
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.micronaut.context.ApplicationContext;
@@ -37,10 +38,10 @@ class TelegramSendTest {
         String token = "token";
 
         TelegramSend task = TelegramSend.builder()
-                .endpointOverride(embeddedServer.getURL().toString())
-                .token(token)
-                .channel(channel)
-                .payload(message)
+                .endpointOverride(Property.of(embeddedServer.getURL().toString()))
+                .token(Property.of(token))
+                .channel(Property.of(channel))
+                .payload(Property.of(message))
                 .build();
         task.run(runContext);
 

@@ -2,6 +2,7 @@ package io.kestra.plugin.notifications.slack;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.property.Property;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -153,15 +154,14 @@ public class SlackIncomingWebhook extends Task implements RunnableTask<VoidOutpu
     @Schema(
         title = "Slack message payload"
     )
-    @PluginProperty(dynamic = true)
-    protected String payload;
+    protected Property<String> payload;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
-            String payload = runContext.render(this.payload);
+            String payload = runContext.render(this.payload).as(String.class).orElse(null);
 
             runContext.logger().debug("Send Slack webhook: {}", payload);
 

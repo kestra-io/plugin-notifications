@@ -1,6 +1,6 @@
 package io.kestra.plugin.notifications.zenduty;
 
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
@@ -10,10 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
-import jakarta.validation.constraints.NotBlank;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,82 +29,79 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
     @Schema(
         title = "Event title"
     )
-    @PluginProperty(dynamic = true)
-    protected String message;
+    protected Property<String> message;
 
     @Schema(
         title = "Event message. Summary description"
     )
-    @PluginProperty(dynamic = true)
-    protected String summary;
+    protected Property<String> summary;
 
     @Schema(
         title = "Event alert type",
         implementation = AlertType.class
     )
-    @PluginProperty
-    protected AlertType alertType;
+    protected Property<AlertType> alertType;
 
     @Schema(
         title = "A unique id for the alert. If not provided, the Zenduty API will create one"
     )
-    @PluginProperty(dynamic = true)
-    protected String entityId;
+    protected Property<String> entityId;
 
     @Schema(
         title = "List of URLs related to the alert"
     )
-    @PluginProperty(dynamic = true)
-    protected List<String> urls;
+    protected Property<List<String>> urls;
 
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                StandardCharsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
+                Map.of()
+            );
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.message != null) {
-            map.put("message", runContext.render(this.message));
+        if (runContext.render(this.message).as(String.class).isPresent()) {
+            map.put("message", runContext.render(this.message).as(String.class).get());
         }
 
-        if (this.summary != null) {
-            map.put("summary", runContext.render(this.summary));
+        if (runContext.render(this.summary).as(String.class).isPresent()) {
+            map.put("summary", runContext.render(this.summary).as(String.class).get());
         }
 
-        if (this.alertType != null) {
-            map.put("alert_type", runContext.render(this.alertType.name().toLowerCase()));
+        if (runContext.render(this.alertType).as(AlertType.class).isPresent()) {
+            map.put("alert_type", runContext.render(this.alertType).as(AlertType.class).get().name().toLowerCase());
         }
 
-        if (this.entityId != null) {
-            map.put("entity_id", runContext.render(this.entityId));
+        if (runContext.render(this.entityId).as(String.class).isPresent()) {
+            map.put("entity_id", runContext.render(this.entityId).as(String.class).get());
         }
 
-        if (this.urls != null) {
-            map.put("urls", runContext.render(this.urls));
+        if (!runContext.render(this.urls).asList(String.class).isEmpty()) {
+            map.put("urls", runContext.render(this.urls).asList(String.class));
         }
 
-        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
+        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

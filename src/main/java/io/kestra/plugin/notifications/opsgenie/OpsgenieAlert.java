@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.opsgenie;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -112,25 +113,25 @@ public class OpsgenieAlert extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "Opsgenie alert payload"
     )
-    @PluginProperty(dynamic = true)
-    protected String payload;
+    protected Property<String> payload;
 
     @Schema(
         title = "GenieKey. Authorization token from Opsgenie"
     )
-    @PluginProperty(dynamic = true)
-    protected String authorizationToken;
+    protected Property<String> authorizationToken;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
-            String payload = runContext.render(this.payload);
+            String payload = runContext.render(this.payload).as(String.class).orElse(null);
 
             runContext.logger().debug("Send Opsgenie alert: {}", payload);
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload).header(HttpHeaders.AUTHORIZATION, runContext.render(authorizationToken)));
+            client.toBlocking()
+                .retrieve(HttpRequest.POST(url, payload).header(HttpHeaders.AUTHORIZATION,
+                    runContext.render(authorizationToken).as(String.class).orElse(null)));
         }
 
         return null;

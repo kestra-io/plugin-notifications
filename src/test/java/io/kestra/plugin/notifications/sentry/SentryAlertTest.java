@@ -1,7 +1,8 @@
 package io.kestra.plugin.notifications.sentry;
 
-import com.google.common.base.Charsets;
+
 import com.google.common.io.Files;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.utils.IdUtils;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
@@ -46,14 +48,14 @@ public class SentryAlertTest {
             .id(IdUtils.create())
             .dsn(embeddedServer.getURI() + "/webhook-unit-test")
             .endpointType(EndpointType.STORE)
-            .payload(
+            .payload(Property.of(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SentryAlertTest.class.getClassLoader()
                             .getResource("sentry.peb"))
                         .toURI()),
-                    Charsets.UTF_8
+                    StandardCharsets.UTF_8
                                   ).read()
-                    )
+                    ))
             .build();
 
         task.run(runContext);
@@ -81,13 +83,13 @@ public class SentryAlertTest {
                 .id(IdUtils.create())
                 .dsn(embeddedServer.getURI() + "/webhook-unit-test")
                 .endpointType(EndpointType.ENVELOPE)
-                .payload(
+                .payload(Property.of(
                         Files.asCharSource(
                                 new File(Objects.requireNonNull(SentryAlertTest.class.getClassLoader()
                                                 .getResource("sentry.peb"))
                                         .toURI()),
-                                Charsets.UTF_8
-                        ).read()
+                                StandardCharsets.UTF_8
+                        ).read())
                 )
                 .build();
 

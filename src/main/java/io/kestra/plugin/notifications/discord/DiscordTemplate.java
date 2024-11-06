@@ -1,6 +1,7 @@
 package io.kestra.plugin.notifications.discord;
 
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
@@ -8,9 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static io.kestra.core.utils.Rethrow.throwFunction;
@@ -26,26 +27,22 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
     @Schema(
         title = "Webhook username"
     )
-    @PluginProperty(dynamic = true)
-    protected String username;
+    protected Property<String> username;
 
     @Schema(
         title = "Webhook avatar URL"
     )
-    @PluginProperty(dynamic = true)
-    protected String avatarUrl;
+    protected Property<String> avatarUrl;
 
     @Schema(
         title = "Adds an embed to the discord notification body"
@@ -56,34 +53,42 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
     @Schema(
         title = "Message content"
     )
-    @PluginProperty(dynamic = true)
-    protected String content;
+    protected Property<String> content;
 
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        if (payload != null && !payload.isBlank()) {
+        final Optional<String> renderedPayload = runContext.render(this.payload).as(String.class);
+
+        if (renderedPayload.isPresent() && !renderedPayload.get().isBlank()) {
             return super.run(runContext);
         }
 
         Map<String, Object> mainMap = new HashMap<>();
 
-        if (this.templateUri != null) {
+        final Optional<String> renderedUri = runContext.render(this.templateUri).as(String.class);
+        
+        if (renderedUri.isPresent()) {
             String template = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
-                                              );
+                Objects.requireNonNull(this.getClass()
+                    .getClassLoader().
+                    getResourceAsStream(renderedUri.get())
+                ),
+                StandardCharsets.UTF_8
+            );
 
-            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ? 
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) : 
+                Map.of());
             mainMap = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
         if (this.username != null) {
-            mainMap.put("username", runContext.render(this.username));
+            mainMap.put("username", runContext.render(this.username).as(String.class).get());
         }
 
         if (this.avatarUrl != null) {
-            mainMap.put("avatar_url", runContext.render(this.avatarUrl));
+            mainMap.put("avatar_url", runContext.render(this.avatarUrl).as(String.class).get());
         }
 
         mainMap.put("tts", false);
@@ -111,7 +116,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
             mainMap.put("content", runContext.render(this.content));
         }
 
-        this.payload = JacksonMapper.ofJson().writeValueAsString(mainMap);
+        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(mainMap));
 
         return super.run(runContext);
     }
@@ -124,32 +129,27 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         @Schema(
             title = "Title"
         )
-        @PluginProperty(dynamic = true)
-        protected String title;
+        protected Property<String> title;
 
         @Schema(
             title = "Website URL, link title with given URL"
         )
-        @PluginProperty(dynamic = true)
-        protected String websiteUrl;
+        protected Property<String> websiteUrl;
 
         @Schema(
             title = "Message description"
         )
-        @PluginProperty(dynamic = true)
-        protected String description;
+        protected Property<String> description;
 
         @Schema(
             title = "Thumbnail URL"
         )
-        @PluginProperty(dynamic = true)
-        protected String thumbnail;
+        protected Property<String> thumbnail;
 
         @Schema(
             title = "Message author name"
         )
-        @PluginProperty(dynamic = true)
-        protected String authorName;
+        protected Property<String> authorName;
 
         @Schema(
             title = "RGB color of text",
@@ -161,8 +161,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         @Schema(
             title = "Footer text"
         )
-        @PluginProperty(dynamic = true)
-        protected String footer;
+        protected Property<String> footer;
 
         private int getColor() {
             if (color.length >= 3) {
@@ -175,43 +174,30 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
             return 0;
         }
 
-        public Map<String, Object> getEmbedMap(RunContext runContext, String avatarUrl) throws Exception {
+        public Map<String, Object> getEmbedMap(RunContext runContext, Property<String> avatarUrl) throws Exception {
             Map<String, Object> embedMap = new HashMap<>();
 
-            if (this.title != null) {
-                embedMap.put("title", runContext.render(this.title));
-            }
+            runContext.render(this.title).as(String.class).ifPresent(t -> embedMap.put("title", t));
 
-            if (this.description != null) {
-                embedMap.put("description", runContext.render(this.description));
-            }
+            runContext.render(this.description).as(String.class).ifPresent(d -> embedMap.put("description", d));
 
-            if (this.websiteUrl != null) {
-                embedMap.put("url", runContext.render(this.websiteUrl));
-            }
+            runContext.render(this.websiteUrl).as(String.class).ifPresent(url -> embedMap.put("url", url));
 
-            if (this.thumbnail != null) {
-                Map<String, String> thumbnailMap = Map.of("url", runContext.render(this.thumbnail));
-                embedMap.put("thumbnail", thumbnailMap);
-            }
+            runContext.render(this.thumbnail).as(String.class).ifPresent(url -> embedMap.put("thumbnail", Map.of("url", url)));
 
             if (this.authorName != null) {
-                Map<String, String> authorMap = Map.of(
-                    "name", runContext.render(this.authorName),
-                    "url", runContext.render(this.websiteUrl),
-                    "icon_url", runContext.render(avatarUrl)
-                                                      );
-                embedMap.put("author", authorMap);
+                embedMap.put("author", Map.of(
+                    "name", runContext.render(this.authorName).as(String.class).orElse(null),
+                    "url", runContext.render(this.websiteUrl).as(String.class).orElse(null),
+                    "icon_url", runContext.render(avatarUrl).as(String.class).orElse(null)
+                ));
             }
 
             if (this.color != null) {
                 embedMap.put("color", getColor());
             }
 
-            if (this.footer != null) {
-                Map<String, String> footerMap = Map.of("text", runContext.render(this.footer));
-                embedMap.put("footer", footerMap);
-            }
+            runContext.render(this.footer).as(String.class).ifPresent(t -> embedMap.put("footer", Map.of("text", t)));
 
             return embedMap;
         }

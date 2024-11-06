@@ -1,8 +1,9 @@
 package io.kestra.plugin.notifications.slack;
 
-import com.google.common.base.Charsets;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import io.kestra.core.models.property.Property;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -12,6 +13,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import jakarta.inject.Inject;
@@ -47,13 +49,13 @@ class SlackIncomingWebhookTest {
 
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(
+            .payload(Property.of(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
                         .getResource("slack.peb"))
                         .toURI()),
-                    Charsets.UTF_8
-                ).read()
+                    StandardCharsets.UTF_8
+                ).read())
             )
             .build();
 

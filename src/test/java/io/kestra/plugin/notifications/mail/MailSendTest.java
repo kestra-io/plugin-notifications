@@ -1,10 +1,11 @@
 package io.kestra.plugin.notifications.mail;
 
-import com.google.common.base.Charsets;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.storages.StorageInterface;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -58,14 +60,14 @@ public class MailSendTest {
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
                 .getResource("mail-template.hbs.peb"))
                 .toURI()),
-            Charsets.UTF_8
+            StandardCharsets.UTF_8
         ).read();
 
         textTemplate = Files.asCharSource(
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
                 .getResource("text-template.hbs.peb"))
                 .toURI()),
-            Charsets.UTF_8
+            StandardCharsets.UTF_8
         ).read();
     }
 
@@ -108,18 +110,18 @@ public class MailSendTest {
         );
 
         MailSend mailSend = MailSend.builder()
-            .host("localhost")
-            .port(greenMail.getSmtp().getPort())
-            .from(FROM)
-            .to(TO)
-            .subject(SUBJECT)
-            .htmlTextContent(template)
-            .plainTextContent(textTemplate)
-            .transportStrategy(TransportStrategy.SMTP)
+            .host(Property.of("localhost"))
+            .port(Property.of(greenMail.getSmtp().getPort()))
+            .from(Property.of(FROM))
+            .to(Property.of(TO))
+            .subject(Property.of(SUBJECT))
+            .htmlTextContent(Property.of(template))
+            .plainTextContent(Property.of(textTemplate))
+            .transportStrategy(Property.of(TransportStrategy.SMTP))
             .attachments(List.of(MailSend.Attachment.builder()
-                .name("application.yml")
-                .uri(put.toString())
-                .contentType("text/yaml")
+                .name(Property.of("application.yml"))
+                .uri(Property.of(put.toString()))
+                .contentType(Property.of("text/yaml"))
                 .build())
             )
             .build();
@@ -136,7 +138,7 @@ public class MailSendTest {
         assertThat(content.getCount(), is(2));
 
         MimeBodyPart bodyPart = ((MimeBodyPart) content.getBodyPart(0));
-        String body = IOUtils.toString(bodyPart.getInputStream(), Charsets.UTF_8);
+        String body = IOUtils.toString(bodyPart.getInputStream(), StandardCharsets.UTF_8);
 
         assertThat(mimeMessage.getFrom()[0].toString(), is(FROM));
         assertThat(((InternetAddress) mimeMessage.getRecipients(Message.RecipientType.TO)[0]).getAddress(), is(TO));
@@ -150,11 +152,11 @@ public class MailSendTest {
         assertThat(body, containsString("myCustomMessage"));
 
         MimeBodyPart filePart = ((MimeBodyPart) content.getBodyPart(1));
-        String file = IOUtils.toString(filePart.getInputStream(), Charsets.UTF_8);
+        String file = IOUtils.toString(filePart.getInputStream(), StandardCharsets.UTF_8);
 
         assertThat(filePart.getContentType(), is("text/yaml; filename=application.yml; name=application.yml"));
         assertThat(filePart.getFileName(), is("application.yml"));
-        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(null, put), Charsets.UTF_8)));
+        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(null, put), StandardCharsets.UTF_8)));
     }
 
     @Test
@@ -164,14 +166,14 @@ public class MailSendTest {
 
         Assertions.assertThrows(MailException.class, () -> {
         MailSend mailSend = MailSend.builder()
-                .host("fake-host-unknown.com")
-                .port(465)
-                .from(FROM)
-                .to(TO)
-                .subject(SUBJECT)
-                .htmlTextContent(template)
-                .plainTextContent(textTemplate)
-                .transportStrategy(TransportStrategy.SMTP)
+                .host(Property.of("fake-host-unknown.com"))
+                .port(Property.of(465))
+                .from(Property.of(FROM))
+                .to(Property.of(TO))
+                .subject(Property.of(SUBJECT))
+                .htmlTextContent(Property.of(template))
+                .plainTextContent(Property.of(textTemplate))
+                .transportStrategy(Property.of(TransportStrategy.SMTP))
                 .build();
 
             mailSend.run(runContext);

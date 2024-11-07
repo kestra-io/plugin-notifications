@@ -8,11 +8,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
 import io.kestra.plugin.notifications.services.ExecutionService;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Map;

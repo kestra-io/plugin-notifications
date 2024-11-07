@@ -4,21 +4,20 @@ import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.models.tasks.RunnableTask;
-import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import jakarta.validation.constraints.NotBlank;
 import java.net.URI;
 
 @SuperBuilder
@@ -101,7 +100,7 @@ import java.net.URI;
         ),
     }
 )
-public class OpsgenieAlert extends Task implements RunnableTask<VoidOutput> {
+public class OpsgenieAlert extends AbstractHttpOptionsTask {
 
     @Schema(
         title = "Alert creation URL"
@@ -124,7 +123,7 @@ public class OpsgenieAlert extends Task implements RunnableTask<VoidOutput> {
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
-        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
+        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
             //First render to get the template, second render to populate the payload
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 

@@ -8,6 +8,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -99,7 +100,7 @@ import java.net.URI;
         ),
     }
 )
-public class ZulipIncomingWebhook extends Task implements RunnableTask<VoidOutput> {
+public class ZulipIncomingWebhook extends AbstractHttpOptionsTask {
     @Schema(
         title = "Zulip incoming webhook URL",
         description = "Check the <a href=\"https://zulip.com/api/incoming-webhooks-overview\">Incoming Webhook Integrations</a> documentation for more details.."
@@ -117,7 +118,7 @@ public class ZulipIncomingWebhook extends Task implements RunnableTask<VoidOutpu
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
-        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
+        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
             //First render to get the template, second render to populate the payload
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 

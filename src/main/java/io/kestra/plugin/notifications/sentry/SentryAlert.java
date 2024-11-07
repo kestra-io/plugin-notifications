@@ -8,6 +8,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.netty.DefaultHttpClient;
@@ -90,7 +91,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
         ),
     }
 )
-public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
+public class SentryAlert extends AbstractHttpOptionsTask {
     public static final String SENTRY_VERSION = "7";
     public static final String SENTRY_CLIENT = "java";
     public static final String SENTRY_DATA_MODEL = "event";
@@ -153,7 +154,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
             };
         }
 
-        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
+        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
             String payload = runContext.render(this.payload).as(String.class).isPresent() ?
                 runContext.render(runContext.render(this.payload).as(String.class).get()) :
                 runContext.render(DEFAULT_PAYLOAD.strip());

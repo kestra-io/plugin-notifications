@@ -5,6 +5,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.micronaut.http.client.netty.NettyHttpClientFactory;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,7 +23,7 @@ import java.net.URI;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
+public class TelegramSend extends AbstractHttpOptionsTask {
     private static final String TELEGRAMAPI_BASE_URL = "https://api.telegram.org";
     private static final NettyHttpClientFactory FACTORY = new NettyHttpClientFactory();
 
@@ -46,7 +47,7 @@ public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.endpointOverride).as(String.class).orElse(TELEGRAMAPI_BASE_URL);
 
-        try (DefaultHttpClient httpClient = new DefaultHttpClient(URI.create(url))) {
+        try (DefaultHttpClient httpClient = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
             String destination = runContext.render(this.channel).as(String.class).orElseThrow();
             String apiToken = runContext.render(this.token).as(String.class).orElseThrow();
             String rendered = runContext.render(payload).as(String.class).orElseThrow();

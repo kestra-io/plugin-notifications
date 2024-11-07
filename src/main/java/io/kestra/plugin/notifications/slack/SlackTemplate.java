@@ -1,6 +1,9 @@
 package io.kestra.plugin.notifications.slack;
 
 import io.kestra.core.models.property.Property;
+import io.kestra.core.models.tasks.VoidOutput;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,9 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
-import io.kestra.core.models.tasks.VoidOutput;
-import io.kestra.core.runners.RunContext;
-import io.kestra.core.serializers.JacksonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

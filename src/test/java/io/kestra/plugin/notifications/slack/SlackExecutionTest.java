@@ -1,19 +1,19 @@
 package io.kestra.plugin.notifications.slack;
 
 import com.google.common.collect.ImmutableMap;
-import io.kestra.core.queues.QueueException;
-import io.kestra.plugin.notifications.FakeWebhookController;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.runtime.server.EmbeddedServer;
 import io.kestra.core.junit.annotations.KestraTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
-
+import io.kestra.plugin.notifications.FakeWebhookController;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;

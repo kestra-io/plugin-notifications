@@ -9,6 +9,7 @@ import com.sendgrid.helpers.mail.objects.*;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
@@ -97,44 +98,38 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         title = "One or more 'Cc' (carbon copy) optional recipient(s) email address(es)",
         description = "Note that each email address must be compliant with the RFC2822 format"
     )
-    @PluginProperty(dynamic = true)
-    private List<String> cc;
+    private Property<List<String>> cc;
 
     @Schema(
         title = "The optional subject of this email"
     )
-    @PluginProperty(dynamic = true)
-    private String subject;
+    private Property<String> subject;
 
     @Schema(
         title = "The optional email message body in HTML",
         description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
-    @PluginProperty(dynamic = true)
-    protected String htmlContent;
+    protected Property<String> htmlContent;
 
     @Schema(
         title = "The optional email message body in plain text",
         description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
-    @PluginProperty(dynamic = true)
-    protected String textContent;
+    protected Property<String> textContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
         description = "The attachment will be shown in the email client as separate files available for download, or displayed " +
             "inline if the client supports it (for example, most browsers display PDF's in a popup window)"
     )
-    @PluginProperty(dynamic = true)
     private List<Attachment> attachments;
 
     @Schema(
         title = "Adds image data to this email that can be referred to from the email HTML body",
         description = "The provided images are assumed to be of MIME type png, jpg or whatever the email client supports as valid image that can be embedded in HTML content"
     )
-    @PluginProperty(dynamic = true)
     private List<Attachment> embeddedImages;
 
     @Override
@@ -154,16 +149,17 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
 
         runContext.render(this.to).stream().map(Email::new).forEach(personalization::addTo);
 
-        personalization.setSubject(runContext.render(this.subject));
+        personalization.setSubject(runContext.render(this.subject).as(String.class).orElse(null));
 
         if (this.textContent != null) {
-            final String textContent = runContext.render(this.textContent) == null ? "Please view this email in a modern email client" : runContext.render(this.textContent);
+            var renderedText = runContext.render(this.textContent).as(String.class);
+            final String textContent = renderedText.isEmpty() ? "Please view this email in a modern email client" : renderedText.get();
             Content plainTextContent = new Content(ContentType.TEXT_PLAIN.getMimeType(), textContent);
             mail.addContent(plainTextContent);
         }
 
-        if (this.htmlContent != null) {
-            Content htmlContent = new Content(ContentType.TEXT_HTML.getMimeType(), runContext.render(this.htmlContent));
+        if (runContext.render(this.htmlContent).as(String.class).isPresent()) {
+            Content htmlContent = new Content(ContentType.TEXT_HTML.getMimeType(), runContext.render(this.htmlContent).as(String.class).get());
             mail.addContent(htmlContent);
         }
 
@@ -179,8 +175,9 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
                 .forEach(mail::addAttachments);
         }
 
-        if (this.cc != null) {
-            runContext.render(this.cc).stream().map(Email::new).forEach(personalization::addCc);
+        final List<String> renderedCcList = runContext.render(this.cc).asList(String.class);
+        if (!renderedCcList.isEmpty()) {
+            renderedCcList.stream().map(Email::new).forEach(personalization::addCc);
         }
         mail.addPersonalization(personalization);
 
@@ -203,10 +200,11 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         return list
             .stream()
             .map(throwFunction(attachment -> {
-                InputStream inputStream = runContext.storage().getFile(URI.create(runContext.render(attachment.getUri())));
+                InputStream inputStream = runContext.storage()
+                    .getFile(URI.create(runContext.render(attachment.getUri()).as(String.class).get()));
 
-                return new Attachments.Builder(runContext.render(attachment.getName()), inputStream)
-                    .withType(runContext.render(attachment.getContentType())).build();
+                return new Attachments.Builder(runContext.render(attachment.getName()).as(String.class).get(), inputStream)
+                    .withType(runContext.render(attachment.getContentType()).as(String.class).get()).build();
             }))
             .collect(Collectors.toList());
     }
@@ -218,25 +216,22 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         @Schema(
             title = "An attachment URI from Kestra internal storage"
         )
-        @PluginProperty(dynamic = true)
         @NotNull
-        private String uri;
+        private Property<String> uri;
 
         @Schema(
             title = "The name of the attachment (eg. 'filename.txt')"
         )
-        @PluginProperty(dynamic = true)
         @NotNull
-        private String name;
+        private Property<String> name;
 
         @Schema(
             title = "One or more 'Cc' (carbon copy) optional recipient email address(es). Use semicolon as a delimiter to provide several addresses",
             description = "Note that each email address must be compliant with the RFC2822 format"
         )
-        @PluginProperty(dynamic = true)
         @NotNull
         @Builder.Default
-        private String contentType = "application/octet-stream";
+        private Property<String> contentType = Property.of("application/octet-stream");
     }
 
     @Getter

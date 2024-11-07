@@ -1,7 +1,7 @@
 package io.kestra.plugin.notifications.telegram;
 
-import com.google.common.base.Charsets;
-import io.kestra.core.models.annotations.PluginProperty;
+
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,9 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
 
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,28 +27,28 @@ public abstract class TelegramTemplate extends TelegramSend {
             title = "Template to use",
             hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
             title = "Map of variables to use for the message template (Unused in the default template)"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
 
-        Map<String, Object> map = new HashMap<>();
-
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                    Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                    Charsets.UTF_8
+                    Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                    StandardCharsets.UTF_8
             );
 
-            this.payload = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            this.payload = Property.of(runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
+                Map.of()
+            ));
         }
 
         return super.run(runContext);

@@ -1,6 +1,6 @@
 package io.kestra.plugin.notifications.twilio;
 
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
@@ -10,9 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,61 +28,60 @@ public abstract class TwilioTemplate extends TwilioAlert {
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
     @Schema(
         title = "Alert message body"
     )
-    @PluginProperty(dynamic = true)
-    protected String body;
+    protected Property<String> body;
 
     @Schema(
         title = "Identity which associated with devices"
     )
-    @PluginProperty(dynamic = true)
-    protected String identity;
+    protected Property<String> identity;
 
     @Schema(
         title = "Tag associated with users"
     )
-    @PluginProperty(dynamic = true)
-    protected String tag;
+    protected Property<String> tag;
 
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                StandardCharsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
+                Map.of()
+            );
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.body != null) {
-            map.put("body", runContext.render(this.body));
+        if (runContext.render(this.body).as(String.class).isPresent()) {
+            map.put("body", runContext.render(this.body).as(String.class).get());
         }
 
-        if (this.identity != null) {
-            map.put("identity", runContext.render(this.identity));
+        if (runContext.render(this.identity).as(String.class).isPresent()) {
+            map.put("identity", runContext.render(this.identity).as(String.class).get());
         }
 
-        if (this.tag != null) {
-            map.put("tag", runContext.render(this.tag));
+        if (runContext.render(this.tag).as(String.class).isPresent()) {
+            map.put("tag", runContext.render(this.tag).as(String.class).get());
         }
 
-        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
+        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

@@ -1,11 +1,11 @@
 package io.kestra.plugin.notifications.whatsapp;
 
-import com.google.common.base.Charsets;
+
 import com.google.common.io.Files;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.kestra.plugin.notifications.discord.DiscordIncomingWebhook;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.kestra.core.junit.annotations.KestraTest;
@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,14 +42,14 @@ public class WhatsAppIncomingWebhookTest {
 
         WhatsAppIncomingWebhook task = WhatsAppIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(
+            .payload(Property.of(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(WhatsAppIncomingWebhookTest.class.getClassLoader()
                             .getResource("whatsapp.peb"))
                         .toURI()),
-                    Charsets.UTF_8
+                    StandardCharsets.UTF_8
                                   ).read()
-                    )
+                    ))
             .build();
 
         task.run(runContext);

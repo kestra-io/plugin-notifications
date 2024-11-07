@@ -2,6 +2,7 @@ package io.kestra.plugin.notifications.sendgrid;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
 import io.kestra.plugin.notifications.services.ExecutionService;
@@ -57,15 +58,15 @@ import java.util.Map;
 )
 public class SendGridMailExecution extends SendGridMailTemplate implements ExecutionInterface {
     @Builder.Default
-    private final String executionId = "{{ execution.id }}";
-    private Map<String, Object> customFields;
-    private String customMessage;
+    private final Property<String> executionId = Property.of("{{ execution.id }}");
+    private Property<Map<String, Object>> customFields;
+    private Property<String> customMessage;
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
-        this.templateUri = "sendgrid-mail-template.hbs.peb";
-        this.textTemplateUri = "sendgrid-text-template.hbs.peb";
-        this.templateRenderMap = ExecutionService.executionMap(runContext, this);
+        this.templateUri = Property.of("sendgrid-mail-template.hbs.peb");
+        this.textTemplateUri = Property.of("sendgrid-text-template.hbs.peb");
+        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.mail;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -73,83 +74,73 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "The email server host"
     )
-    @PluginProperty(dynamic = true)
-    private String host;
+    protected Property<String> host;
 
     @Schema(
         title = "The email server port"
     )
-    @PluginProperty(dynamic = true)
-    private Integer port;
+    private Property<Integer> port;
 
     @Schema(
         title = "The email server username"
     )
-    @PluginProperty(dynamic = true)
-    private String username;
+    protected Property<String> username;
 
     @Schema(
         title = "The email server password"
     )
-    @PluginProperty(dynamic = true)
-    private String password;
+    protected Property<String> password;
 
-    @Builder.Default
     @Schema(
         title = "The optional transport strategy",
         description = "Will default to SMTPS if left empty"
     )
-    private final TransportStrategy transportStrategy = TransportStrategy.SMTPS;
-
     @Builder.Default
+    private final Property<TransportStrategy> transportStrategy = Property.of(TransportStrategy.SMTPS);
+
     @Schema(
         title = "Integer value in milliseconds. Default is 10000 milliseconds, i.e. 10 seconds",
         description = "It controls the maximum timeout value when sending emails"
     )
-    private final Integer sessionTimeout = 10000;
+    @Builder.Default
+    private final Property<Integer> sessionTimeout = Property.of(10000);
 
     /* Mail info */
     @Schema(
         title = "The address of the sender of this email"
     )
-    @PluginProperty(dynamic = true)
-    private String from;
+    protected Property<String> from;
 
     @Schema(
         title = "Email address(es) of the recipient(s). Use semicolon as delimiter to provide several email addresses",
         description = "Note that each email address must be compliant with the RFC2822 format"
     )
-    @PluginProperty(dynamic = true)
-    private String to;
+    protected Property<String> to;
 
     @Schema(
         title = "One or more 'Cc' (carbon copy) optional recipient email address. Use semicolon as delimiter to provide several addresses",
         description = "Note that each email address must be compliant with the RFC2822 format"
     )
-    @PluginProperty(dynamic = true)
-    private String cc;
+    protected Property<String> cc;
 
     @Schema(
         title = "The optional subject of this email"
     )
-    @PluginProperty(dynamic = true)
-    private String subject;
+    protected Property<String> subject;
 
     @Schema(
         title = "The optional email message body in HTML text",
         description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
-    @PluginProperty(dynamic = true)
-    protected String htmlTextContent;
+    protected Property<String> htmlTextContent;
 
     @Schema(
         title = "The optional email message body in plain text",
         description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
     )
-    @PluginProperty(dynamic = true)
-    protected String plainTextContent;
+    protected Property<String> plainTextContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
@@ -174,14 +165,16 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         logger.debug("Sending an email to {}", to);
 
-        final String htmlContent = runContext.render(this.htmlTextContent);
-        final String textContent = runContext.render(this.plainTextContent) == null ? "Please view this email in a modern email client" : runContext.render(this.plainTextContent);
+        final String htmlContent = runContext.render(runContext.render(this.htmlTextContent).as(String.class).orElse(null));
+        final String textContent = runContext.render(this.plainTextContent).as(String.class).isEmpty() ?
+            "Please view this email in a modern email client" :
+            runContext.render(runContext.render(this.plainTextContent).as(String.class).get());
 
         // Building email to send
         EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
-            .to(runContext.render(to))
-            .from(runContext.render(from))
-            .withSubject(runContext.render(subject))
+            .to(runContext.render(to).as(String.class).orElseThrow())
+            .from(runContext.render(from).as(String.class).orElseThrow())
+            .withSubject(runContext.render(subject).as(String.class).orElse(null))
             .withHTMLText(htmlContent)
             .withPlainText(textContent)
             .withReturnReceiptTo();
@@ -194,22 +187,20 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             builder.withEmbeddedImages(this.attachmentResources(this.embeddedImages, runContext));
         }
 
-        if (this.cc != null) {
-            builder.cc(runContext.render(cc));
-        }
+        runContext.render(cc).as(String.class).ifPresent(builder::cc);
 
         Email email = builder.buildEmail();
 
         // Building mailer to send email
         Mailer mailer = MailerBuilder
             .withSMTPServer(
-                runContext.render(this.host),
-                this.port,
-                runContext.render(this.username),
-                runContext.render(this.password)
+                runContext.render(this.host).as(String.class).orElse(null),
+                runContext.render(this.port).as(Integer.class).orElse(null),
+                runContext.render(this.username).as(String.class).orElse(null),
+                runContext.render(this.password).as(String.class).orElse(null)
             )
-            .withTransportStrategy(transportStrategy)
-            .withSessionTimeout(sessionTimeout)
+            .withTransportStrategy(runContext.render(transportStrategy).as(TransportStrategy.class).orElse(TransportStrategy.SMTPS))
+            .withSessionTimeout(runContext.render(sessionTimeout).as(Integer.class).orElse(10000))
             // .withDebugLogging(true)
             .buildMailer();
 
@@ -222,11 +213,12 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         return list
             .stream()
             .map(throwFunction(attachment -> {
-                InputStream inputStream = runContext.storage().getFile(URI.create(runContext.render(attachment.getUri())));
+                InputStream inputStream = runContext.storage()
+                    .getFile(URI.create(runContext.render(attachment.getUri()).as(String.class).orElseThrow()));
 
                 return new AttachmentResource(
-                    runContext.render(attachment.getName()),
-                    new ByteArrayDataSource(inputStream, runContext.render(attachment.getContentType()))
+                    runContext.render(attachment.getName()).as(String.class).orElseThrow(),
+                    new ByteArrayDataSource(inputStream, runContext.render(attachment.getContentType()).as(String.class).orElseThrow())
                 );
             }))
             .collect(Collectors.toList());
@@ -239,24 +231,21 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         @Schema(
             title = "An attachment URI from Kestra internal storage"
         )
-        @PluginProperty(dynamic = true)
         @NotNull
-        private String uri;
+        private Property<String> uri;
 
         @Schema(
             title = "The name of the attachment (eg. 'filename.txt')"
         )
-        @PluginProperty(dynamic = true)
         @NotNull
-        private String name;
+        private Property<String> name;
 
         @Schema(
             title = "One or more 'Cc' (carbon copy) optional recipient email address(es). Use semicolon as a delimiter to provide several addresses",
             description = "Note that each email address must be compliant with the RFC2822 format"
         )
-        @PluginProperty(dynamic = true)
         @NotNull
         @Builder.Default
-        private String contentType = "application/octet-stream";
+        private Property<String> contentType = Property.of("application/octet-stream");
     }
 }

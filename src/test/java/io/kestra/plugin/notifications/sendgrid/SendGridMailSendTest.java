@@ -1,8 +1,9 @@
 package io.kestra.plugin.notifications.sendgrid;
 
-import com.google.common.base.Charsets;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.storages.StorageInterface;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -46,14 +48,14 @@ public class SendGridMailSendTest {
             new File(Objects.requireNonNull(SendGridMailExecution.class.getClassLoader()
                 .getResource("sendgrid-mail-template.hbs.peb"))
                 .toURI()),
-            Charsets.UTF_8
+            StandardCharsets.UTF_8
         ).read();
 
         textTemplate = Files.asCharSource(
             new File(Objects.requireNonNull(SendGridMailExecution.class.getClassLoader()
                 .getResource("sendgrid-text-template.hbs.peb"))
                 .toURI()),
-            Charsets.UTF_8
+            StandardCharsets.UTF_8
         ).read();
     }
 
@@ -100,13 +102,13 @@ public class SendGridMailSendTest {
             .sendgridApiKey("")
             .from(FROM)
             .to(List.of(TO))
-            .subject(SUBJECT)
-            .htmlContent(template)
-            .textContent(textTemplate)
+            .subject(Property.of(SUBJECT))
+            .htmlContent(Property.of(template))
+            .textContent(Property.of(textTemplate))
             .attachments(List.of(SendGridMailSend.Attachment.builder()
-                .name("application.yml")
-                .uri(put.toString())
-                .contentType("text/yaml")
+                .name(Property.of("application.yml"))
+                .uri(Property.of(put.toString()))
+                .contentType(Property.of("text/yaml"))
                 .build())
             )
             .build();
@@ -115,7 +117,7 @@ public class SendGridMailSendTest {
 
         assertThat(output.getStatusCode(), is(200));
 
-        String body = IOUtils.toString(output.getBody().getBytes(), String.valueOf(Charsets.UTF_8));
+        String body = IOUtils.toString(output.getBody().getBytes(), String.valueOf(StandardCharsets.UTF_8));
 
         assertThat(body, containsString("Please view this email in a modern email client"));
         assertThat(body, containsString("<strong>Namespace :</strong> or=\r\ng.test"));

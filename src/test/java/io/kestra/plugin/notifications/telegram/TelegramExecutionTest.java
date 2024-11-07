@@ -1,7 +1,6 @@
 package io.kestra.plugin.notifications.telegram;
 
 import com.google.common.collect.ImmutableMap;
-import io.kestra.core.models.executions.Execution;
 import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
@@ -48,7 +47,7 @@ class TelegramExecutionTest {
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
         embeddedServer.start();
 
-        Execution execution = runnerUtils.runOne(
+        runnerUtils.runOne(
             null,
                 "io.kestra.tests",
                 "telegram",

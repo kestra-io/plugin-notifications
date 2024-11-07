@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.pagerduty;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -92,15 +93,15 @@ public class PagerDutyAlert extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "PagerDuty message payload"
     )
-    @PluginProperty(dynamic = true)
-    protected String payload;
+    protected Property<String> payload;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
-            String payload = runContext.render(this.payload);
+            //First render to get the template, second render to populate the payload
+            String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send PagerDuty alert: {}", payload);
 

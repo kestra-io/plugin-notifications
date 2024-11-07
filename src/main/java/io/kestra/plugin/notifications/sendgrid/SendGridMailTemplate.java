@@ -1,9 +1,7 @@
 package io.kestra.plugin.notifications.sendgrid;
 
-import com.google.common.base.Charsets;
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.utils.MapUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,6 +10,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,43 +24,41 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Text template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String textTemplateUri;
+    protected Property<String> textTemplateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
         String plainTextTemplate = "";
         String htmlTextTemplate = "";
 
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             htmlTextTemplate = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                StandardCharsets.UTF_8
             );
         }
 
-        if (this.textTemplateUri != null) {
+        if (runContext.render(this.textTemplateUri).as(String.class).isPresent()) {
             plainTextTemplate = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.textTemplateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(runContext.render(this.textTemplateUri).as(String.class).get())),
+                StandardCharsets.UTF_8
             );
         }
 
-        this.htmlContent = runContext.render(htmlTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
-        this.textContent = runContext.render(plainTextTemplate, MapUtils.emptyOnNull(templateRenderMap));
+        this.htmlContent = Property.of(runContext.render(htmlTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
+        this.textContent = Property.of(runContext.render(plainTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
 
         return super.run(runContext);
     }

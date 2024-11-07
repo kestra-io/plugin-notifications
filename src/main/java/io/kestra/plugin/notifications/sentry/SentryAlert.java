@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.sentry;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -131,8 +132,7 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "Sentry event payload"
     )
-    @PluginProperty(dynamic = true)
-    protected String payload;
+    protected Property<String> payload;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
@@ -154,7 +154,9 @@ public class SentryAlert extends Task implements RunnableTask<VoidOutput> {
         }
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url))) {
-            String payload = this.payload != null ? runContext.render(this.payload) : runContext.render(DEFAULT_PAYLOAD.strip());
+            String payload = runContext.render(this.payload).as(String.class).isPresent() ?
+                runContext.render(runContext.render(this.payload).as(String.class).get()) :
+                runContext.render(DEFAULT_PAYLOAD.strip());
 
             // Constructing the envelope payload
             String envelope = constructEnvelope((String) runContext.getVariables().get("eventId"), payload);

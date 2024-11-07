@@ -1,6 +1,6 @@
 package io.kestra.plugin.notifications.telegram;
 
-import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -16,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 
 import jakarta.validation.constraints.NotNull;
 import java.net.URI;
-import java.util.Objects;
 
 @SuperBuilder
 @ToString
@@ -28,32 +27,29 @@ public class TelegramSend extends Task implements RunnableTask<VoidOutput> {
     private static final NettyHttpClientFactory FACTORY = new NettyHttpClientFactory();
 
     @Schema(title = "Telegram Bot token")
-    @PluginProperty(dynamic = true)
     @NotNull
-    protected String token;
+    protected Property<String> token;
 
     @Schema(title = "Telegram channel/user ID")
-    @PluginProperty(dynamic = true)
     @NotNull
-    protected String channel;
+    protected Property<String> channel;
 
     @Schema(title = "Message payload")
-    @PluginProperty(dynamic = true)
-    protected String payload;
+    protected Property<String> payload;
 
     @Schema(
         title = "Only to be used when testing locally"
     )
-    @PluginProperty
-    protected String endpointOverride;
+    protected Property<String> endpointOverride;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        String url = runContext.render(Objects.requireNonNullElse(this.endpointOverride, TELEGRAMAPI_BASE_URL));
+        String url = runContext.render(this.endpointOverride).as(String.class).orElse(TELEGRAMAPI_BASE_URL);
+
         try (DefaultHttpClient httpClient = new DefaultHttpClient(URI.create(url))) {
-            String destination = runContext.render(this.channel);
-            String apiToken = runContext.render(this.token);
-            String rendered = runContext.render(payload);
+            String destination = runContext.render(this.channel).as(String.class).orElseThrow();
+            String apiToken = runContext.render(this.token).as(String.class).orElseThrow();
+            String rendered = runContext.render(payload).as(String.class).orElseThrow();
             TelegramBotApiService.send(httpClient, destination, apiToken, rendered);
         }
 

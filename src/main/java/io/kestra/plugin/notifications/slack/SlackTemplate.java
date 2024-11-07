@@ -1,6 +1,6 @@
 package io.kestra.plugin.notifications.slack;
 
-import com.google.common.base.Charsets;
+import io.kestra.core.models.property.Property;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.io.IOUtils;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,39 +26,33 @@ public abstract class SlackTemplate extends SlackIncomingWebhook {
     @Schema(
         title = "Slack channel to send the message to"
     )
-    @PluginProperty(dynamic = true)
-    protected String channel;
+    protected Property<String> channel;
 
     @Schema(
         title = "Author of the slack message"
     )
-    @PluginProperty(dynamic = true)
-    protected String username;
+    protected Property<String> username;
 
     @Schema(
         title = "Url of the icon to use"
     )
-    @PluginProperty(dynamic = true)
-    protected String iconUrl;
+    protected Property<String> iconUrl;
 
     @Schema(
         title = "Emoji icon to use"
     )
-    @PluginProperty(dynamic = true)
-    protected String iconEmoji;
+    protected Property<String> iconEmoji;
 
     @Schema(
         title = "Template to use",
         hidden = true
     )
-    @PluginProperty(dynamic = true)
-    protected String templateUri;
+    protected Property<String> templateUri;
 
     @Schema(
         title = "Map of variables to use for the message template"
     )
-    @PluginProperty(dynamic = true)
-    protected Map<String, Object> templateRenderMap;
+    protected Property<Map<String, Object>> templateRenderMap;
 
 
     @SuppressWarnings("unchecked")
@@ -66,33 +60,37 @@ public abstract class SlackTemplate extends SlackIncomingWebhook {
     public VoidOutput run(RunContext runContext) throws Exception {
         Map<String, Object> map = new HashMap<>();
 
-        if (this.templateUri != null) {
+        final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
+        if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(this.templateUri)),
-                Charsets.UTF_8
+                Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
+                StandardCharsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? templateRenderMap : Map.of());
+            String render = runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
+                Map.of()
+            );
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (this.channel != null) {
-            map.put("channel", runContext.render(this.channel));
+        if (runContext.render(this.channel).as(String.class).isPresent()) {
+            map.put("channel", runContext.render(this.channel).as(String.class).get());
         }
 
-        if (this.username != null) {
-            map.put("username", runContext.render(this.username));
+        if (runContext.render(this.username).as(String.class).isPresent()) {
+            map.put("username", runContext.render(this.username).as(String.class).get());
         }
 
-        if (this.iconUrl != null) {
-            map.put("icon_url", runContext.render(this.iconUrl));
+        if (runContext.render(this.iconUrl).as(String.class).isPresent()) {
+            map.put("icon_url", runContext.render(this.iconUrl).as(String.class).get());
         }
 
-        if (this.iconEmoji != null) {
-            map.put("icon_emoji", runContext.render(this.iconEmoji));
+        if (runContext.render(this.iconEmoji).as(String.class).isPresent()) {
+            map.put("icon_emoji", runContext.render(this.iconEmoji).as(String.class).get());
         }
 
-        this.payload = JacksonMapper.ofJson().writeValueAsString(map);
+        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

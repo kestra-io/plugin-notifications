@@ -41,6 +41,6 @@ class SendGridMailExecutionTest {
     void testFlow() throws TimeoutException, QueueException {
         Execution execution = runnerUtils.runOne(null, "io.kestra.tests", "sendgrid");
         assertThat(execution.getTaskRunList(), hasSize(2));
-        assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.SUCCESS));
+        assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.FAILED));
     }
 }

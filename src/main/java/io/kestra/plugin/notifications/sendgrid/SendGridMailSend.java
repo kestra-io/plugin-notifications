@@ -143,14 +143,14 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
 
         Logger logger = runContext.logger();
 
-        logger.debug("Sending an email to {}", to);
+        logger.debug("Sending an email to {}", runContext.render(to));
 
         Mail mail = new Mail();
 
-        Personalization personalization = new Personalization();
-
         Email fromEmail = new Email(runContext.render(this.from));
-        personalization.setFrom(fromEmail);
+        mail.setFrom(fromEmail);
+
+        Personalization personalization = new Personalization();
 
         runContext.render(this.to).stream().map(Email::new).forEach(personalization::addTo);
 
@@ -195,6 +195,10 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         String body = api.getBody();
         Map<String, String> headers = api.getHeaders();
         int statusCode = api.getStatusCode();
+
+        if (statusCode/100 != 2) {
+          throw new RuntimeException("SendGrid API failed with status code: " + statusCode + " and body: " + body);
+        }
 
         return Output.builder().body(body).headers(headers).statusCode(statusCode).build();
     }

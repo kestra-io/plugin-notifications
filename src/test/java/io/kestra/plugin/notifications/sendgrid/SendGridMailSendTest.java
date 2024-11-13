@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+@Disabled("Need a SendGrid API key")
 @KestraTest
 public class SendGridMailSendTest {
 
@@ -84,7 +85,6 @@ public class SendGridMailSendTest {
     }
 
     @Test
-    @Disabled("Need a SendGrid API key")
     @DisplayName("Send email with html and plain text contents")
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
@@ -113,7 +113,7 @@ public class SendGridMailSendTest {
 
         SendGridMailSend.Output output = mailSend.run(runContext);
 
-        assertThat(output.getStatusCode(), is(200));
+        assertThat(output.getStatusCode(), is(202));
 
         String body = IOUtils.toString(output.getBody().getBytes(), String.valueOf(Charsets.UTF_8));
 

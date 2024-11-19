@@ -76,11 +76,11 @@ import java.net.URI;
                         "content": "Hello from the workflow {{ flow.id }}",
                         "embeds": [
                             {
-                                "title": "Discord Hello",
+                                "title": "Hello from Kestra",
                                 "color": 16777215
-                                "description": "Namespace: dev\nFlow ID: discord\nExecution ID: 1p0JVFz24ZVLSK8iJN6hfs\nExecution Status: SUCCESS\n\n[Link to the Execution page](http://localhost:8080/ui/executions/dev/discord/1p0JVFz24ZVLSK8iJN6hfs)",
+                                "description": "This is a test message from Kestra",
                                 "footer": {
-                                    "text": "Succeeded after 00:00:00.385"
+                                    "text": "Footer text"
                                 }
                             }
                         ]

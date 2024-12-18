@@ -20,6 +20,10 @@
               {
                   "title": "Execution Status",
                   "value": {{execution.state.current | json }}
+              },
+              {
+                  "title": "Final task ID",
+                  "value": {{lastTask.taskId | json }}
               }]
         }
         ,

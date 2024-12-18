@@ -20,6 +20,7 @@
        "Flow ID": "{{execution.flowId}}",
        "Execution ID": "{{execution.id}}",
        "Execution Status": "{{execution.state.current}}",
+       "Final task ID" : "{{ lastTask.taskId }}",
        "Duration": "{{duration}}"
     },
     "summary": "Kestra workflow execution {{ execution.id }} of a flow {{ execution.flowId }} in the namespace {{ execution.namespace }} changed status to {{ execution.state.current }}"

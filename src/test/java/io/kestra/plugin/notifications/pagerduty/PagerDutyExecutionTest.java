@@ -61,6 +61,7 @@ public class PagerDutyExecutionTest {
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
         assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
+        assertThat(FakeWebhookController.data, containsString("{\"title\":\"Final task ID\",\"value\":\"failed\"}"));
         assertThat(FakeWebhookController.data, containsString("Kestra PagerDuty alert"));
     }
 

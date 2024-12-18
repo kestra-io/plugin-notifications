@@ -60,6 +60,11 @@
                   "title": "Execution Status",
                   "value": {{execution.state.current | json }},
                   "short": true
+              },
+              {
+                  "title": "Final task ID",
+                  "value": {{lastTask.taskId | json }},
+                  "short": true
               }
               {% if customFields is defined %}
               {% for entry in customFields %}

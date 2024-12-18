@@ -61,6 +61,7 @@ public class OpsgenieExecutionTest {
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
         assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
+        assertThat(FakeWebhookController.data, containsString("Final task ID failed"));
         assertThat(FakeWebhookController.data, containsString("Kestra Opsgenie alert"));
     }
 

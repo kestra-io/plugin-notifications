@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.services;
 import com.google.common.collect.Streams;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.retrys.Exponential;
@@ -51,7 +52,7 @@ public class ExecutionService {
                 .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionRendererId + "'"))
         );
     }
-    
+
     @SuppressWarnings("UnstableApiUsage")
     public static Map<String, Object> executionMap(RunContext runContext, ExecutionInterface executionInterface) throws IllegalVariableEvaluationException {
         Execution execution = ExecutionService.findExecution(runContext, executionInterface.getExecutionId());
@@ -72,16 +73,14 @@ public class ExecutionService {
             templateRenderMap.put("customFields", renderedCustomFields);
         }
 
-        Streams
-            .findLast(execution.getTaskRunList()
-                .stream()
-                .filter(t -> t.getState().getCurrent() == State.Type.FAILED)
-            )
-            .ifPresentOrElse(
-                taskRun -> templateRenderMap.put("firstFailed", taskRun),
-                () -> templateRenderMap.put("firstFailed", false)
-            );
+        TaskRun lastTaskRun = execution.getTaskRunList().stream()
+            .filter(t -> (execution.hasFailed() ? State.Type.FAILED : State.Type.SUCCESS).equals(t.getState().getCurrent()))
+            .toList()
+            .getLast();
+
+        templateRenderMap.put("firstFailed", State.Type.FAILED.equals(lastTaskRun.getState().getCurrent()) ? lastTaskRun : false);
+        templateRenderMap.put("lastTask", lastTaskRun);
 
         return templateRenderMap;
-    } 
+    }
 }

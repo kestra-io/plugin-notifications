@@ -20,8 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 
 @KestraTest
 class SlackExecutionTest {
@@ -62,6 +61,27 @@ class SlackExecutionTest {
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
         assertThat(FakeWebhookController.data, containsString("{\"title\":\"Env\",\"value\":\"DEV\",\"short\":true}"));
         assertThat(FakeWebhookController.data, containsString("{\"title\":\"Cloud\",\"value\":\"GCP\",\"short\":true}"));
+        assertThat(FakeWebhookController.data, containsString("{\"title\":\"Final task ID\",\"value\":\"failed\",\"short\":true}"));
         assertThat(FakeWebhookController.data, containsString("myCustomMessage"));
+    }
+
+    @Test
+    void flow_successfullFlowShowLastTaskId() throws TimeoutException, QueueException {
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
+        Execution execution = runnerUtils.runOne(
+            null,
+            "io.kestra.tests",
+            "slack-successful",
+            null,
+            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+        );
+
+        assertThat(execution.getTaskRunList(), hasSize(3));
+        assertThat(FakeWebhookController.data, containsString(execution.getId()));
+        assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
+        assertThat(FakeWebhookController.data, not(containsString("Failed on task `success`")));
+        assertThat(FakeWebhookController.data, containsString("{\"title\":\"Final task ID\",\"value\":\"success\",\"short\":true}"));
     }
 }

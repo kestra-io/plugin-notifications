@@ -61,7 +61,7 @@ import java.util.Map;
 )
 public class MailExecution extends MailTemplate implements ExecutionInterface {
     @Builder.Default
-    private final Property<String> executionId = Property.of("{{ execution.id }}");
+    private final Property<String> executionId = new Property<>("{{ execution.id }}");
     private Property<Map<String, Object>> customFields;
     private Property<String> customMessage;
 

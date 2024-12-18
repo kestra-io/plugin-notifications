@@ -57,7 +57,7 @@ import java.util.Map;
 public class TelegramExecution extends TelegramTemplate implements ExecutionInterface {
 
     @Builder.Default
-    private final Property<String> executionId = Property.of("{{ execution.id }}");
+    private final Property<String> executionId = new Property<>("{{ execution.id }}");
     private Property<Map<String, Object>> customFields;
     private Property<String> customMessage;
 

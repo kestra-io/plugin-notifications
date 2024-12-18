@@ -3,6 +3,7 @@ package io.kestra.plugin.notifications.services;
 import com.google.common.collect.Streams;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.retrys.Exponential;
@@ -51,7 +52,7 @@ public class ExecutionService {
                 .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionRendererId + "'"))
         );
     }
-    
+
     @SuppressWarnings("UnstableApiUsage")
     public static Map<String, Object> executionMap(RunContext runContext, ExecutionInterface executionInterface) throws IllegalVariableEvaluationException {
         Execution execution = ExecutionService.findExecution(runContext, executionInterface.getExecutionId());
@@ -83,5 +84,5 @@ public class ExecutionService {
             );
 
         return templateRenderMap;
-    } 
+    }
 }

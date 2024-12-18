@@ -35,7 +35,7 @@
           {% endfor %}
           {% endif %}
           {
-                "description": "Namespace: {{execution.namespace}}\nFlow ID: {{execution.flowId}}\nExecution ID: {{execution.id}}\nExecution Status: {{execution.state.current}} {% if link is defined %}\n\n[Link to the Execution page]({{link}}){% endif %}",
+                "description": "Namespace: {{execution.namespace}}\nFlow ID: {{execution.flowId}}\nExecution ID: {{execution.id}}\nExecution Status: {{execution.state.current}} \nFinal task ID: {{lastTask.taskId}} {% if link is defined %}\n\n[Link to the Execution page]({{link}}){% endif %}",
                 "footer": {
                     "text": "{% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}"
                 }

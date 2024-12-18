@@ -45,6 +45,7 @@
         "Flow ID": "{{execution.flowId}}",
         "Execution ID": "{{execution.id}}",
         "Execution Status": "{{execution.state.current}}",
+        "Final task ID": "{{lastTask.taskId}}",
         "Link": "{{link}}"
         {% if extra is defined %}
         {% for entry in extra %}

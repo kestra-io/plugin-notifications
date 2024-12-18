@@ -61,6 +61,7 @@ public class ZendutyExecutionTest {
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
         assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("changed status to FAILED"));
+        assertThat(FakeWebhookController.data, containsString("\"Final task ID\":\"failed\""));
         assertThat(FakeWebhookController.data, containsString("Kestra Zenduty alert"));
     }
 

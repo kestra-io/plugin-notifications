@@ -22,6 +22,9 @@
         }, {
             "name": "Execution Status",
             "value": "{{execution.state.current}}"
+        }, {
+            "name": "Final task ID",
+            "value": "{{lastTask.taskId}}"
         }],
         "markdown": true
     }]

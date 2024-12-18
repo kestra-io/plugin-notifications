@@ -70,6 +70,12 @@
               }
               {% endfor %}
               {% endif %}
+              ,
+              {
+                  "title": "Final task ID",
+                  "value": {{ lastTask.taskId | json }},
+                  "short": true
+              }
           ],
           "ts": {{ startDate  | timestamp }}
       }

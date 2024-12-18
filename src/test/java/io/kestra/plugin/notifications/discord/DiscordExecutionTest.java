@@ -20,8 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 
 @KestraTest
 class DiscordExecutionTest {
@@ -60,7 +59,27 @@ class DiscordExecutionTest {
         assertThat(execution.getTaskRunList(), hasSize(3));
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
+        assertThat(FakeWebhookController.data, containsString("Final task ID: failed"));
         assertThat(FakeWebhookController.data, containsString("Kestra Discord notification"));
+    }
+
+    @Test
+    void flow_Successful() throws TimeoutException, QueueException {
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
+        Execution execution = runnerUtils.runOne(
+            null,
+            "io.kestra.tests",
+            "discord-successful",
+            null,
+            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+        );
+
+        assertThat(execution.getTaskRunList(), hasSize(3));
+        assertThat(FakeWebhookController.data, containsString(execution.getId()));
+        assertThat(FakeWebhookController.data, not(containsString("Failed on task `failed`")));
+        assertThat(FakeWebhookController.data, containsString("Final task ID: discord-log-success"));
     }
 
 }

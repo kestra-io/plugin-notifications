@@ -59,5 +59,6 @@ class TelegramExecutionTest {
         assertThat(FakeTelegramController.message.chat_id(), comparesEqualTo("channel"));
         assertThat(FakeTelegramController.message.text(), containsString("<io.kestra.tests telegram"));
         assertThat(FakeTelegramController.message.text(), containsString("Failed on task `failed`"));
+        assertThat(FakeTelegramController.message.text(), containsString("Final task ID ➛ failed"));
     }
 }

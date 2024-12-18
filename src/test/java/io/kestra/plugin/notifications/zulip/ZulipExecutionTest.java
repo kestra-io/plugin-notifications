@@ -62,6 +62,7 @@ class ZulipExecutionTest {
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
         assertThat(FakeWebhookController.data, containsString("{\"title\":\"Env\",\"value\":\"DEV\",\"short\":true}"));
         assertThat(FakeWebhookController.data, containsString("{\"title\":\"Cloud\",\"value\":\"GCP\",\"short\":true}"));
+        assertThat(FakeWebhookController.data, containsString("{\"title\":\"Final task ID\",\"value\":\"failed\",\"short\":true}"));
         assertThat(FakeWebhookController.data, containsString("myCustomMessage"));
     }
 }

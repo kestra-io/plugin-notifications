@@ -60,6 +60,7 @@ class TeamsExecutionTest {
         assertThat(FakeWebhookController.data, containsString(execution.getId()));
         assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
         assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
+        assertThat(FakeWebhookController.data, containsString("{\"name\":\"Final task ID\",\"value\":\"failed\"}"));
         assertThat(FakeWebhookController.data, containsString("Kestra Teams notification"));
     }
 }

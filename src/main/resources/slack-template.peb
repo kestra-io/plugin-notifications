@@ -40,15 +40,6 @@
     "attachments": [
        {
           "color": "{{ execution.state.current == "SUCCESS" ? 'good' : (execution.state.current == "WARNING" ? 'warning' : 'danger') }}",
-          {% if username is defined %}
-          "author_name": {{ username | json }},
-          {% endif %}
-          {% if author_icon is defined %}
-          "author_icon": {{ author_icon | json }},
-          {% endif %}
-          {% if image_url is defined %}
-          "image_url": {{ image_url | json }},
-          {% endif %}
           "fields": [
               {
                   "title": "Namespace",

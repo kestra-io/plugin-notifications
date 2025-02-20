@@ -23,27 +23,10 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor
 public abstract class SlackTemplate extends SlackIncomingWebhook {
-
-    // DEPRECATED PROPERTIES //
     @Schema(
-        title = "Slack channel to send the message to. [DEPRECATED] (For an incoming webhook the channel will be included in the URL.)"
+        title = "Slack channel to send the message to"
     )
-    @Deprecated(forRemoval = true, since = "0.21")
     protected Property<String> channel;
-
-    @Schema(
-        title = "URL of the icon to use. [DEPRECATED] (For an incoming webhook the icon will be always be the one from the bot/app.)"
-    )
-    @Deprecated(forRemoval = true, since = "0.21")
-    protected Property<String> iconUrl;
-
-    @Schema(
-        title = "Emoji icon to use"
-    )
-    @Deprecated(forRemoval = true, since = "0.21")
-    protected Property<String> iconEmoji;
-
-    ///////////////////////////////////////////////////////////
 
     @Schema(
         title = "Author of the slack message"
@@ -51,14 +34,14 @@ public abstract class SlackTemplate extends SlackIncomingWebhook {
     protected Property<String> username;
 
     @Schema(
-        title = "URL of the image to be used for the author icon."
+        title = "Url of the icon to use"
     )
-    protected Property<String> authorIconUrl;
+    protected Property<String> iconUrl;
 
     @Schema(
-        title = "URL of the image to be put at the bottom in the attachments."
+        title = "Emoji icon to use"
     )
-    protected Property<String> imageUrl;
+    protected Property<String> iconEmoji;
 
     @Schema(
         title = "Template to use",
@@ -75,32 +58,36 @@ public abstract class SlackTemplate extends SlackIncomingWebhook {
     @SuppressWarnings("unchecked")
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
+        Map<String, Object> map = new HashMap<>();
 
-        //Use payload if exists
-        var renderedPayload = runContext.render(this.payload).as(String.class);
-        if (renderedPayload.isPresent()) {
-            return super.run(runContext);
-        }
-
-        //Use template and override payload
         final var renderedTemplateUri = runContext.render(this.templateUri).as(String.class);
-        final Map<String, Object> map = new HashMap<>();
-
         if (renderedTemplateUri.isPresent()) {
             String template = IOUtils.toString(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(renderedTemplateUri.get())),
                 StandardCharsets.UTF_8
             );
 
-            Map<String, Object> templateMap = new HashMap<>(runContext.render(templateRenderMap).asMap(String.class, Object.class));
+            String render = runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
+                Map.of()
+            );
+            map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
+        }
 
-            runContext.render(this.username).as(String.class).ifPresent(name -> templateMap.put("username", name));
-            runContext.render(this.authorIconUrl).as(String.class).ifPresent(name -> templateMap.put("author_icon", name));
-            runContext.render(this.imageUrl).as(String.class).ifPresent(name -> templateMap.put("image_url", name));
+        if (runContext.render(this.channel).as(String.class).isPresent()) {
+            map.put("channel", runContext.render(this.channel).as(String.class).get());
+        }
 
-            String render = runContext.render(template, templateMap);
+        if (runContext.render(this.username).as(String.class).isPresent()) {
+            map.put("username", runContext.render(this.username).as(String.class).get());
+        }
 
-            map.putAll((Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class));
+        if (runContext.render(this.iconUrl).as(String.class).isPresent()) {
+            map.put("icon_url", runContext.render(this.iconUrl).as(String.class).get());
+        }
+
+        if (runContext.render(this.iconEmoji).as(String.class).isPresent()) {
+            map.put("icon_emoji", runContext.render(this.iconEmoji).as(String.class).get());
         }
 
         this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));

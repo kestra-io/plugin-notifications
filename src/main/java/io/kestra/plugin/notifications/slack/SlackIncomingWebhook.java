@@ -1,5 +1,8 @@
 package io.kestra.plugin.notifications.slack;
 
+import io.kestra.core.http.HttpRequest;
+import io.kestra.core.http.HttpResponse;
+import io.kestra.core.http.client.HttpClient;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -7,8 +10,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.EqualsAndHashCode;
@@ -68,7 +69,7 @@ import java.net.URI;
                     payload: |
                       {
                         "text": "Hello from the workflow {{ flow.id }}"
-                      }            
+                      }
                 """
         ),
         @Example(
@@ -93,7 +94,7 @@ import java.net.URI;
                     			}
                     		}
                     	]
-                      }            
+                      }
                 """
         ),
         @Example(
@@ -134,11 +135,11 @@ import java.net.URI;
                                 "value": "Test value"
                               }
                             ]
-                          }		
+                          }
                         ]
-                      }                
+                      }
                 """
-        ),        
+        ),
     }
 )
 public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
@@ -159,15 +160,28 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
 
-        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
+        try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
             //First render to get the template, second render to populate the payload
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send Slack webhook: {}", payload);
+            HttpRequest request = HttpRequest.builder()
+                .addHeader("Content-Type", "application/json")
+                .uri(URI.create(url))
+                .method("POST")
+                .body(HttpRequest.StringRequestBody.builder()
+                    .content(payload)
+                    .build())
+                .build();
 
-            client.toBlocking().retrieve(HttpRequest.POST(url, payload));
+            HttpResponse<String> response = client.request(request, String.class);
+
+            runContext.logger().debug("Response: {}", response.getBody());
+
+            if (response.getStatus().getCode() == 200) {
+                runContext.logger().info("Request succeeded");
+            }
         }
-
         return null;
     }
 }

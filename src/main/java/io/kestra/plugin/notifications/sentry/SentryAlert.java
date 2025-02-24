@@ -1,5 +1,9 @@
 package io.kestra.plugin.notifications.sentry;
 
+import io.kestra.core.http.HttpRequest;
+import io.kestra.core.http.HttpResponse;
+import io.kestra.core.http.client.HttpClient;
+import io.kestra.core.http.client.HttpClientResponseException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -7,9 +11,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import io.micronaut.http.client.netty.DefaultHttpClient;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -148,7 +149,7 @@ public class SentryAlert extends AbstractHttpOptionsTask {
             };
         }
 
-        try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
+        try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
             String payload = runContext.render(this.payload).as(String.class).isPresent() ?
                 runContext.render(runContext.render(this.payload).as(String.class).get()) :
                 runContext.render(DEFAULT_PAYLOAD.strip());
@@ -159,9 +160,24 @@ public class SentryAlert extends AbstractHttpOptionsTask {
             // Trying to send to /envelope endpoint
             try {
                 runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
-                client.toBlocking().retrieve(HttpRequest.POST(url, envelope));
+                HttpRequest request = io.kestra.core.http.HttpRequest.builder()
+                    .addHeader("Content-Type", "application/json")
+                    .uri(URI.create(url))
+                    .method("POST")
+                    .body(io.kestra.core.http.HttpRequest.StringRequestBody.builder()
+                        .content(envelope)
+                        .build())
+                    .build();
+
+                HttpResponse<String> response = client.request(request, String.class);
+
+                runContext.logger().debug("Response: {}", response.getBody());
+
+                if (response.getStatus().getCode() == 200) {
+                    runContext.logger().info("Request succeeded");
+                }
             } catch (HttpClientResponseException exception) { // Backward Compatibility cases
-                int errorCode = exception.getStatus().getCode();
+                int errorCode = Objects.requireNonNull(exception.getResponse()).getStatus().getCode();
                 if ((errorCode == 401 || errorCode == 404) && endpointType.equals(EndpointType.ENVELOPE)) {
                     // If the /envelope endpoint is Not Found or Unauthorized ("missing authorization information"), request UI to configure endpointType: store to send the request to /store endpoint.
                     runContext.logger().error("Envelope endpoint not supported; Please try to configure the store endpoint instead: endpointType: store");

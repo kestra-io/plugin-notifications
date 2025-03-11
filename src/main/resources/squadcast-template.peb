@@ -1,0 +1,33 @@
+{%- macro title(link, execution) -%}
+*
+{%- if link is defined -%}
+<{{link}}|[{{execution.namespace}}] {{execution.flowId}} &#8594 {{execution.state.current}}>
+{%- else -%}
+[{{execution.namespace}}] {{execution.flowId}} &#8594 {{execution.state.current}}
+{%- endif -%}
+*
+{%- endmacro -%}
+{
+    "message": "{% if customMessage is defined %}{{ customMessage }}\n\n{% endif %}{{ title(link, execution) }}",
+    "description": "{% if firstFailed == false %}Flow succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}",
+    "tags": {
+        "flow": "{{execution.namespace}}.{{execution.flowId}}",
+        "execution": "{{execution.id}}",
+        "status": "{{execution.state.current}}",
+        "severity": {
+            "color": "{{ execution.state.current == 'SUCCESS' ? '#00FF00' : (execution.state.current == 'WARNING' ? '#FFA500' : '#FF0000') }}",
+            "value": "{{ execution.state.current == 'SUCCESS' ? 'Low' : (execution.state.current == 'WARNING' ? 'Medium' : 'Critical') }}"
+        },
+        "namespace": "{{execution.namespace}}",
+        "flow_id": "{{execution.flowId}}",
+        "execution_id": "{{execution.id}}"
+        {% if customFields is defined %}
+        {% for entry in customFields %}
+        ,"{{entry.key}}": "{{entry.value}}"
+        {% endfor %}
+        {% endif %}
+        ,"final_task_id": "{{ lastTask.taskId }}"
+    },
+    "status": "trigger",
+    "event_id": "{{execution.id}}"
+}

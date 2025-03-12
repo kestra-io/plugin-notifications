@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,22 +29,22 @@ public abstract class SquadcastTemplate extends SquadcastIncomingWebhook {
     @Schema(
         title = "Slack channel to send the message to"
     )
-    protected Property<String> channel;
+    protected Property<String> message;
 
     @Schema(
         title = "Author of the slack message"
     )
-    protected Property<String> username;
+    protected Property<String> priority;
 
     @Schema(
         title = "Url of the icon to use"
     )
-    protected Property<String> iconUrl;
+    protected Property<String> eventId;
 
     @Schema(
-        title = "Emoji icon to use"
+        title = "Map of variables to use for the message template"
     )
-    protected Property<String> iconEmoji;
+    protected Property<Map<String, String>> tags;
 
     @Schema(
         title = "Template to use",
@@ -55,7 +56,7 @@ public abstract class SquadcastTemplate extends SquadcastIncomingWebhook {
         title = "Map of variables to use for the message template"
     )
     protected Property<Map<String, Object>> templateRenderMap;
-    
+
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         Map<String, Object> map = new HashMap<>();
@@ -74,25 +75,26 @@ public abstract class SquadcastTemplate extends SquadcastIncomingWebhook {
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        if (runContext.render(this.channel).as(String.class).isPresent()) {
-            map.put("channel", runContext.render(this.channel).as(String.class).get());
+        if (runContext.render(this.message).as(String.class).isPresent()) {
+            map.put("message", runContext.render(this.message).as(String.class).get());
         }
 
-        if (runContext.render(this.username).as(String.class).isPresent()) {
-            map.put("username", runContext.render(this.username).as(String.class).get());
+        if (runContext.render(this.priority).as(String.class).isPresent()) {
+            map.put("priority", runContext.render(this.priority).as(String.class).get());
         }
 
-        if (runContext.render(this.iconUrl).as(String.class).isPresent()) {
-            map.put("icon_url", runContext.render(this.iconUrl).as(String.class).get());
+        if (runContext.render(this.eventId).as(String.class).isPresent()) {
+            map.put("event_id", runContext.render(this.eventId).as(String.class).get());
         }
 
-        if (runContext.render(this.iconEmoji).as(String.class).isPresent()) {
-            map.put("icon_emoji", runContext.render(this.iconEmoji).as(String.class).get());
+        final Map<String, String> tags = runContext.render(this.tags).asMap(String.class, String.class);
+        if (!tags.isEmpty()) {
+            map.put("tags", tags);
         }
 
         this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
-
+        runContext.logger().info("Rendered template -- ---- -- - - - - - - - - - - - - - - - -{}", payload);
         return super.run(runContext);
-    
+
     }
 }

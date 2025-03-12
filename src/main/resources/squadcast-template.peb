@@ -1,33 +1,25 @@
-{%- macro title(link, execution) -%}
+    {%- macro title(link, execution) -%}
 *
 {%- if link is defined -%}
-<{{link}}|[{{execution.namespace}}] {{execution.flowId}} &#8594 {{execution.state.current}}>
+<{{link}}|[{{execution.namespace}}] {{execution.flowId}} &rarr; {{execution.state.current}}>
 {%- else -%}
-[{{execution.namespace}}] {{execution.flowId}} &#8594 {{execution.state.current}}
-{%- endif -%}
+[{{execution.namespace}}] {{execution.flowId}} &rarr; {{execution.state.current}}
+    {%- endif -%}
 *
 {%- endmacro -%}
 {
-    "message": "{% if customMessage is defined %}{{ customMessage }}\n\n{% endif %}{{ title(link, execution) }}",
-    "description": "{% if firstFailed == false %}Flow succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %} after {{duration}}",
+{% if message is defined %}
+    "message": "{{message}}",
+{% endif %}
+{% if tags is defined %}
     "tags": {
-        "flow": "{{execution.namespace}}.{{execution.flowId}}",
-        "execution": "{{execution.id}}",
-        "status": "{{execution.state.current}}",
-        "severity": {
-            "color": "{{ execution.state.current == 'SUCCESS' ? '#00FF00' : (execution.state.current == 'WARNING' ? '#FFA500' : '#FF0000') }}",
-            "value": "{{ execution.state.current == 'SUCCESS' ? 'Low' : (execution.state.current == 'WARNING' ? 'Medium' : 'Critical') }}"
+{% for tag in tags %}
+    {{ tag.key | json }} : {{ tag.value | json }},
+{% endfor %}
         },
-        "namespace": "{{execution.namespace}}",
-        "flow_id": "{{execution.flowId}}",
-        "execution_id": "{{execution.id}}"
-        {% if customFields is defined %}
-        {% for entry in customFields %}
-        ,"{{entry.key}}": "{{entry.value}}"
-        {% endfor %}
-        {% endif %}
-        ,"final_task_id": "{{ lastTask.taskId }}"
-    },
-    "status": "trigger",
-    "event_id": "{{execution.id}}"
+{% endif %}
+     "description": "{{ title(link, execution) }}\nFinal task ID: {{lastTask.taskId}}\nStatus: {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %}\nDuration: {{duration}}"
+{% if eventId is defined %}
+    ,"event_id": "{{eventId}}"
+{% endif %}
 }

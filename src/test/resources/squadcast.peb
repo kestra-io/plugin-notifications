@@ -1,0 +1,7 @@
+{
+    "message": "{{message}}",
+    "priority": "{{priority}}",
+    "description": "{{description}}",
+    "tags": "",
+    "eventId": ""
+}

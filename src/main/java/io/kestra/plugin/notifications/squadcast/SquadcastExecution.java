@@ -31,14 +31,19 @@ import java.util.Map;
         code = """
               id: failure_alert
               namespace: company.team
-    
+
               tasks:
                 - id: send_alert
                   type: io.kestra.plugin.notifications.squadcast.SquadcastExecution
                   url: "{{ secret('SQUADCAST_WEBHOOK') }}" # format: https://api.squadcast.com/v2/incidents/api/xyzs
-                  channel: "#general"
+                  message: "Kestra Squadcast alert"
+                  priority: P1
+                  eventId: "6"
+                  tags:
+                      severity: high
+                      tagName1: tagValue1
                   executionId: "{{ trigger.executionId }}"
-    
+
               triggers:
                 - id: failed_prod_workflows
                   type: io.kestra.plugin.core.trigger.Flow

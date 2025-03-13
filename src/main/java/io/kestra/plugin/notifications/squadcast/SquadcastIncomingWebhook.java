@@ -31,10 +31,35 @@ import java.net.URI;
 )
 @Plugin(
     examples = {
-      @Example(
-        title = "Send a [Squadcast](https://www.squadcast.com/) alert via [incoming webhook](https://support.squadcast.com/integrations/incident-webhook-incident-webhook-api)",
-        full = true,
-        code = """
+        @Example(
+            title = "Send a [Squadcast](https://www.squadcast.com/) alert via [incoming webhook](https://support.squadcast.com/integrations/incident-webhook-incident-webhook-api)",
+            full = true,
+            code = """
+                id: squadcast_notification
+                namespace: company.team
+
+                tasks:
+                  - id: send_squadcast_message
+                    type: io.kestra.plugin.notifications.squadcast.SquadcastIncomingWebhook
+                    url: "{{ secret('SQUADCAST_WEBHOOK') }}"
+                    payload: |
+                      {
+                        "message": "Alert from Kestra flow {{ flow.id }}",
+                        "description": "Error occurred in task {{ task.id }}",
+                        "tags": {
+                          "flow": "{{ flow.namespace }}.{{ flow.id }}",
+                          "execution": "{{ execution.id }}",
+                          "severity": "Critical"
+                        },
+                        "status": "trigger",
+                        "event_id": "1"
+                      }
+                """
+      ),
+        @Example(
+            title = "Resolve a Squadcast incident using event ID",
+            full = true,
+            code = """
             id: squadcast_notification
             namespace: company.team
             tasks:
@@ -43,21 +68,11 @@ import java.net.URI;
                 url: "{{ secret('SQUADCAST_WEBHOOK') }}"
                 payload: |
                   {
-                  "message": "Alert from Kestra flow {{ flow.id }}",
-                  "description": "Error occurred in task {{ task.id }}",
-                  "tags": {
-                    "flow": "{{ flow.namespace }}.{{ flow.id }}",
-                    "execution": "{{ execution.id }}",
-                    "severity": {
-                      "color": "#FF0000",
-                      "value": "Critical"
-                    }
-                  },
-                  "status": "trigger",
-                  "event_id": "{{ execution.id }}"
-                }
+                    "status": "resolve",
+                    "event_id": "1"
+                  }
             """
-    )
+        )
   }
 )
 public class SquadcastIncomingWebhook extends AbstractHttpOptionsTask {

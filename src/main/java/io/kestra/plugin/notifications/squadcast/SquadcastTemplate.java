@@ -27,19 +27,28 @@ import java.util.Objects;
 @NoArgsConstructor
 public abstract class SquadcastTemplate extends SquadcastIncomingWebhook {
     @Schema(
-        title = "Slack channel to send the message to"
+        title = "Incident message",
+        description = "The main message of the incident."
     )
+    @NotNull
     protected Property<String> message;
 
     @Schema(
-        title = "Author of the slack message"
+        title = "Incident priority",
+        description = "The priority of the incident (P1, P2, P3, P4, P5). Defaults to 'Unset' if invalid."
     )
     protected Property<String> priority;
 
     @Schema(
-        title = "Url of the icon to use"
+        title = "Unique event identifier associated with an incident"
     )
     protected Property<String> eventId;
+
+    @Schema(
+        title = "Incident status",
+        description = "Status of the incident (e.g., 'trigger', 'resolve')."
+    )
+    protected Property<String> status;
 
     @Schema(
         title = "Map of variables to use for the message template"
@@ -87,14 +96,17 @@ public abstract class SquadcastTemplate extends SquadcastIncomingWebhook {
             map.put("event_id", runContext.render(this.eventId).as(String.class).get());
         }
 
+        if (runContext.render(this.status).as(String.class).isPresent()) {
+            map.put("status", runContext.render(this.status).as(String.class).get());
+        }
+
         final Map<String, String> tags = runContext.render(this.tags).asMap(String.class, String.class);
         if (!tags.isEmpty()) {
             map.put("tags", tags);
         }
 
         this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
-        runContext.logger().info("Rendered template -- ---- -- - - - - - - - - - - - - - - - -{}", payload);
-        return super.run(runContext);
 
+        return super.run(runContext);
     }
 }

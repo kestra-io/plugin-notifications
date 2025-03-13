@@ -1,4 +1,4 @@
-    {%- macro title(link, execution) -%}
+{%- macro title(link, execution) -%}
 *
 {%- if link is defined -%}
 <{{link}}|[{{execution.namespace}}] {{execution.flowId}} &rarr; {{execution.state.current}}>

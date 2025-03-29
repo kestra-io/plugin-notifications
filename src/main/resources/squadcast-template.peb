@@ -1,0 +1,25 @@
+{%- macro title(link, execution) -%}
+*
+{%- if link is defined -%}
+<{{link}}|[{{execution.namespace}}] {{execution.flowId}} &rarr; {{execution.state.current}}>
+{%- else -%}
+[{{execution.namespace}}] {{execution.flowId}} &rarr; {{execution.state.current}}
+    {%- endif -%}
+*
+{%- endmacro -%}
+{
+{% if message is defined %}
+    "message": "{{message}}",
+{% endif %}
+{% if tags is defined %}
+    "tags": {
+{% for tag in tags %}
+    {{ tag.key | json }} : {{ tag.value | json }},
+{% endfor %}
+        },
+{% endif %}
+     "description": "{{ title(link, execution) }}\nFinal task ID: {{lastTask.taskId}}\nStatus: {% if firstFailed == false %}Succeeded{% else %}Failed on task `{{firstFailed.taskId}}`{% endif %}\nDuration: {{duration}}"
+{% if eventId is defined %}
+    ,"event_id": "{{eventId}}"
+{% endif %}
+}

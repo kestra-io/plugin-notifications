@@ -20,13 +20,13 @@ import java.util.Map;
 @NoArgsConstructor
 @Schema(
     title = "Send a Twilio message with the execution information",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
+    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then task that led to the failure is specified.\n\n" +
         "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [TwilioAlert](https://kestra.io/plugins/plugin-notifications/tasks/twilio/io.kestra.plugin.notifications.twilio.twilioalert) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Twilio notification on a failed flow execution",
+            title = "Send a Twilio notification on a failed flow execution.",
             full = true,
             code = """
                 id: failure_alert

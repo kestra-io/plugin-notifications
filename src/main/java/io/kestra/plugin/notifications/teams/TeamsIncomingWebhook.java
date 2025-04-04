@@ -76,7 +76,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Microsoft Teams notification message",
+            title = "Send a Microsoft Teams notification message.",
             code = {
                 "url: \"https://microsoft.webhook.office.com/webhookb2/XXXXXXXXXX\"",
                 "payload: |",

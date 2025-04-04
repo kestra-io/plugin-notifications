@@ -62,13 +62,13 @@ public abstract class SentryTemplate extends SentryAlert {
     protected Property<ErrorLevel> level = Property.of(ErrorLevel.ERROR);
 
     @Schema(
-        title = "The name of the transaction which caused this alert",
+        title = "The name of the transaction which caused this alert.",
         description = "For example, in a web app, this might be the route name"
     )
     protected Property<String> transaction;
 
     @Schema(
-        title = "Identifies the host from which the event was recorded"
+        title = "Identifies the host from which the event was recorded."
     )
     protected Property<String> serverName;
 

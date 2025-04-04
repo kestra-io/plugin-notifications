@@ -27,7 +27,7 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Zenduty alert",
+    title = "Send a Zenduty alert.",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. " +
         "Check the [Zenduty integration documentation](https://docs.zenduty.com/docs/api) and " +
         "the [Zenduty Events API specification](https://apidocs.zenduty.com/#tag/Events/paths/~1api~1events~1%7Bintegration_key%7D~1/post) for more details."

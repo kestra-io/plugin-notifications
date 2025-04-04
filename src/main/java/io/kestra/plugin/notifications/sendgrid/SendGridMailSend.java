@@ -40,12 +40,12 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send an automated SendGrid email from a workflow"
+    title = "Send an automated SendGrid email from a workflow."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send an email on a failed flow execution",
+            title = "Send an email on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -91,7 +91,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
 
     @Schema(
         title = "Email address(es) of the recipient(s)",
-        description = "Note that each email address must be compliant with the RFC2822 format"
+        description = "Note that each email address must be compliant with the RFC2822 format."
     )
     @NotEmpty
     @PluginProperty(dynamic = true)
@@ -99,7 +99,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
 
     @Schema(
         title = "One or more 'Cc' (carbon copy) optional recipient(s) email address(es)",
-        description = "Note that each email address must be compliant with the RFC2822 format"
+        description = "Note that each email address must be compliant with the RFC2822 format."
     )
     private Property<List<String>> cc;
 
@@ -110,28 +110,28 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
 
     @Schema(
         title = "The optional email message body in HTML",
-        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
-            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+        description = "Both text and HTML can be provided, either will be offered to the email client as alternative content." +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely."
     )
     protected Property<String> htmlContent;
 
     @Schema(
         title = "The optional email message body in plain text",
-        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
-            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+        description = "Both text and HTML can be provided, either will be offered to the email client as alternative content." +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely."
     )
     protected Property<String> textContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
-        description = "The attachment will be shown in the email client as separate files available for download, or displayed " +
+        description = "The attachment will be shown in the email client as separate files available for download or display." +
             "inline if the client supports it (for example, most browsers display PDF's in a popup window)"
     )
     private List<Attachment> attachments;
 
     @Schema(
         title = "Adds image data to this email that can be referred to from the email HTML body",
-        description = "The provided images are assumed to be of MIME type png, jpg or whatever the email client supports as valid image that can be embedded in HTML content"
+        description = "The provided images are assumed to be of MIME type png, jpg, or whatever the email client supports as valid image that can be embedded in HTML content."
     )
     private List<Attachment> embeddedImages;
 
@@ -233,8 +233,8 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         private Property<String> name;
 
         @Schema(
-            title = "One or more 'Cc' (carbon copy) optional recipient email address(es). Use semicolon as a delimiter to provide several addresses",
-            description = "Note that each email address must be compliant with the RFC2822 format"
+            title = "One or more 'Cc' (carbon copy) optional recipient email address(es). Use semicolon as a delimiter to provide several addresses.",
+            description = "Note that each email address must be compliant with the RFC2822 format."
         )
         @NotNull
         @Builder.Default

@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Twilio message using an notification API",
+    title = "Send a Twilio message using an notification API.",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://www.twilio.com/docs/notify/send-notifications#sending-notifications\">Twilio documentation</a> for more details.."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Twilio notification on a failed flow execution",
+            title = "Send a Twilio notification on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -58,7 +58,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Twilio message via incoming notification API",
+            title = "Send a Twilio message via incoming notification API.",
             full = true,
             code = """
                 id: twilio_alert

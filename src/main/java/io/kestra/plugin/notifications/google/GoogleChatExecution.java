@@ -19,14 +19,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Google Chat message with the execution information",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration and the final status of the execution, and (if failed) the task that led to a failure.\n\n" +
+    title = "Send a Google Chat message with the execution information.",
+    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.\n\n" +
         "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [GoogleChatIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/google-chat/io.kestra.plugin.notifications.google.googlechatincomingwebhook) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Google Chat notification on a failed flow execution",
+            title = "Send a Google Chat notification on a failed flow execution.",
             full = true,
             code = """
                 id: failure_alert

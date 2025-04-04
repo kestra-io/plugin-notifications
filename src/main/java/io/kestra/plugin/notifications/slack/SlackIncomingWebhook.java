@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Slack message using an Incoming Webhook",
-    description = "Add this task to send direct Slack notifications. Check the <a href=\"https://api.slack.com/messaging/webhooks\">Slack documentation</a> for more details.."
+    title = "Send a Slack message using an Incoming Webhook.",
+    description = "Add this task to send direct Slack notifications. Check the <a href=\"https://api.slack.com/messaging/webhooks\">Slack documentation</a> for more details."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Slack notification on a failed flow execution",
+            title = "Send a Slack notification on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -56,7 +56,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Slack message via incoming webhook with a text argument",
+            title = "Send a Slack message via incoming webhook with a text argument.",
             full = true,
             code = """
                 id: slack_incoming_webhook
@@ -73,7 +73,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Slack message via incoming webhook with a blocks argument, read more on blocks <a href=\"https://api.slack.com/reference/block-kit/blocks\">here</a>",
+            title = "Send a Slack message via incoming webhook with a blocks argument, read more on blocks <a href=\"https://api.slack.com/reference/block-kit/blocks\">here</a>.",
             full = true,
             code = """
                 id: slack_incoming_webhook
@@ -98,7 +98,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a [Rocket.Chat](https://www.rocket.chat/) message via [incoming webhook](https://docs.rocket.chat/docs/integrations#incoming-webhook-script)",
+            title = "Send a [Rocket.Chat](https://www.rocket.chat/) message via [incoming webhook](https://docs.rocket.chat/docs/integrations#incoming-webhook-script).",
             full = true,
             code = """
                 id: rocket_chat_notification
@@ -145,7 +145,7 @@ import java.net.URI;
 public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
     @Schema(
         title = "Slack incoming webhook URL",
-        description = "Check the <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> documentation for more details.."
+        description = "Check the <a href=\"https://api.slack.com/messaging/webhooks#create_a_webhook\">Create an Incoming Webhook</a> documentation for more details."
     )
     @PluginProperty(dynamic = true)
     @NotEmpty

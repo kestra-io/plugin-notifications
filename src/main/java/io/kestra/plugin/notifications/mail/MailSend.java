@@ -36,12 +36,12 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send an automated email from a workflow"
+    title = "Send an automated email from a workflow."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send an email on a failed flow execution",
+            title = "Send an email on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -100,7 +100,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
         title = "Integer value in milliseconds. Default is 10000 milliseconds, i.e. 10 seconds",
-        description = "It controls the maximum timeout value when sending emails"
+        description = "It controls the maximum timeout value when sending emails."
     )
     @Builder.Default
     private final Property<Integer> sessionTimeout = Property.of(10000);
@@ -112,14 +112,14 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     protected Property<String> from;
 
     @Schema(
-        title = "Email address(es) of the recipient(s). Use semicolon as delimiter to provide several email addresses",
-        description = "Note that each email address must be compliant with the RFC2822 format"
+        title = "Email address(es) of the recipient(s). Use semicolon as delimiter to provide several email addresses.",
+        description = "Note that each email address must be compliant with the RFC2822 format."
     )
     protected Property<String> to;
 
     @Schema(
-        title = "One or more 'Cc' (carbon copy) optional recipient email address. Use semicolon as delimiter to provide several addresses",
-        description = "Note that each email address must be compliant with the RFC2822 format"
+        title = "One or more 'Cc' (carbon copy) optional recipient email address. Use semicolon as delimiter to provide several addresses.",
+        description = "Note that each email address must be compliant with the RFC2822 format."
     )
     protected Property<String> cc;
 
@@ -130,29 +130,29 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
         title = "The optional email message body in HTML text",
-        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
-            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+        description = "Both text and HTML can be provided; either will be offered to the email client as alternative content." +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely."
     )
     protected Property<String> htmlTextContent;
 
     @Schema(
         title = "The optional email message body in plain text",
-        description = "Both text and HTML can be provided, which will be offered to the email client as alternative content" +
-            "Email clients that support it, will favor HTML over plain text and ignore the text body completely"
+        description = "Both text and HTML can be provided; either will be offered to the email client as alternative content." +
+            "Email clients that support it, will favor HTML over plain text and ignore the text body completely."
     )
     protected Property<String> plainTextContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
-        description = "The attachment will be shown in the email client as separate files available for download, or displayed " +
-            "inline if the client supports it (for example, most browsers display PDF's in a popup window)"
+        description = "The attachment will be shown in the email client as separate files available for download or display." +
+            "inline if the client supports it (for example, most browsers display PDF's in a popup window)."
     )
     @PluginProperty(dynamic = true)
     private List<Attachment> attachments;
 
     @Schema(
-        title = "Adds image data to this email that can be referred to from the email HTML body",
-        description = "The provided images are assumed to be of MIME type png, jpg or whatever the email client supports as valid image that can be embedded in HTML content"
+        title = "Adds image data to this email that can be referred to from the email HTML body.",
+        description = "The provided images are assumed to be of MIME type png, jpg, or whatever the email client supports as valid image that can be embedded in HTML content."
     )
     @PluginProperty(dynamic = true)
     private List<Attachment> embeddedImages;

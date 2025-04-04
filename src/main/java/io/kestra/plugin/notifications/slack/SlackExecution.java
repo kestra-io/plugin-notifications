@@ -19,14 +19,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Slack message with the execution information",
+    title = "Send a Slack message with the execution information.",
     description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, the final status of the execution, and the last task ID in an execution.\n\n" +
     "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SlackIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/slack/io.kestra.plugin.notifications.slack.slackincomingwebhook) task."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Slack notification on a failed flow execution",
+            title = "Send a Slack notification on a failed flow execution.",
             full = true,
             code = """
                 id: failure_alert
@@ -53,7 +53,7 @@ import java.util.Map;
                 """
         ),
         @Example(
-            title = "Send a [Rocket.Chat](https://www.rocket.chat/) notification on a failed flow execution",
+            title = "Send a [Rocket.Chat](https://www.rocket.chat/) notification on a failed flow execution.",
             full = true,
             code = """
                 id: failure_alert

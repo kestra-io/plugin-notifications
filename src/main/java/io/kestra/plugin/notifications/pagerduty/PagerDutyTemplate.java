@@ -55,7 +55,7 @@ public abstract class PagerDutyTemplate extends PagerDutyAlert {
     protected Property<String> eventAction;
 
     @Schema(
-        title = "Brief text summary of the event, used to generate the summaries/titles of any associated alerts"
+        title = "Brief text summary of the event, used to generate the summaries/titles of any associated alerts."
     )
     @Size(max = 1024)
     @PluginProperty(dynamic = true)

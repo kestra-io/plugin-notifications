@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a PagerDuty alert",
+    title = "Send a PagerDuty alert.",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgx-send-an-alert-event\">PagerDuty documentation</a> for more details.."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a PagerDuty alert on a failed flow execution",
+            title = "Send a PagerDuty alert on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -61,7 +61,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Discord message via incoming webhook",
+            title = "Send a Discord message via incoming webhook.",
             full = true,
             code = """
                 id: discord_incoming_webhook

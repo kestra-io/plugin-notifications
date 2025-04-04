@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Discord message using an Incoming Webhook",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://discord.com/developers/docs/resources/webhook\">Discord documentation</a> for more details.."
+    title = "Send a Discord message using an Incoming Webhook.",
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://discord.com/developers/docs/resources/webhook\">Discord documentation</a> for more details."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Discord notification on a failed flow execution",
+            title = "Send a Discord notification on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -60,7 +60,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Discord message via incoming webhook",
+            title = "Send a Discord message via incoming webhook.",
             full = true,
             code = """
                 id: discord_incoming_webhook
@@ -93,7 +93,7 @@ import java.net.URI;
 public class DiscordIncomingWebhook extends AbstractHttpOptionsTask {
 
     @Schema(
-        title = "Webhook URL which should be taken from discord integrations tab"
+        title = "Webhook URL which should be taken from discord integrations tab."
     )
     @PluginProperty(dynamic = true)
     @NotBlank

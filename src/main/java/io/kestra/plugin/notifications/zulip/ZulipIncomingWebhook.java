@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Zulip message using an Incoming Webhook",
-    description = "Add this task to send direct Zulip notifications. Check the <a href=\"https://api.zulip.com/messaging/webhooks\">Zulip documentation</a> for more details.."
+    title = "Send a Zulip message using an Incoming Webhook.",
+    description = "Add this task to send direct Zulip notifications. Check the <a href=\"https://api.zulip.com/messaging/webhooks\">Zulip documentation</a> for more details."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Zulip notification on a failed flow execution",
+            title = "Send a Zulip notification on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -56,7 +56,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Zulip message via incoming webhook with a text argument",
+            title = "Send a Zulip message via incoming webhook with a text argument.",
             full = true,
             code = """
                 id: zulip_incoming_webhook
@@ -73,7 +73,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Zulip message via incoming webhook with a blocks argument, read more on blocks <a href=\"https://api.zulip.com/reference/block-kit/blocks\">here</a>",
+            title = "Send a Zulip message via incoming webhook with a blocks argument, read more on blocks <a href=\"https://api.zulip.com/reference/block-kit/blocks\">here</a>.",
             full = true,
             code = """
                 id: zulip_incoming_webhook
@@ -102,7 +102,7 @@ import java.net.URI;
 public class ZulipIncomingWebhook extends AbstractHttpOptionsTask {
     @Schema(
         title = "Zulip incoming webhook URL",
-        description = "Check the <a href=\"https://zulip.com/api/incoming-webhooks-overview\">Incoming Webhook Integrations</a> documentation for more details.."
+        description = "Check the <a href=\"https://zulip.com/api/incoming-webhooks-overview\">Incoming Webhook Integrations</a> documentation for more details."
     )
     @PluginProperty(dynamic = true)
     @NotEmpty

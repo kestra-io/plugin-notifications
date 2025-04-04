@@ -26,13 +26,13 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Google Chat message using an Incoming Webhook",
+    title = "Send a Google Chat message using an Incoming Webhook.",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://developers.google.com/chat/how-tos/webhooks\">Google documentation</a> for more details.."
 )
 @Plugin(
     examples = {
         @Example(
-            title = "Send a Google Chat notification on a failed flow execution",
+            title = "Send a Google Chat notification on a failed flow execution.",
             full = true,
             code = """
                 id: unreliable_flow
@@ -56,7 +56,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a Google Chat message via incoming webhook",
+            title = "Send a Google Chat message via incoming webhook.",
             full = true,
             code = """
                 id: google_incoming_webhook

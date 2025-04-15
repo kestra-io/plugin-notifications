@@ -26,7 +26,7 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Microsoft Teams message using an incoming webhook.",
+    title = "Send a Microsoft Teams message using an Incoming Webhook.",
     description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the <a href=\"https://learn.microsoft.com/en-us/azure/data-factory/how-to-send-notifications-to-teams?tabs=data-factory\">Microsoft Teams documentation</a> for more details."
 )
 @Plugin(

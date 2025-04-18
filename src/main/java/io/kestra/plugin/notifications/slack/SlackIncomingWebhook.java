@@ -9,6 +9,7 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
@@ -161,15 +162,18 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
         String url = runContext.render(this.url);
 
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
-            //First render to get the template, second render to populate the payload
-            String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
+            var payload = JacksonMapper.ofJson() // explicitly pass it as a JsonNode to HttpRequest to avoid encoding issues
+                .readTree(
+                    //First render to get the template, second render to populate the payload
+                    runContext.render(runContext.render(this.payload).as(String.class).orElse(null))
+                );
 
             runContext.logger().debug("Send Slack webhook: {}", payload);
             HttpRequest request = HttpRequest.builder()
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .method("POST")
-                .body(HttpRequest.StringRequestBody.builder()
+                .body(HttpRequest.JsonRequestBody.builder()
                     .content(payload)
                     .build())
                 .build();

@@ -7,6 +7,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -18,8 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @KestraTest
 class SlackIncomingWebhookTest {
@@ -32,16 +33,11 @@ class SlackIncomingWebhookTest {
     @Test
     void run() throws Exception {
         RunContext runContext = runContextFactory.of(ImmutableMap.of(
-            "blocks", Arrays.asList(
+            "block",
                 ImmutableMap.of(
-                    "text", "A message *with some bold text* and _some italicized text_. And specials characters ➛➛➛",
-                    "fields", Arrays.asList("*Priority*", "*Type*", "`High`", "`Unit Test`")
-                ),
-                ImmutableMap.of(
-                    "text", "his is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, and <https://google.com|this is a link>",
-                    "fields", Arrays.asList("*Priority*", "*Type*", "`Low`", "`Unit Test`")
+                    "text", "A message *with some bold text* and _some italicized text_. And specials characters ➛➛➛, his is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, and <https://google.com|this is a link>",
+                    "field", Arrays.asList("*Priority*", "*Type*", "`High`", "`Unit Test`")
                 )
-            )
         ));
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
@@ -61,8 +57,11 @@ class SlackIncomingWebhookTest {
 
         task.run(runContext);
 
-        assertThat(FakeWebhookController.data, containsString("ge *with some bold text* an"));
-        assertThat(FakeWebhookController.data, containsString("And specials characters ➛➛➛"));
+        assertThatCode(() -> JacksonMapper.ofJson().readTree(FakeWebhookController.data))
+            .withFailMessage("we should send a valid JSON to Slack API")
+            .doesNotThrowAnyException();
+        assertThat(FakeWebhookController.data).contains("ge *with some bold text* an");
+        assertThat(FakeWebhookController.data).contains("And specials characters ➛➛➛");
     }
 
 }

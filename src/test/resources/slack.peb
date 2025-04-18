@@ -1,7 +1,6 @@
 {
     "channel": "#random",
     "blocks": [
-    {% for block in blocks %}
         {
             "type": "section",
             "text": {
@@ -12,19 +11,14 @@
         {
             "type": "section",
             "fields": [
-                {% for field in block.fields %}
                 {
                     "type": "mrkdwn",
-                    "text": {{ field | json }}
+                    "text": {{ block.field | json }}
                 }
-                {{ loop.last == 'false' ? ',' : '' }}
-                {% endfor %}
             ]
         },
         {
         "type": "divider"
         }
-        {{ loop.last == 'false' ? ',' : '' }}
-    {% endfor %}
     ]
 }

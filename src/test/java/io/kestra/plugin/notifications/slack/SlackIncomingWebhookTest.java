@@ -34,7 +34,7 @@ class SlackIncomingWebhookTest {
         RunContext runContext = runContextFactory.of(ImmutableMap.of(
             "blocks", Arrays.asList(
                 ImmutableMap.of(
-                    "text", "A message *with some bold text* and _some italicized text_.",
+                    "text", "A message *with some bold text* and _some italicized text_. And specials characters ➛➛➛",
                     "fields", Arrays.asList("*Priority*", "*Type*", "`High`", "`Unit Test`")
                 ),
                 ImmutableMap.of(
@@ -62,6 +62,7 @@ class SlackIncomingWebhookTest {
         task.run(runContext);
 
         assertThat(FakeWebhookController.data, containsString("ge *with some bold text* an"));
+        assertThat(FakeWebhookController.data, containsString("And specials characters ➛➛➛"));
     }
 
 }

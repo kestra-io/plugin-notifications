@@ -20,6 +20,9 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.net.http.HttpHeaders;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -168,10 +171,14 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
                     runContext.render(runContext.render(this.payload).as(String.class).orElse(null))
                 );
 
+            HttpHeaders headers = buildHttpHeaders(runContext);
+
+            runContext.logger().info("headers {} ", headers);
             runContext.logger().debug("Send Slack webhook: {}", payload);
             HttpRequest request = HttpRequest.builder()
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
+                .headers(headers)
                 .method("POST")
                 .body(HttpRequest.JsonRequestBody.builder()
                     .content(payload)

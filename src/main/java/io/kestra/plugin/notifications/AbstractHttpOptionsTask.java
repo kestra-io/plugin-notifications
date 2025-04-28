@@ -1,6 +1,7 @@
 package io.kestra.plugin.notifications;
 
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.client.configurations.HttpConfiguration;
 import io.kestra.core.http.client.configurations.TimeoutConfiguration;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -13,10 +14,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.net.http.HttpHeaders;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -47,6 +52,20 @@ public abstract class AbstractHttpOptionsTask extends Task implements RunnableTa
         return configuration.build();
     }
 
+    protected HttpHeaders buildHttpHeaders(RunContext runContext) throws IllegalVariableEvaluationException {
+        if (this.options != null && this.options.getHeaders() != null) {
+            Map<String, String> renderedHeaders = runContext.render(this.options.getHeaders()).asMap(String.class, String.class);
+
+            Map<String, List<String>> headers = renderedHeaders.entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> List.of(e.getValue())
+                ));
+            return HttpHeaders.of(headers, (k, v) -> true);
+        }
+        return HttpHeaders.of(Map.of(), (k, v) -> true);
+    }
+
     @Getter
     @Builder
     public static class RequestOptions {
@@ -72,5 +91,11 @@ public abstract class AbstractHttpOptionsTask extends Task implements RunnableTa
         @Schema(title = "The default charset for the request.")
         @Builder.Default
         private final Property<Charset> defaultCharset = Property.of(StandardCharsets.UTF_8);
+
+        @Schema(
+            title = "HTTP headers",
+            description = "HTTP headers to include in the request"
+        )
+        public Property<Map<String,String>> headers;
     }
 }

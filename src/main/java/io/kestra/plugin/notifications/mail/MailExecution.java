@@ -65,8 +65,9 @@ public class MailExecution extends MailTemplate implements ExecutionInterface {
     private Property<Map<String, Object>> customFields;
     private Property<String> customMessage;
 
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.PUBLIC)
+    @Schema(
+        hidden = true
+    )
     protected Property<String> htmlTextContent;
 
     @Override

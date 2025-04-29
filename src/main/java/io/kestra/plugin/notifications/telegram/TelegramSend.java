@@ -1,5 +1,6 @@
 package io.kestra.plugin.notifications.telegram;
 
+import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.client.HttpClient;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
@@ -13,7 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.net.URI;
+import java.net.http.HttpHeaders;
+import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -43,11 +45,13 @@ public class TelegramSend extends AbstractHttpOptionsTask {
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.endpointOverride).as(String.class).orElse(TELEGRAMAPI_BASE_URL);
 
+        HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext);
+
         try (HttpClient httpClient = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
             String destination = runContext.render(this.channel).as(String.class).orElseThrow();
             String apiToken = runContext.render(this.token).as(String.class).orElseThrow();
             String rendered = runContext.render(payload).as(String.class).orElseThrow();
-            TelegramBotApiService.send(httpClient, destination, apiToken, rendered, url);
+            TelegramBotApiService.send(httpClient, destination, apiToken, rendered, url, requestBuilder);
         }
 
         return null;

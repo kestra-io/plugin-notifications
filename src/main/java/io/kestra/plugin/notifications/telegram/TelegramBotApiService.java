@@ -13,19 +13,21 @@ import java.util.Objects;
 
 public class TelegramBotApiService {
 
-    public static void send(HttpClient client, String destinationId, String apiToken, String message,String url) throws ErrorSendingMessageException {
+    public static void send(HttpClient client, String destinationId, String apiToken, String message, String url, HttpRequest.HttpRequestBuilder requestBuilder) throws ErrorSendingMessageException {
 
         TelegramMessage payload = new TelegramMessage(destinationId, message);
 
         String uri = url+ "/bot{token}/sendMessage".replace("{token}", apiToken);
-        HttpRequest request = HttpRequest.builder()
+
+        requestBuilder
             .addHeader("Content-Type", "application/json")
             .uri(URI.create(uri))
             .method("POST")
             .body(HttpRequest.JsonRequestBody.builder()
                 .content(payload)
-                .build())
-            .build();
+                .build());
+
+        HttpRequest request = requestBuilder.build();
 
         try {
             HttpResponse<TelegramBotApiResponse> exchange = client.request(request, TelegramBotApiService.TelegramBotApiResponse.class);

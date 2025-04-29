@@ -19,6 +19,8 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.net.http.HttpHeaders;
+import java.util.List;
 
 @SuperBuilder
 @ToString
@@ -102,14 +104,15 @@ public class WhatsAppIncomingWebhook extends AbstractHttpOptionsTask {
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send WhatsApp webhook: {}", payload);
-            HttpRequest request = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .method("POST")
                 .body(HttpRequest.StringRequestBody.builder()
                     .content(payload)
-                    .build())
-                .build();
+                    .build());
+
+            HttpRequest request = requestBuilder.build();
 
             HttpResponse<String> response = client.request(request, String.class);
 

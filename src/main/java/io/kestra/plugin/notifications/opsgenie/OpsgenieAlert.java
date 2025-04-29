@@ -21,6 +21,10 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @SuperBuilder
 @ToString
@@ -131,15 +135,16 @@ public class OpsgenieAlert extends AbstractHttpOptionsTask {
 
             runContext.logger().debug("Send Opsgenie alert: {}", payload);
 
-            HttpRequest request = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .addHeader(HttpHeaders.AUTHORIZATION, runContext.render(authorizationToken).as(String.class).orElse(null))
                 .method("POST")
                 .body(HttpRequest.StringRequestBody.builder()
                     .content(payload)
-                    .build())
-                .build();
+                    .build());
+
+            HttpRequest request = requestBuilder.build();
 
             HttpResponse<String> response = client.request(request, String.class);
 

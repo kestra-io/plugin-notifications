@@ -1,6 +1,5 @@
 package io.kestra.plugin.notifications.services;
 
-import com.google.common.collect.Streams;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.executions.TaskRun;
@@ -19,6 +18,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class ExecutionService {
     public static Execution findExecution(RunContext runContext, Property<String> executionId) throws IllegalVariableEvaluationException, NoSuchElementException {
@@ -34,7 +34,8 @@ public class ExecutionService {
                 runContext.logger()
             );
 
-        String executionRendererId = runContext.render(runContext.render(executionId).as(String.class).orElse(null));
+        var executionRendererId = runContext.render(runContext.render(executionId).as(String.class).orElse(null));
+        var flowTriggerExecutionState = getOptionalFlowTriggerExecutionState(runContext);
 
         var flowVars = (Map<String, String>) runContext.getVariables().get("flow");
         var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
@@ -46,14 +47,41 @@ public class ExecutionService {
         return retryInstance.run(
             NoSuchElementException.class,
             () -> executionRepository.findById(flowVars.get("tenantId"), executionRendererId)
-                // we don't wait for current execution to be terminated as it could not be possible as long as this task is running
-                // note that this check may exist due to previous usage with listeners, we may revisit this later
-                .filter(e -> isCurrentExecution || e.getState().getCurrent().isTerminated())
+                .filter(foundExecution -> isExecutionInTheWantedState(foundExecution, isCurrentExecution, flowTriggerExecutionState))
                 .orElseThrow(() -> new NoSuchElementException("Unable to find execution '" + executionRendererId + "'"))
+
         );
     }
 
-    @SuppressWarnings("UnstableApiUsage")
+    /**
+     * ExecutionRepository can be out of sync in ElasticSearch stack, with this filter we try to mitigate that
+     *
+     * @param execution                 the Execution we fetched from ExecutionRepository
+     * @param isCurrentExecution        true if this *Execution Task is configured to send a notification for the current Execution
+     * @param flowTriggerExecutionState the Execution State that triggered the Flow trigger, if any
+     * @return true if we think we fetched the right Execution data for our usecase
+     */
+    public static boolean isExecutionInTheWantedState(Execution execution, boolean isCurrentExecution, Optional<String> flowTriggerExecutionState) {
+        if (isCurrentExecution) {
+            // we don't wait for current execution to be terminated as it could not be possible as long as this task is running
+            return true;
+        }
+
+        if (flowTriggerExecutionState.isPresent()) {
+            // we were triggered by a Flow trigger that can be, for example: PAUSED
+            if (flowTriggerExecutionState.get().equals(State.Type.RUNNING.toString())) {
+                // RUNNING special case: we take the first state we got
+                return true;
+            } else {
+                // to handle the case where the ExecutionRepository is out of sync in ElasticSearch stack,
+                // we try to match an Execution with the same state
+                return execution.getState().getCurrent().name().equals(flowTriggerExecutionState.get());
+            }
+        } else {
+            return execution.getState().getCurrent().isTerminated();
+        }
+    }
+
     public static Map<String, Object> executionMap(RunContext runContext, ExecutionInterface executionInterface) throws IllegalVariableEvaluationException {
         Execution execution = ExecutionService.findExecution(runContext, executionInterface.getExecutionId());
         UriProvider uriProvider = ((DefaultRunContext)runContext).getApplicationContext().getBean(UriProvider.class);
@@ -82,5 +110,17 @@ public class ExecutionService {
         templateRenderMap.put("lastTask", lastTaskRun);
 
         return templateRenderMap;
+    }
+
+    /**
+     * if there is a state, we assume this is a Flow trigger with type: {@link io.kestra.plugin.core.trigger.Flow.Output}
+     *
+     * @return the state of the execution that triggered the Flow trigger, or empty if another usecase/trigger
+     */
+    private static Optional<String> getOptionalFlowTriggerExecutionState(RunContext runContext) {
+        var triggerVar = Optional.ofNullable(
+            runContext.getVariables().get("trigger")
+        );
+        return triggerVar.map(trigger -> ((Map<String, String>) trigger).get("state"));
     }
 }

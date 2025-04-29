@@ -19,6 +19,8 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.net.http.HttpHeaders;
+import java.util.List;
 
 @SuperBuilder
 @ToString
@@ -129,14 +131,17 @@ public class TeamsIncomingWebhook  extends AbstractHttpOptionsTask {
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send Microsoft Teams webhook: {}", payload);
-            HttpRequest request = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .method("POST")
                 .body(io.kestra.core.http.HttpRequest.StringRequestBody.builder()
                     .content(payload)
-                    .build())
-                .build();
+                    .build());
+
+            buildHeaders(runContext).forEach(requestBuilder::addHeader);
+
+            HttpRequest request = requestBuilder.build();
 
             HttpResponse<String> response = client.request(request, String.class);
 

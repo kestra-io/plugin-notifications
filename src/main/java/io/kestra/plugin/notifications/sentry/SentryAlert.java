@@ -17,7 +17,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.net.http.HttpHeaders;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -160,14 +162,17 @@ public class SentryAlert extends AbstractHttpOptionsTask {
             // Trying to send to /envelope endpoint
             try {
                 runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
-                HttpRequest request = io.kestra.core.http.HttpRequest.builder()
+                HttpRequest.HttpRequestBuilder requestBuilder = io.kestra.core.http.HttpRequest.builder()
                     .addHeader("Content-Type", "application/json")
                     .uri(URI.create(url))
                     .method("POST")
                     .body(io.kestra.core.http.HttpRequest.StringRequestBody.builder()
                         .content(envelope)
-                        .build())
-                    .build();
+                        .build());
+
+                buildHeaders(runContext).forEach(requestBuilder::addHeader);
+
+                HttpRequest request = requestBuilder.build();
 
                 HttpResponse<String> response = client.request(request, String.class);
 

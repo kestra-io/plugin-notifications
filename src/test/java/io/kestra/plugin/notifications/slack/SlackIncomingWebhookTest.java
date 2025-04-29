@@ -8,7 +8,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.serializers.JacksonMapper;
-import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -18,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +76,7 @@ class SlackIncomingWebhookTest {
         ));
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("content-type", "application/json");
+        headers.put("demo-api-key", "demo");
 
         AbstractHttpOptionsTask.RequestOptions options = AbstractHttpOptionsTask.RequestOptions.builder()
             .headers(Property.of(headers))
@@ -107,6 +104,6 @@ class SlackIncomingWebhookTest {
             .withFailMessage("we should send a valid JSON to Slack API")
             .doesNotThrowAnyException();
 
-        assertThat(FakeWebhookController.headers).containsEntry("content-type", "application/json");
+        assertThat(FakeWebhookController.headers).containsEntry("demo-api-key", "demo");
     }
 }

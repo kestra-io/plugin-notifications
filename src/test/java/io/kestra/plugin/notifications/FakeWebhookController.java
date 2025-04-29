@@ -23,8 +23,6 @@ public class FakeWebhookController {
     public HttpResponse<String> postWithHeaders(HttpRequest<?> request, @Body String data) {
 
         FakeWebhookController.data = data;
-
-        headers.clear();
         request.getHeaders().forEach((name, values) -> {
             if (!values.isEmpty()) {
                 headers.put(name, values.get(0));

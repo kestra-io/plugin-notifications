@@ -9,25 +9,23 @@ import io.kestra.core.http.client.HttpClientResponseException;
 import io.micronaut.http.HttpStatus;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.Objects;
 
 public class TelegramBotApiService {
 
-    public static void send(HttpClient client, String destinationId, String apiToken, String message, String url, Map<String, String> headers) throws ErrorSendingMessageException {
+    public static void send(HttpClient client, String destinationId, String apiToken, String message, String url, HttpRequest.HttpRequestBuilder requestBuilder) throws ErrorSendingMessageException {
 
         TelegramMessage payload = new TelegramMessage(destinationId, message);
 
         String uri = url+ "/bot{token}/sendMessage".replace("{token}", apiToken);
-        HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
+
+        requestBuilder
             .addHeader("Content-Type", "application/json")
             .uri(URI.create(uri))
             .method("POST")
             .body(HttpRequest.JsonRequestBody.builder()
                 .content(payload)
                 .build());
-
-        headers.forEach(requestBuilder::addHeader);
 
         HttpRequest request = requestBuilder.build();
 

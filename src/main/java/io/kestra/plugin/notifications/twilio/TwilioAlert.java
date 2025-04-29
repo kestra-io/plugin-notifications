@@ -117,7 +117,7 @@ public class TwilioAlert extends AbstractHttpOptionsTask {
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send Twilio notification: {}", payload);
-            HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .addHeader(runContext.render(accountSID), runContext.render(authToken))
                 .uri(URI.create(url))
@@ -125,8 +125,6 @@ public class TwilioAlert extends AbstractHttpOptionsTask {
                 .body(HttpRequest.StringRequestBody.builder()
                     .content(payload)
                     .build());
-
-            buildHeaders(runContext).forEach(requestBuilder::addHeader);
 
             HttpRequest request = requestBuilder.build();
 

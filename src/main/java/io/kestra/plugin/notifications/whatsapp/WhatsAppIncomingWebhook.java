@@ -104,15 +104,13 @@ public class WhatsAppIncomingWebhook extends AbstractHttpOptionsTask {
             String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
 
             runContext.logger().debug("Send WhatsApp webhook: {}", payload);
-            HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .method("POST")
                 .body(HttpRequest.StringRequestBody.builder()
                     .content(payload)
                     .build());
-
-            buildHeaders(runContext).forEach(requestBuilder::addHeader);
 
             HttpRequest request = requestBuilder.build();
 

@@ -171,20 +171,14 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
                     runContext.render(runContext.render(this.payload).as(String.class).orElse(null))
                 );
 
-            HttpHeaders headers = buildHttpHeaders(runContext);
-
-            runContext.logger().info("headers {} ", headers);
             runContext.logger().debug("Send Slack webhook: {}", payload);
-            HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
-                .headers(headers)
                 .method("POST")
                 .body(HttpRequest.JsonRequestBody.builder()
                     .content(payload)
                     .build());
-
-            buildHeaders(runContext).forEach(requestBuilder::addHeader);
 
             HttpRequest request = requestBuilder.build();
 

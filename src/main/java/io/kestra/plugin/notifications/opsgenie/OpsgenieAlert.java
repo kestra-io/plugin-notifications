@@ -135,7 +135,7 @@ public class OpsgenieAlert extends AbstractHttpOptionsTask {
 
             runContext.logger().debug("Send Opsgenie alert: {}", payload);
 
-            HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
+            HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .addHeader(HttpHeaders.AUTHORIZATION, runContext.render(authorizationToken).as(String.class).orElse(null))
@@ -143,8 +143,6 @@ public class OpsgenieAlert extends AbstractHttpOptionsTask {
                 .body(HttpRequest.StringRequestBody.builder()
                     .content(payload)
                     .build());
-
-            buildHeaders(runContext).forEach(requestBuilder::addHeader);
 
             HttpRequest request = requestBuilder.build();
 

@@ -162,15 +162,13 @@ public class SentryAlert extends AbstractHttpOptionsTask {
             // Trying to send to /envelope endpoint
             try {
                 runContext.logger().debug("Attempting to send the following Sentry event envelope: {}", envelope);
-                HttpRequest.HttpRequestBuilder requestBuilder = io.kestra.core.http.HttpRequest.builder()
+                HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                     .addHeader("Content-Type", "application/json")
                     .uri(URI.create(url))
                     .method("POST")
                     .body(io.kestra.core.http.HttpRequest.StringRequestBody.builder()
                         .content(envelope)
                         .build());
-
-                buildHeaders(runContext).forEach(requestBuilder::addHeader);
 
                 HttpRequest request = requestBuilder.build();
 

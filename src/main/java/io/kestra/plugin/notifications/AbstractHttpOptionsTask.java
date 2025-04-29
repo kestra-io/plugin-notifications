@@ -1,6 +1,7 @@
 package io.kestra.plugin.notifications;
 
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.client.configurations.HttpConfiguration;
 import io.kestra.core.http.client.configurations.TimeoutConfiguration;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -48,11 +50,20 @@ public abstract class AbstractHttpOptionsTask extends Task implements RunnableTa
         return configuration.build();
     }
 
-    protected Map<String, String> buildHeaders(RunContext runContext) throws IllegalVariableEvaluationException {
+    protected HttpRequest.HttpRequestBuilder createRequestBuilder(
+        RunContext runContext) throws IllegalVariableEvaluationException {
+
+        HttpRequest.HttpRequestBuilder builder = HttpRequest.builder();
+
         if (this.options != null && this.options.getHeaders() != null) {
-            return runContext.render(this.options.getHeaders()).asMap(String.class, String.class);
+            Map<String, String> headers = runContext.render(this.options.getHeaders())
+                .asMap(String.class, String.class);
+
+            if (headers != null) {
+                headers.forEach(builder::addHeader);
+            }
         }
-        return Map.of();
+        return builder;
     }
 
     @Getter

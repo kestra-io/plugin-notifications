@@ -41,57 +41,57 @@ import java.util.List;
                 namespace: company.team
 
                 tasks:
-                - id: fail
+                  - id: fail
                     type: io.kestra.plugin.scripts.shell.Commands
                     runner: PROCESS
                     commands:
-                    - exit 1
+                      - exit 1
 
                 errors:
-                - id: alert_on_failure
+                  - id: alert_on_failure
                     type: io.kestra.plugin.notifications.teams.TeamsIncomingWebhook
                     url: "{{ secret('TEAMS_WEBHOOK') }}" # format: https://microsoft.webhook.office.com/webhook/xyz
                     payload: |
                         {
-                        "type": "message",
-                        "attachments": [
+                          "type": "message",
+                          "attachments": [
                             {
-                            "contentType": "application/vnd.microsoft.card.adaptive",
-                            "content": {
+                              "contentType": "application/vnd.microsoft.card.adaptive",
+                              "content": {
                                 "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                                 "type": "AdaptiveCard",
                                 "version": "1.4",
                                 "body": [
-                                {
+                                  {
                                     "type": "TextBlock",
                                     "size": "Large",
                                     "weight": "Bolder",
                                     "text": "Kestra Execution Notification"
-                                },
-                                {
+                                  },
+                                  {
                                     "type": "TextBlock",
                                     "text": "Execution ID: `{{ execution.id }}`",
                                     "wrap": true
-                                },
-                                {
+                                  },
+                                  {
                                     "type": "TextBlock",
                                     "text": "Flow: `{{ flow.id }}` in namespace `{{ flow.namespace }}`",
                                     "wrap": true
-                                },
-                                {
+                                  },
+                                  {
                                     "type": "TextBlock",
                                     "text": "Status: **{{ execution.state }}**",
                                     "wrap": true
-                                }
+                                  }
                                 ],
                                 "actions": [
-                                {
+                                  {
                                     "type": "Action.OpenUrl",
                                     "title": "View Execution",
                                     "url": "{{ kestra.url }}/ui/executions/{{ flow.namespace }}/{{ flow.id }}/{{ execution.id }}"
-                                }
+                                  }
                                 ]
-                            }
+                              }
                             }
                         ]
                         }

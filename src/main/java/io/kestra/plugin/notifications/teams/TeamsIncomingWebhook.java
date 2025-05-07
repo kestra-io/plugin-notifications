@@ -29,7 +29,7 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(
     title = "Send a Microsoft Teams message using an Incoming Webhook.",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the <a href=\"https://learn.microsoft.com/en-us/azure/data-factory/how-to-send-notifications-to-teams?tabs=data-factory\">Microsoft Teams documentation</a> for more details."
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the [Microsoft Teams documentation](https://support.microsoft.com/en-us/office/create-incoming-webhooks-with-workflows-for-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498) for more details."
 )
 @Plugin(
     examples = {
@@ -52,30 +52,50 @@ import java.util.List;
                     type: io.kestra.plugin.notifications.teams.TeamsIncomingWebhook
                     url: "{{ secret('TEAMS_WEBHOOK') }}" # format: https://microsoft.webhook.office.com/webhook/xyz
                     payload: |
-                      {
-                        "@type": "MessageCard",
-                        "@context": "http://schema.org/extensions",
-                        "themeColor": "0076D7",
-                        "summary": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}",
-                        "sections": [{
-                        "activityTitle": "Kestra Workflow Notification",
-                        "activitySubtitle": "Workflow Execution Finished With Errors",
-                        "markdown": true
-                        }],
-                        "potentialAction": [
-                          {
-                            "@type": "OpenUri",
-                            "name": "Kestra Workflow",
-                            "targets": [
+                        {
+                          "type": "message",
+                          "attachments": [
                             {
-                            "os": "default",
-                            "uri": "{{ vars.systemUrl }}"
+                              "contentType": "application/vnd.microsoft.card.adaptive",
+                              "content": {
+                                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                                "type": "AdaptiveCard",
+                                "version": "1.4",
+                                "body": [
+                                  {
+                                    "type": "TextBlock",
+                                    "size": "Large",
+                                    "weight": "Bolder",
+                                    "text": "Kestra Execution Notification"
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "text": "Execution ID: `{{ execution.id }}`",
+                                    "wrap": true
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "text": "Flow: `{{ flow.id }}` in namespace `{{ flow.namespace }}`",
+                                    "wrap": true
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "text": "Status: **{{ execution.state }}**",
+                                    "wrap": true
+                                  }
+                                ],
+                                "actions": [
+                                  {
+                                    "type": "Action.OpenUrl",
+                                    "title": "View Execution",
+                                    "url": "{{ kestra.url }}/ui/executions/{{ flow.namespace }}/{{ flow.id }}/{{ execution.id }}"
+                                  }
+                                ]
+                              }
                             }
-                            ]
-                          }
                         ]
-                      }
-                """
+                        }
+                          """
         ),
         @Example(
             title = "Send a Microsoft Teams notification message.",

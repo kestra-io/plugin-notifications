@@ -29,7 +29,7 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(
     title = "Send a Microsoft Teams message using an Incoming Webhook.",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the <a href=\"https://learn.microsoft.com/en-us/azure/data-factory/how-to-send-notifications-to-teams?tabs=data-factory\">Microsoft Teams documentation</a> for more details."
+    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the [Microsoft Teams documentation](https://support.microsoft.com/en-us/office/create-incoming-webhooks-with-workflows-for-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498) for more details."
 )
 @Plugin(
     examples = {

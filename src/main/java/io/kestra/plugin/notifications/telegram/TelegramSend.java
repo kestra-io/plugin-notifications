@@ -7,15 +7,13 @@ import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
-import java.net.http.HttpHeaders;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -36,6 +34,9 @@ public class TelegramSend extends AbstractHttpOptionsTask {
     @Schema(title = "Message payload")
     protected Property<String> payload;
 
+    @Schema(title = "Telegram Bot parse-Mode", description = "Optional text formatting mode for Telegram messages. Supported values: HTML, Markdown, MarkdownV2.", example = "HTML")
+    @Nullable
+    protected Property<String> parseMode;
     @Schema(
         title = "Only to be used when testing locally"
     )
@@ -51,7 +52,8 @@ public class TelegramSend extends AbstractHttpOptionsTask {
             String destination = runContext.render(this.channel).as(String.class).orElseThrow();
             String apiToken = runContext.render(this.token).as(String.class).orElseThrow();
             String rendered = runContext.render(payload).as(String.class).orElseThrow();
-            TelegramBotApiService.send(httpClient, destination, apiToken, rendered, url, requestBuilder);
+            String parseMode = runContext.render(this.parseMode).as(String.class).orElse(null);
+            TelegramBotApiService.send(httpClient, destination, apiToken, rendered, url, requestBuilder, parseMode);
         }
 
         return null;

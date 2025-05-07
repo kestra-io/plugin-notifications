@@ -13,9 +13,9 @@ import java.util.Objects;
 
 public class TelegramBotApiService {
 
-    public static void send(HttpClient client, String destinationId, String apiToken, String message, String url, HttpRequest.HttpRequestBuilder requestBuilder) throws ErrorSendingMessageException {
+    public static void send(HttpClient client, String destinationId, String apiToken, String message, String url, HttpRequest.HttpRequestBuilder requestBuilder, String parseMode) throws ErrorSendingMessageException {
 
-        TelegramMessage payload = new TelegramMessage(destinationId, message);
+        TelegramMessage payload = new TelegramMessage(destinationId, message, parseMode);
 
         String uri = url+ "/bot{token}/sendMessage".replace("{token}", apiToken);
 
@@ -47,7 +47,7 @@ public class TelegramBotApiService {
     public record TelegramBotApiResponse(boolean ok, TelegramMessage result) {
     }
 
-    public record TelegramMessage(String chat_id, String text) {
+    public record TelegramMessage(String chat_id, String text, String parse_mode) {
     }
 
     public static class ErrorSendingMessageException extends Exception {

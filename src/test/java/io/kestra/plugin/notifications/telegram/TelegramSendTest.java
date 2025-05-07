@@ -46,7 +46,33 @@ class TelegramSendTest {
         task.run(runContext);
 
         assertThat(FakeTelegramController.token, containsString(token));
-        assertThat(FakeTelegramController.message, equalToObject(new TelegramBotApiService.TelegramMessage(channel, message)));
+        assertThat(FakeTelegramController.message, equalToObject(new TelegramBotApiService.TelegramMessage(channel, message, null)));
+
+    }
+
+    @Test
+    void run_withParseModeAsHTML_shouldSendTelegram() throws Exception {
+        RunContext runContext = runContextFactory.of();
+
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
+        String message = "Hello";
+        String channel = "channel";
+        String token = "token";
+        String parseMode = "HTML";
+
+        TelegramSend task = TelegramSend.builder()
+            .endpointOverride(Property.of(embeddedServer.getURL().toString()))
+            .token(Property.of(token))
+            .channel(Property.of(channel))
+            .payload(Property.of(message))
+            .parseMode(Property.of(parseMode))
+            .build();
+        task.run(runContext);
+
+        assertThat(FakeTelegramController.token, containsString(token));
+        assertThat(FakeTelegramController.message, equalToObject(new TelegramBotApiService.TelegramMessage(channel, message, parseMode)));
 
     }
 }

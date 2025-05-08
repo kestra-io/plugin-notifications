@@ -1,0 +1,21 @@
+id: squadcast
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+
+listeners:
+  - tasks:
+    - id: send_alert
+      type: io.kestra.plugin.notifications.squadcast.SquadcastExecution
+      url: "{{ inputs.url }}/webhook-unit-test"
+      message: "Kestra Squadcast alert"
+      priority: P1
+
+tasks:
+  - id: seq
+    type: io.kestra.core.tasks.flows.Sequential
+    tasks:
+      - id: failed
+        type: io.kestra.core.tasks.executions.Fail

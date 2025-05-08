@@ -53,7 +53,7 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:8.12.5'
+    api 'org.simplejavamail:simple-java-mail:8.12.6'
     api 'org.eclipse.angus:jakarta.mail:2.0.3'
     api ('com.sendgrid:sendgrid-java:4.10.3') {
         exclude group: 'com.fasterxml.jackson.core'

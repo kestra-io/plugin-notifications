@@ -36,7 +36,7 @@ public class TelegramSend extends AbstractHttpOptionsTask {
 
     @Schema(title = "Telegram Bot parse-Mode", description = "Optional text formatting mode for Telegram messages. Supported values: HTML, Markdown, MarkdownV2.", example = "HTML")
     @Nullable
-    protected Property<String> parseMode;
+    protected Property<ParseMode> parseMode;
     @Schema(
         title = "Only to be used when testing locally"
     )
@@ -52,10 +52,25 @@ public class TelegramSend extends AbstractHttpOptionsTask {
             String destination = runContext.render(this.channel).as(String.class).orElseThrow();
             String apiToken = runContext.render(this.token).as(String.class).orElseThrow();
             String rendered = runContext.render(payload).as(String.class).orElseThrow();
-            String parseMode = runContext.render(this.parseMode).as(String.class).orElse(null);
+            String parseMode = runContext.render(this.parseMode).as(ParseMode.class).map(ParseMode::getValue).orElse(null);
             TelegramBotApiService.send(httpClient, destination, apiToken, rendered, url, requestBuilder, parseMode);
         }
 
         return null;
+    }
+
+    public enum ParseMode {
+        HTML("HTML"),
+        MARKDOWNV2("MarkdownV2");
+
+        private final String value;
+
+        ParseMode(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

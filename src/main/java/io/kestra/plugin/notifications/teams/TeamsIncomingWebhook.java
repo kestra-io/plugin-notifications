@@ -124,8 +124,7 @@ public class TeamsIncomingWebhook  extends AbstractHttpOptionsTask {
         String url = runContext.render(this.url);
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
-            //First render to get the template, second render to populate the payload
-            String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
+            String payload = runContext.render(this.payload).as(String.class).orElse(null);
 
             runContext.logger().debug("Send Microsoft Teams webhook: {}", payload);
 

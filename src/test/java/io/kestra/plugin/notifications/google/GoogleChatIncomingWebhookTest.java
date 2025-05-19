@@ -40,7 +40,7 @@ public class GoogleChatIncomingWebhookTest {
 
         GoogleChatIncomingWebhook task = GoogleChatIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(GoogleChatIncomingWebhookTest.class.getClassLoader()
                             .getResource("google-chat.peb"))

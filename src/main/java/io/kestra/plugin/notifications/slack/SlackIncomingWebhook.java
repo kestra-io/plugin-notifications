@@ -68,7 +68,7 @@ import java.net.URI;
                     payload: |
                       {
                         "text": "Hello from the workflow {{ flow.id }}"
-                      }            
+                      }
                 """
         ),
         @Example(
@@ -93,7 +93,7 @@ import java.net.URI;
                     			}
                     		}
                     	]
-                      }            
+                      }
                 """
         ),
         @Example(
@@ -134,11 +134,11 @@ import java.net.URI;
                                 "value": "Test value"
                               }
                             ]
-                          }		
+                          }
                         ]
-                      }                
+                      }
                 """
-        ),        
+        ),
     }
 )
 public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
@@ -160,8 +160,7 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
         String url = runContext.render(this.url);
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
-            //First render to get the template, second render to populate the payload
-            String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
+            String payload = runContext.render(this.payload).as(String.class).orElse(null);
 
             runContext.logger().debug("Send Slack webhook: {}", payload);
 

@@ -8,7 +8,6 @@ import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.kestra.plugin.notifications.telegram.FakeTelegramController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
@@ -20,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -49,7 +49,7 @@ class SquadcastExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
-            null,
+            MAIN_TENANT,
             "io.kestra.tests",
             "squadcast",
             null,

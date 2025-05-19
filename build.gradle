@@ -53,9 +53,9 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     // libs
-    api 'org.simplejavamail:simple-java-mail:8.12.4'
+    api 'org.simplejavamail:simple-java-mail:8.12.5'
     api 'org.eclipse.angus:jakarta.mail:2.0.3'
-    api ('com.sendgrid:sendgrid-java:4.10.3') {
+    api('com.sendgrid:sendgrid-java:4.10.3') {
         exclude group: 'com.fasterxml.jackson.core'
     }
 }
@@ -130,7 +130,7 @@ dependencies {
 }
 
 test {
-    jvmArgs = [ "-javaagent:${configurations.agent.singleFile}" ]
+    jvmArgs = ["-javaagent:${configurations.agent.singleFile}"]
 }
 
 /**********************************************************************************************************************\
@@ -166,11 +166,11 @@ tasks.withType(GenerateModuleMetadata).configureEach {
 jar {
     manifest {
         attributes(
-                "X-Kestra-Name": project.name,
-                "X-Kestra-Title": "Notifications",
-                "X-Kestra-Group": project.group + ".notifications",
-                "X-Kestra-Description": project.description,
-                "X-Kestra-Version": project.version
+            "X-Kestra-Name": project.name,
+            "X-Kestra-Title": "Notifications",
+            "X-Kestra-Group": project.group + ".notifications",
+            "X-Kestra-Description": project.description,
+            "X-Kestra-Version": project.version
         )
     }
 }
@@ -210,11 +210,11 @@ release {
 
     // Dynamically set properties with default values
     failOnSnapshotDependencies = (project.hasProperty('release.failOnSnapshotDependencies')
-            ? project.property('release.failOnSnapshotDependencies').toBoolean()
-            : true)
+        ? project.property('release.failOnSnapshotDependencies').toBoolean()
+        : true)
     pushReleaseVersionBranch = (project.hasProperty('release.pushReleaseVersionBranch')
-            ? project.property('release.pushReleaseVersionBranch').toString()
-            : null)
+        ? project.property('release.pushReleaseVersionBranch').toString()
+        : null)
 }
 
 /**********************************************************************************************************************\

@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -49,7 +50,7 @@ class TeamsExecutionTest {
         embeddedServer.start();
 
         Execution execution = runnerUtils.runOne(
-            null,
+            MAIN_TENANT,
             "io.kestra.tests",
             "teams",
             null,

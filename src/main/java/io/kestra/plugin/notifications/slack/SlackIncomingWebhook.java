@@ -20,9 +20,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
-import java.net.http.HttpHeaders;
-import java.util.HashMap;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -167,8 +164,7 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
             var payload = JacksonMapper.ofJson() // explicitly pass it as a JsonNode to HttpRequest to avoid encoding issues
                 .readTree(
-                    //First render to get the template, second render to populate the payload
-                    runContext.render(runContext.render(this.payload).as(String.class).orElse(null))
+                    runContext.render(this.payload).as(String.class).orElse(null)
                 );
 
             runContext.logger().debug("Send Slack webhook: {}", payload);

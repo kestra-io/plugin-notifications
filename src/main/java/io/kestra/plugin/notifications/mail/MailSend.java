@@ -165,10 +165,9 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         logger.debug("Sending an email to {}", to);
 
-        final String htmlContent = runContext.render(runContext.render(this.htmlTextContent).as(String.class).orElse(null));
-        final String textContent = runContext.render(this.plainTextContent).as(String.class).isEmpty() ?
-            "Please view this email in a modern email client" :
-            runContext.render(runContext.render(this.plainTextContent).as(String.class).get());
+        final String htmlContent = runContext.render(this.htmlTextContent).as(String.class).orElse(null);
+        final String textContent = runContext.render(this.plainTextContent).as(String.class)
+            .orElse("Please view this email in a modern email client");
 
         // Building email to send
         EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
@@ -192,7 +191,7 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         Email email = builder.buildEmail();
 
         // Building mailer to send email
-        Mailer mailer = MailerBuilder
+        try (Mailer mailer = MailerBuilder
             .withSMTPServer(
                 runContext.render(this.host).as(String.class).orElse(null),
                 runContext.render(this.port).as(Integer.class).orElse(null),
@@ -202,9 +201,9 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             .withTransportStrategy(runContext.render(transportStrategy).as(TransportStrategy.class).orElse(TransportStrategy.SMTPS))
             .withSessionTimeout(runContext.render(sessionTimeout).as(Integer.class).orElse(10000))
             // .withDebugLogging(true)
-            .buildMailer();
-
-        mailer.sendMail(email);
+            .buildMailer()) {
+            mailer.sendMail(email);
+        }
 
         return null;
     }

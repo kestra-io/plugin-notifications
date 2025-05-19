@@ -34,7 +34,7 @@ public class ExecutionService {
                 runContext.logger()
             );
 
-        var executionRendererId = runContext.render(runContext.render(executionId).as(String.class).orElse(null));
+        var executionRendererId = runContext.render(executionId).as(String.class).orElse(null);
         var flowTriggerExecutionState = getOptionalFlowTriggerExecutionState(runContext);
 
         var flowVars = (Map<String, String>) runContext.getVariables().get("flow");

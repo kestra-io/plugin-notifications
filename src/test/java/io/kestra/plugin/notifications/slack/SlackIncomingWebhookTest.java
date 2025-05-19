@@ -48,7 +48,7 @@ class SlackIncomingWebhookTest {
 
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
                         .getResource("slack.peb"))
@@ -75,14 +75,15 @@ class SlackIncomingWebhookTest {
             ImmutableMap.of(
                 "text", "Testing with custom headers",
                 "field", Arrays.asList("*Priority*", "*Type*", "`High`", "`Unit Test`")
-            )
-        ));
+            ),
+            "demoApiKey", "demo"
+            ));
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("demo-api-key", "demo");
+        headers.put("demo-api-key", "{{demoApiKey}}");
 
         AbstractHttpOptionsTask.RequestOptions options = AbstractHttpOptionsTask.RequestOptions.builder()
-            .headers(Property.of(headers))
+            .headers(new Property<>(headers))
             .build();
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
@@ -91,7 +92,7 @@ class SlackIncomingWebhookTest {
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test/with-headers")
             .options(options)
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
                             .getResource("slack.peb"))

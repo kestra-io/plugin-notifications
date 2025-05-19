@@ -49,10 +49,10 @@ class SlackIncomingWebhookTest {
 
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
-                        .getResource("slack.peb"))
+                            .getResource("slack.peb"))
                         .toURI()),
                     StandardCharsets.UTF_8
                 ).read())

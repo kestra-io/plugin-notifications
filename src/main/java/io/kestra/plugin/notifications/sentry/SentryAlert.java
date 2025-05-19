@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.kestra.core.utils.Rethrow.throwSupplier;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SuperBuilder
@@ -149,9 +150,8 @@ public class SentryAlert extends AbstractHttpOptionsTask {
         }
 
         try (DefaultHttpClient client = new DefaultHttpClient(URI.create(url), super.httpClientConfigurationWithOptions(runContext))) {
-            String payload = runContext.render(this.payload).as(String.class).isPresent() ?
-                runContext.render(runContext.render(this.payload).as(String.class).get()) :
-                runContext.render(DEFAULT_PAYLOAD.strip());
+            String payload = runContext.render(this.payload).as(String.class)
+                .orElseGet(throwSupplier(() -> runContext.render(DEFAULT_PAYLOAD.strip())));
 
             // Constructing the envelope payload
             String envelope = constructEnvelope((String) runContext.getVariables().get("eventId"), payload);

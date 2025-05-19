@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -103,7 +104,7 @@ public class MailSendTest {
         URL resource = MailSendTest.class.getClassLoader().getResource("application-test.yml");
 
         URI put = storageInterface.put(
-            null,
+            MAIN_TENANT,
             null,
             new URI("/file/storage/get.yml"),
             new FileInputStream(Objects.requireNonNull(resource).getFile())
@@ -115,8 +116,8 @@ public class MailSendTest {
             .from(Property.of(FROM))
             .to(Property.of(TO))
             .subject(Property.of(SUBJECT))
-            .htmlTextContent(Property.of(template))
-            .plainTextContent(Property.of(textTemplate))
+            .htmlTextContent(new Property<>(template))
+            .plainTextContent(new Property<>(textTemplate))
             .transportStrategy(Property.of(TransportStrategy.SMTP))
             .attachments(List.of(MailSend.Attachment.builder()
                 .name(Property.of("application.yml"))
@@ -156,7 +157,7 @@ public class MailSendTest {
 
         assertThat(filePart.getContentType(), is("text/yaml; filename=application.yml; name=application.yml"));
         assertThat(filePart.getFileName(), is("application.yml"));
-        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(null, null, put), StandardCharsets.UTF_8)));
+        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(MAIN_TENANT, null, put), StandardCharsets.UTF_8)));
     }
 
     @Test

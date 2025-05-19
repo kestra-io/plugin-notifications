@@ -49,7 +49,7 @@ class ZulipIncomingWebhookTest {
 
         ZulipIncomingWebhook task = ZulipIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(ZulipIncomingWebhookTest.class.getClassLoader()
                         .getResource("zulip.peb"))

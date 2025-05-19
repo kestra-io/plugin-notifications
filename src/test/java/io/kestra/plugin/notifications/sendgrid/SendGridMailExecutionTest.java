@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -39,7 +40,7 @@ class SendGridMailExecutionTest {
 
     @Test
     void testFlow() throws TimeoutException, QueueException {
-        Execution execution = runnerUtils.runOne(null, "io.kestra.tests", "sendgrid");
+        Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "sendgrid");
         assertThat(execution.getTaskRunList(), hasSize(2));
         assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.FAILED));
     }

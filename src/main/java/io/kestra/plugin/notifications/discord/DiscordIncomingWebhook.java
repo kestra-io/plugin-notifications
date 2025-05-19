@@ -20,8 +20,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
-import java.net.http.HttpHeaders;
-import java.util.List;
 
 @SuperBuilder
 @ToString
@@ -114,7 +112,7 @@ public class DiscordIncomingWebhook extends AbstractHttpOptionsTask {
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
             var payload = JacksonMapper.ofJson() // explicitly pass it as a JsonNode to HttpRequest to avoid encoding issues
                 .readTree(
-                    runContext.render(runContext.render(this.payload).as(String.class).orElse(null))
+                    runContext.render(this.payload).as(String.class).orElse(null)
                 );
 
             runContext.logger().debug("Send Discord webhook: {}", payload);

@@ -25,16 +25,16 @@ public class ExecutionService {
         ExecutionRepositoryInterface executionRepository = ((DefaultRunContext)runContext).getApplicationContext().getBean(ExecutionRepositoryInterface.class);
         RetryUtils.Instance<Execution, NoSuchElementException> retryInstance = ((DefaultRunContext)runContext).getApplicationContext().getBean(RetryUtils.class)
             .of(Exponential.builder()
-                .delayFactor(2.0)
-                .interval(Duration.ofSeconds(1))
-                .maxInterval(Duration.ofSeconds(15))
-                .maxAttempt(-1)
-                .maxDuration(Duration.ofMinutes(10))
-                .build(),
+                    .delayFactor(2.0)
+                    .interval(Duration.ofSeconds(1))
+                    .maxInterval(Duration.ofSeconds(15))
+                    .maxAttempt(-1)
+                    .maxDuration(Duration.ofMinutes(10))
+                    .build(),
                 runContext.logger()
             );
 
-        String executionRendererId = runContext.render(runContext.render(executionId).as(String.class).orElse(null));
+        String executionRendererId = runContext.render(executionId).as(String.class).orElse(null);
 
         var flowVars = (Map<String, String>) runContext.getVariables().get("flow");
         var executionVars = (Map<String, String>) runContext.getVariables().get("execution");

@@ -42,7 +42,7 @@ public class WhatsAppIncomingWebhookTest {
 
         WhatsAppIncomingWebhook task = WhatsAppIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(WhatsAppIncomingWebhookTest.class.getClassLoader()
                             .getResource("whatsapp.peb"))

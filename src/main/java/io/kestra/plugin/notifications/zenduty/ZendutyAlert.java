@@ -93,8 +93,7 @@ public class ZendutyAlert extends AbstractHttpOptionsTask {
         String url = runContext.render(this.url);
 
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
-            //First render to get the template, second render to populate the payload
-            String payload = runContext.render(runContext.render(this.payload).as(String.class).orElse(null));
+            String payload = runContext.render(this.payload).as(String.class).orElse(null);
 
             runContext.logger().debug("Send Zenduty webhook: {}", payload);
             HttpRequest request = HttpRequest.builder()

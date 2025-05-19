@@ -34,10 +34,10 @@ class SlackIncomingWebhookTest {
     void run() throws Exception {
         RunContext runContext = runContextFactory.of(ImmutableMap.of(
             "block",
-                ImmutableMap.of(
-                    "text", "A message *with some bold text* and _some italicized text_. And specials characters ➛➛➛, his is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, and <https://google.com|this is a link>",
-                    "field", Arrays.asList("*Priority*", "*Type*", "`High`", "`Unit Test`")
-                )
+            ImmutableMap.of(
+                "text", "A message *with some bold text* and _some italicized text_. And specials characters ➛➛➛, his is a mrkdwn section block :ghost: *this is bold*, and ~this is crossed out~, and <https://google.com|this is a link>",
+                "field", Arrays.asList("*Priority*", "*Type*", "`High`", "`Unit Test`")
+            )
         ));
 
         EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
@@ -45,10 +45,10 @@ class SlackIncomingWebhookTest {
 
         SlackIncomingWebhook task = SlackIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(new Property<>(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SlackIncomingWebhookTest.class.getClassLoader()
-                        .getResource("slack.peb"))
+                            .getResource("slack.peb"))
                         .toURI()),
                     StandardCharsets.UTF_8
                 ).read())

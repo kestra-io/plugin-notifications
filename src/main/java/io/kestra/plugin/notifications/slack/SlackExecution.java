@@ -36,7 +36,6 @@ import java.util.Map;
                   - id: send_alert
                     type: io.kestra.plugin.notifications.slack.SlackExecution
                     url: "{{ secret('SLACK_WEBHOOK') }}" # format: https://hooks.slack.com/services/xzy/xyz/xyz
-                    channel: "#general"
                     executionId: "{{trigger.executionId}}"
 
                 triggers:
@@ -63,10 +62,7 @@ import java.util.Map;
                   - id: send_alert_to_rocket_chat
                     type: io.kestra.plugin.notifications.slack.SlackExecution
                     url: "{{ secret('ROCKET_CHAT_WEBHOOK') }}"
-                    channel: "#errors"
                     executionId: "{{ trigger.executionId }}"
-                    username: "Kestra TEST"
-                    iconUrl: "https://avatars.githubusercontent.com/u/59033362?s=48"
 
                 triggers:
                   - id: failed_prod_workflows

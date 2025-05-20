@@ -24,26 +24,6 @@ import java.util.Objects;
 @NoArgsConstructor
 public abstract class SlackTemplate extends SlackIncomingWebhook {
     @Schema(
-        title = "Slack channel to send the message to"
-    )
-    protected Property<String> channel;
-
-    @Schema(
-        title = "Author of the slack message"
-    )
-    protected Property<String> username;
-
-    @Schema(
-        title = "Url of the icon to use"
-    )
-    protected Property<String> iconUrl;
-
-    @Schema(
-        title = "Emoji icon to use"
-    )
-    protected Property<String> iconEmoji;
-
-    @Schema(
         title = "Template to use",
         hidden = true
     )
@@ -72,22 +52,6 @@ public abstract class SlackTemplate extends SlackIncomingWebhook {
                 Map.of()
             );
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
-        }
-
-        if (runContext.render(this.channel).as(String.class).isPresent()) {
-            map.put("channel", runContext.render(this.channel).as(String.class).get());
-        }
-
-        if (runContext.render(this.username).as(String.class).isPresent()) {
-            map.put("username", runContext.render(this.username).as(String.class).get());
-        }
-
-        if (runContext.render(this.iconUrl).as(String.class).isPresent()) {
-            map.put("icon_url", runContext.render(this.iconUrl).as(String.class).get());
-        }
-
-        if (runContext.render(this.iconEmoji).as(String.class).isPresent()) {
-            map.put("icon_emoji", runContext.render(this.iconEmoji).as(String.class).get());
         }
 
         this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));

@@ -10,6 +10,7 @@ listeners:
       - id: slack-successful
         type: io.kestra.plugin.notifications.slack.SlackExecution
         url: "{{ inputs.url }}/webhook-unit-test"
+        channel: "#random"
         customFields:
           Env: DEV
           Cloud: GCP

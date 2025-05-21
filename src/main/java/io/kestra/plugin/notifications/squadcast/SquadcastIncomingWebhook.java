@@ -26,7 +26,7 @@ import java.net.URI;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Squadcast message using an Incoming Webhook",
+    title = "Send a Squadcast message using an Incoming Webhook.",
     description = "Add this task to send direct Squadcast notifications. Check the <a href=\"https://support.squadcast.com/docs/webhook\">Squadcast documentation</a> for more details."
 )
 @Plugin(

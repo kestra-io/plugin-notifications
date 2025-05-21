@@ -19,7 +19,7 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a Squadcast message with the execution information",
+    title = "Send a Squadcast message with the execution information.",
     description = "The message will include execution details such as ID, namespace, flow name, start date, duration, and status.\n\n" +
         "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). " +
         "Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the " +

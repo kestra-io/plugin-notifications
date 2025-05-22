@@ -24,8 +24,8 @@ import java.util.Objects;
 @NoArgsConstructor
 public abstract class SlackTemplate extends SlackIncomingWebhook {
     @Schema(
-        title = "Slack channel to send the message to",
-        description = "This property works only with legacy webhook URLs, new Slack incoming webhook URLs are already tied to a specific channel." +
+        title = "Slack channel to send the message to.",
+        description = "This property works only with legacy webhook URLs, new Slack incoming webhook URLs are already tied to a specific channel. " +
             "For more details, see: [Legacy Webhooks](https://api.slack.com/legacy/custom-integrations/messaging/webhooks#legacy-customizations) and " +
             "[Current Webhooks](https://api.slack.com/messaging/webhooks)."
     )

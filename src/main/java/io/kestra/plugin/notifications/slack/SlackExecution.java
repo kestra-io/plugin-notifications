@@ -64,9 +64,9 @@ import java.util.Map;
                     type: io.kestra.plugin.notifications.slack.SlackExecution
                     url: "{{ secret('ROCKET_CHAT_WEBHOOK') }}"
                     channel: "#errors"
-                    executionId: "{{ trigger.executionId }}"
                     username: "Kestra TEST"
                     iconUrl: "https://avatars.githubusercontent.com/u/59033362?s=48"
+                    executionId: "{{ trigger.executionId }}"
 
                 triggers:
                   - id: failed_prod_workflows

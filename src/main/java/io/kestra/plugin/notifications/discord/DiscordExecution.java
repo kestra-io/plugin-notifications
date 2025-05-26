@@ -68,8 +68,9 @@ public class DiscordExecution extends DiscordTemplate implements ExecutionInterf
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("discord-template.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+
+        this.templateUri = Property.ofValue("discord-template.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

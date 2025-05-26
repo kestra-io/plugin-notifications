@@ -67,7 +67,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
         Map<String, Object> mainMap = new HashMap<>();
 
         final Optional<String> renderedUri = runContext.render(this.templateUri).as(String.class);
-        
+
         if (renderedUri.isPresent()) {
             String template = IOUtils.toString(
                 Objects.requireNonNull(this.getClass()
@@ -77,8 +77,8 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
                 StandardCharsets.UTF_8
             );
 
-            String render = runContext.render(template, templateRenderMap != null ? 
-                runContext.render(templateRenderMap).asMap(String.class, Object.class) : 
+            String render = runContext.render(template, templateRenderMap != null ?
+                runContext.render(templateRenderMap).asMap(String.class, Object.class) :
                 Map.of());
             mainMap = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
@@ -116,7 +116,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
             mainMap.put("content", runContext.render(this.content).as(String.class).get());
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(mainMap));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(mainMap));
 
         return super.run(runContext);
     }

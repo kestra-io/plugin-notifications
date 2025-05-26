@@ -1,0 +1,21 @@
+id: sendgrid
+namespace: io.kestra.tests
+
+tasks:
+  - id: sendgrid
+    type: io.kestra.plugin.notifications.sendgrid.SendGridMailExecution
+    to:
+      - to@mail.com
+    from: from@mail.com
+    subject: This is the subject
+    sendgridApiKey: sampleApiKey
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

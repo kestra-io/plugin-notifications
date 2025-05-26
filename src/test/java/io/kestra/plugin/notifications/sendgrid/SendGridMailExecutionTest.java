@@ -1,12 +1,11 @@
 package io.kestra.plugin.notifications.sendgrid;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
-import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
+import io.kestra.plugin.notifications.AbstractNotificationTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,15 +13,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @KestraTest
-class SendGridMailExecutionTest {
+class SendGridMailExecutionTest extends AbstractNotificationTest {
     @Inject
     protected StandAloneRunner runner;
 
@@ -34,14 +31,19 @@ class SendGridMailExecutionTest {
 
     @BeforeEach
     void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(SendGridMailExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(SendGridMailExecutionTest.class.getClassLoader().getResource("flows/common")));
+        repositoryLoader.load(Objects.requireNonNull(SendGridMailExecutionTest.class.getClassLoader().getResource("flows/sendgrid")));
         this.runner.run();
     }
 
     @Test
-    void testFlow() throws TimeoutException, QueueException {
-        Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "sendgrid");
-        assertThat(execution.getTaskRunList(), hasSize(2));
-        assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.FAILED));
+    void testFlow() throws Exception {
+        var execution = runAndCaptureExecution(
+            "main-flow-that-fails",
+            "sendgrid"
+        );
+
+        assertThat(execution.getTaskRunList(), hasSize(1));
+        assertThat(execution.getTaskRunList().getFirst().getState().getCurrent(), is(State.Type.FAILED));
     }
 }

@@ -1,0 +1,28 @@
+id: slack
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: slack
+    type: io.kestra.plugin.notifications.slack.SlackExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    channel: "#random"
+    customFields:
+      Env: DEV
+      Cloud: GCP
+    customMessage: myCustomMessage
+    executionId: "{{trigger.executionId}}"
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

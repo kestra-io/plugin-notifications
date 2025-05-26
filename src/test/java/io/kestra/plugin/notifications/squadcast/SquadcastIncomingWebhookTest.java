@@ -1,14 +1,12 @@
 package io.kestra.plugin.notifications.squadcast;
 
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.kestra.plugin.notifications.squadcast.SquadcastIncomingWebhook;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
@@ -16,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 

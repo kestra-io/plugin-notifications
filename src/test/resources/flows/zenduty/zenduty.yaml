@@ -1,0 +1,25 @@
+id: zenduty
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: zenduty
+    type: io.kestra.plugin.notifications.zenduty.ZendutyExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    message: "Kestra Zenduty alert"
+    alertType: ERROR
+    executionId: "{{trigger.executionId}}"
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

@@ -1,0 +1,25 @@
+id: mail
+namespace: io.kestra.tests
+
+tasks:
+  - id: mail
+    type: io.kestra.plugin.notifications.mail.MailExecution
+    to: to@mail.com
+    from: from@mail.com
+    subject: This is the subject
+    host: nohost-mail.site
+    port: 465
+    username: user
+    password: pass
+    sessionTimeout: 1000
+    transportStrategy: SMTPS
+
+triggers:
+  - id: on_success
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

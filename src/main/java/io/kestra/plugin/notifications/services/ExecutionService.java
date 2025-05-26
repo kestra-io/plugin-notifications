@@ -15,10 +15,7 @@ import io.kestra.core.utils.UriProvider;
 import io.kestra.plugin.notifications.ExecutionInterface;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 public class ExecutionService {
     public static Execution findExecution(RunContext runContext, Property<String> executionId) throws IllegalVariableEvaluationException, NoSuchElementException {
@@ -101,12 +98,24 @@ public class ExecutionService {
             templateRenderMap.put("customFields", renderedCustomFields);
         }
 
-        TaskRun lastTaskRun = execution.getTaskRunList().stream()
-            .filter(t -> (execution.hasFailed() ? State.Type.FAILED : State.Type.SUCCESS).equals(t.getState().getCurrent()))
-            .toList()
-            .getLast();
+        var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
+        var isCurrentExecution = execution.getId().equals(executionVars.get("id"));
+        var taskRuns = execution.getTaskRunList();
 
-        templateRenderMap.put("firstFailed", State.Type.FAILED.equals(lastTaskRun.getState().getCurrent()) ? lastTaskRun : false);
+        final TaskRun lastTaskRun;
+        var lastTaskRunState = execution.getTaskRunList().getLast().getState().getCurrent();
+
+        if (isCurrentExecution && State.Type.RUNNING.equals(lastTaskRunState)) {
+            lastTaskRun = taskRuns.getLast();
+        } else {
+            lastTaskRun = taskRuns.stream()
+                .filter(t -> (execution.hasFailed() ? State.Type.FAILED : State.Type.SUCCESS)
+                    .equals(lastTaskRunState))
+                .toList()
+                .getLast();
+        }
+
+        templateRenderMap.put("firstFailed", State.Type.FAILED.equals((lastTaskRun).getState().getCurrent()) ? lastTaskRun : false);
         templateRenderMap.put("lastTask", lastTaskRun);
 
         return templateRenderMap;

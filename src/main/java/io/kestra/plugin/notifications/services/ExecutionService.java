@@ -35,8 +35,7 @@ public class ExecutionService {
         var flowTriggerExecutionState = getOptionalFlowTriggerExecutionState(runContext);
 
         var flowVars = (Map<String, String>) runContext.getVariables().get("flow");
-        var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
-        var isCurrentExecution = executionRendererId.equals(executionVars.get("id"));
+        var isCurrentExecution = isCurrentExecution(runContext, executionRendererId);
         if (isCurrentExecution) {
             runContext.logger().info("Loading execution data for the current execution.");
         }
@@ -98,14 +97,13 @@ public class ExecutionService {
             templateRenderMap.put("customFields", renderedCustomFields);
         }
 
-        var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
-        var isCurrentExecution = execution.getId().equals(executionVars.get("id"));
+        var isCurrentExecution = isCurrentExecution(runContext, execution.getId());
         var taskRuns = execution.getTaskRunList();
 
         final TaskRun lastTaskRun;
         var lastTaskRunState = execution.getTaskRunList().getLast().getState().getCurrent();
 
-        if (isCurrentExecution && State.Type.RUNNING.equals(lastTaskRunState)) {
+        if (isCurrentExecution) {
             lastTaskRun = taskRuns.getLast();
         } else {
             lastTaskRun = taskRuns.stream()
@@ -131,5 +129,10 @@ public class ExecutionService {
             runContext.getVariables().get("trigger")
         );
         return triggerVar.map(trigger -> ((Map<String, String>) trigger).get("state"));
+    }
+
+    private static boolean isCurrentExecution(RunContext runContext, String executionId) {
+        var executionVars = (Map<String, String>) runContext.getVariables().get("execution");
+        return executionId.equals(executionVars.get("id"));
     }
 }

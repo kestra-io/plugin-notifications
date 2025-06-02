@@ -57,8 +57,8 @@ public abstract class SendGridMailTemplate extends SendGridMailSend {
             );
         }
 
-        this.htmlContent = Property.of(runContext.render(htmlTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
-        this.textContent = Property.of(runContext.render(plainTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
+        this.htmlContent = Property.ofValue(runContext.render(htmlTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
+        this.textContent = Property.ofValue(runContext.render(plainTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
 
         return super.run(runContext);
     }

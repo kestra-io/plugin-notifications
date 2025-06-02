@@ -122,7 +122,7 @@ public abstract class WhatsAppTemplate extends WhatsAppIncomingWebhook {
             map.put("recipient_id", runContext.render(recipientId).as(String.class).get());
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

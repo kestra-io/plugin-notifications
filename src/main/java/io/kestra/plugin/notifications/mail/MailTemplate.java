@@ -59,8 +59,8 @@ public abstract class MailTemplate extends MailSend {
             );
         }
 
-        this.htmlTextContent = Property.of(runContext.render(htmlTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
-        this.plainTextContent = Property.of(runContext.render(plainTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
+        this.htmlTextContent = Property.ofValue(runContext.render(htmlTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
+        this.plainTextContent = Property.ofValue(runContext.render(plainTextTemplate, runContext.render(templateRenderMap).asMap(String.class, Object.class)));
 
         return super.run(runContext);
     }

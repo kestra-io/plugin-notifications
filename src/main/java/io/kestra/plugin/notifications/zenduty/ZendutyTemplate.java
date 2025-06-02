@@ -101,7 +101,7 @@ public abstract class ZendutyTemplate extends ZendutyAlert {
             map.put("urls", runContext.render(this.urls).asList(String.class));
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

@@ -96,14 +96,14 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         description = "Will default to SMTPS if left empty"
     )
     @Builder.Default
-    private final Property<TransportStrategy> transportStrategy = Property.of(TransportStrategy.SMTPS);
+    private final Property<TransportStrategy> transportStrategy = Property.ofValue(TransportStrategy.SMTPS);
 
     @Schema(
         title = "Integer value in milliseconds. Default is 10000 milliseconds, i.e. 10 seconds",
         description = "It controls the maximum timeout value when sending emails."
     )
     @Builder.Default
-    private final Property<Integer> sessionTimeout = Property.of(10000);
+    private final Property<Integer> sessionTimeout = Property.ofValue(10000);
 
     /* Mail info */
     @Schema(
@@ -245,6 +245,6 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         )
         @NotNull
         @Builder.Default
-        private Property<String> contentType = Property.of("application/octet-stream");
+        private Property<String> contentType = Property.ofValue("application/octet-stream");
     }
 }

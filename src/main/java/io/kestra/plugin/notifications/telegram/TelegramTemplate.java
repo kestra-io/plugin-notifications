@@ -45,7 +45,7 @@ public abstract class TelegramTemplate extends TelegramSend {
                     StandardCharsets.UTF_8
             );
 
-            this.payload = Property.of(runContext.render(template, templateRenderMap != null ?
+            this.payload = Property.ofValue(runContext.render(template, templateRenderMap != null ?
                 runContext.render(templateRenderMap).asMap(String.class, Object.class) :
                 Map.of()
             ));

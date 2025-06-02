@@ -43,7 +43,7 @@ public class TwilioAlertTest {
 
         TwilioAlert task = TwilioAlert.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(Property.ofValue(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(TwilioAlertTest.class.getClassLoader()
                             .getResource("twilio.peb"))

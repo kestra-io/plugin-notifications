@@ -58,15 +58,15 @@ import java.util.Map;
 )
 public class SendGridMailExecution extends SendGridMailTemplate implements ExecutionInterface {
     @Builder.Default
-    private final Property<String> executionId = new Property<>("{{ execution.id }}");
+    private final Property<String> executionId = Property.ofExpression("{{ execution.id }}");
     private Property<Map<String, Object>> customFields;
     private Property<String> customMessage;
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("sendgrid-mail-template.hbs.peb");
-        this.textTemplateUri = Property.of("sendgrid-text-template.hbs.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("sendgrid-mail-template.hbs.peb");
+        this.textTemplateUri = Property.ofValue("sendgrid-text-template.hbs.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

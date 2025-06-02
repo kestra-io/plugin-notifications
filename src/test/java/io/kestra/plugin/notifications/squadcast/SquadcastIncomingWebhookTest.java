@@ -41,7 +41,7 @@ class SquadcastIncomingWebhookTest {
 
         SquadcastIncomingWebhook task = SquadcastIncomingWebhook.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(Property.ofValue(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(SquadcastIncomingWebhookTest.class.getClassLoader()
                         .getResource("squadcast.peb"))

@@ -64,15 +64,15 @@ import java.util.Map;
 )
 public class SquadcastExecution extends SquadcastTemplate implements ExecutionInterface {
     @Builder.Default
-    private final Property<String> executionId = new Property<>("{{ execution.id }}");
+    private final Property<String> executionId = Property.ofExpression("{{ execution.id }}");
 
     private Property<Map<String, Object>> customFields;
     private Property<String> customMessage;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("squadcast-template.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("squadcast-template.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

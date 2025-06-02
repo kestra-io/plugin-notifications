@@ -51,7 +51,7 @@ public class OpsgenieAlertTest {
                     StandardCharsets.UTF_8
                                   ).read()
                     ))
-            .authorizationToken(Property.of(UUID.randomUUID().toString()))
+            .authorizationToken(Property.ofValue(UUID.randomUUID().toString()))
             .build();
 
         task.run(runContext);

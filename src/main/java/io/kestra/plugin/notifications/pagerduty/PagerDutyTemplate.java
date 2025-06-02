@@ -102,7 +102,7 @@ public abstract class PagerDutyTemplate extends PagerDutyAlert {
 
         map.replace("payload", payload);
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

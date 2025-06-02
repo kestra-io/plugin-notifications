@@ -38,10 +38,10 @@ class TelegramSendTest {
         String token = "token";
 
         TelegramSend task = TelegramSend.builder()
-                .endpointOverride(Property.of(embeddedServer.getURL().toString()))
-                .token(Property.of(token))
-                .channel(Property.of(channel))
-                .payload(Property.of(message))
+                .endpointOverride(Property.ofValue(embeddedServer.getURL().toString()))
+                .token(Property.ofValue(token))
+                .channel(Property.ofValue(channel))
+                .payload(Property.ofValue(message))
                 .build();
         task.run(runContext);
 
@@ -63,11 +63,11 @@ class TelegramSendTest {
         String parseMode = TelegramSend.ParseMode.HTML.getValue();
 
         TelegramSend task = TelegramSend.builder()
-            .endpointOverride(Property.of(embeddedServer.getURL().toString()))
-            .token(Property.of(token))
-            .channel(Property.of(channel))
-            .payload(Property.of(message))
-            .parseMode(Property.of(TelegramSend.ParseMode.HTML))
+            .endpointOverride(Property.ofValue(embeddedServer.getURL().toString()))
+            .token(Property.ofValue(token))
+            .channel(Property.ofValue(channel))
+            .payload(Property.ofValue(message))
+            .parseMode(Property.ofValue(TelegramSend.ParseMode.HTML))
             .build();
         task.run(runContext);
 
@@ -89,11 +89,11 @@ class TelegramSendTest {
         String parseMode = TelegramSend.ParseMode.MARKDOWNV2.getValue();
 
         TelegramSend task = TelegramSend.builder()
-            .endpointOverride(Property.of(embeddedServer.getURL().toString()))
-            .token(Property.of(token))
-            .channel(Property.of(channel))
-            .payload(Property.of(message))
-            .parseMode(Property.of(TelegramSend.ParseMode.MARKDOWNV2))
+            .endpointOverride(Property.ofValue(embeddedServer.getURL().toString()))
+            .token(Property.ofValue(token))
+            .channel(Property.ofValue(channel))
+            .payload(Property.ofValue(message))
+            .parseMode(Property.ofValue(TelegramSend.ParseMode.MARKDOWNV2))
             .build();
         task.run(runContext);
 

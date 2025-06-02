@@ -33,7 +33,7 @@ public abstract class TeamsTemplate extends TeamsIncomingWebhook {
 
     @Schema(title = "Theme color")
     @Builder.Default
-    protected Property<String> themeColor = Property.of("0076D7");
+    protected Property<String> themeColor = Property.ofValue("0076D7");
 
     @Schema(title = "Activity Title")
     protected Property<String> activityTitle;
@@ -67,7 +67,7 @@ public abstract class TeamsTemplate extends TeamsIncomingWebhook {
             map = (Map<String, Object>) JacksonMapper.ofJson().readValue(render, Object.class);
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

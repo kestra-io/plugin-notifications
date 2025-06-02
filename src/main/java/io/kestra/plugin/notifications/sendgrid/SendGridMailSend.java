@@ -238,7 +238,7 @@ public class SendGridMailSend extends Task implements RunnableTask<SendGridMailS
         )
         @NotNull
         @Builder.Default
-        private Property<String> contentType = Property.of("application/octet-stream");
+        private Property<String> contentType = Property.ofValue("application/octet-stream");
     }
 
     @Getter

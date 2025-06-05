@@ -64,9 +64,9 @@ public class SendGridMailExecution extends SendGridMailTemplate implements Execu
 
     @Override
     public SendGridMailSend.Output run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("sendgrid-mail-template.hbs.peb");
-        this.textTemplateUri = Property.of("sendgrid-text-template.hbs.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("sendgrid-mail-template.hbs.peb");
+        this.textTemplateUri = Property.ofValue("sendgrid-text-template.hbs.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

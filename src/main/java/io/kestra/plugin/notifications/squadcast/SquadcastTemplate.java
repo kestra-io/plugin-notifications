@@ -105,7 +105,7 @@ public abstract class SquadcastTemplate extends SquadcastIncomingWebhook {
             map.put("tags", tags);
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

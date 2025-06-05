@@ -62,8 +62,8 @@ public class GoogleChatExecution extends GoogleChatTemplate implements Execution
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("google-chat-template.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("google-chat-template.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

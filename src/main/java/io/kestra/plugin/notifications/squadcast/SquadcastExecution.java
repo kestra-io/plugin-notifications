@@ -71,8 +71,8 @@ public class SquadcastExecution extends SquadcastTemplate implements ExecutionIn
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("squadcast-template.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("squadcast-template.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

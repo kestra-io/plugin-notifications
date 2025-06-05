@@ -63,8 +63,8 @@ public class TelegramExecution extends TelegramTemplate implements ExecutionInte
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("telegram-template.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("telegram-template.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
         return super.run(runContext);
     }
 }

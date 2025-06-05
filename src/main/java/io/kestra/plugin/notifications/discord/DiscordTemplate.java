@@ -116,7 +116,7 @@ public abstract class DiscordTemplate extends DiscordIncomingWebhook {
             mainMap.put("content", runContext.render(this.content).as(String.class).get());
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(mainMap));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(mainMap));
 
         return super.run(runContext);
     }

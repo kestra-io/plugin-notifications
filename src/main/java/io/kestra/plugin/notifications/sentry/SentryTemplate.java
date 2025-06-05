@@ -52,14 +52,14 @@ public abstract class SentryTemplate extends SentryAlert {
     )
     @NotNull
     @Builder.Default
-    protected Property<Platform> platform = Property.of(Platform.JAVA);
+    protected Property<Platform> platform = Property.ofValue(Platform.JAVA);
 
     @Schema(
         title = "The record severity",
         description = "Acceptable values are: `fatal`, `error`, `warning`, `info`, `debug`."
     )
     @Builder.Default
-    protected Property<ErrorLevel> level = Property.of(ErrorLevel.ERROR);
+    protected Property<ErrorLevel> level = Property.ofValue(ErrorLevel.ERROR);
 
     @Schema(
         title = "The name of the transaction which caused this alert.",
@@ -129,7 +129,7 @@ public abstract class SentryTemplate extends SentryAlert {
             map.put("errors", renderedErrorsMap);
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

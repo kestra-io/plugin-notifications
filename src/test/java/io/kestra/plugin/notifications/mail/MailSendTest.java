@@ -111,18 +111,18 @@ public class MailSendTest {
         );
 
         MailSend mailSend = MailSend.builder()
-            .host(Property.of("localhost"))
-            .port(Property.of(greenMail.getSmtp().getPort()))
-            .from(Property.of(FROM))
-            .to(Property.of(TO))
-            .subject(Property.of(SUBJECT))
+            .host(Property.ofValue("localhost"))
+            .port(Property.ofValue(greenMail.getSmtp().getPort()))
+            .from(Property.ofValue(FROM))
+            .to(Property.ofValue(TO))
+            .subject(Property.ofValue(SUBJECT))
             .htmlTextContent(new Property<>(template))
             .plainTextContent(new Property<>(textTemplate))
-            .transportStrategy(Property.of(TransportStrategy.SMTP))
+            .transportStrategy(Property.ofValue(TransportStrategy.SMTP))
             .attachments(List.of(MailSend.Attachment.builder()
-                .name(Property.of("application.yml"))
-                .uri(Property.of(put.toString()))
-                .contentType(Property.of("text/yaml"))
+                .name(Property.ofValue("application.yml"))
+                .uri(Property.ofValue(put.toString()))
+                .contentType(Property.ofValue("text/yaml"))
                 .build())
             )
             .build();
@@ -167,14 +167,14 @@ public class MailSendTest {
 
         Assertions.assertThrows(MailException.class, () -> {
         MailSend mailSend = MailSend.builder()
-                .host(Property.of("fake-host-unknown.com"))
-                .port(Property.of(465))
-                .from(Property.of(FROM))
-                .to(Property.of(TO))
-                .subject(Property.of(SUBJECT))
-                .htmlTextContent(Property.of(template))
-                .plainTextContent(Property.of(textTemplate))
-                .transportStrategy(Property.of(TransportStrategy.SMTP))
+                .host(Property.ofValue("fake-host-unknown.com"))
+                .port(Property.ofValue(465))
+                .from(Property.ofValue(FROM))
+                .to(Property.ofValue(TO))
+                .subject(Property.ofValue(SUBJECT))
+                .htmlTextContent(Property.ofValue(template))
+                .plainTextContent(Property.ofValue(textTemplate))
+                .transportStrategy(Property.ofValue(TransportStrategy.SMTP))
                 .build();
 
             mailSend.run(runContext);

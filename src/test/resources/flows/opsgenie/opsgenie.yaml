@@ -1,0 +1,40 @@
+id: opsgenie
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: opsgenie
+    type: io.kestra.plugin.notifications.opsgenie.OpsgenieExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    message: "Kestra Opsgenie alert"
+    executionId: "{{trigger.executionId}}"
+    alias: ExecutionError
+    responders:
+      4513b7ea-3b91-438f-b7e4-e3e54af9147c: team
+      bb4d9938-c3c2-455d-aaab-727aa701c0d8: user
+      aee8a0de-c80f-4515-a232-501c0bc9d715: escalation
+      80564037-1984-4f38-b98e-8a1f662df552: schedule
+    visibleTo:
+      4513b7ea-3b91-438f-b7e4-e3e54af9147c: team
+      bb4d9938-c3c2-455d-aaab-727aa701c0d8: user
+    priority: P1
+    tags:
+      - ExecutionError
+      - Error
+      - Fail
+      - Execution
+    authorizationToken: sampleAuthorizationToken
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

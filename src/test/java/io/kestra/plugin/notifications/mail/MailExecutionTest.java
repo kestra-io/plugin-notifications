@@ -1,12 +1,11 @@
 package io.kestra.plugin.notifications.mail;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
-import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
+import io.kestra.plugin.notifications.AbstractNotificationTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,15 +13,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @KestraTest
-class MailExecutionTest {
+class MailExecutionTest extends AbstractNotificationTest {
     @Inject
     protected StandAloneRunner runner;
 
@@ -34,14 +30,19 @@ class MailExecutionTest {
 
     @BeforeEach
     void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows/common")));
+        repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows/mail")));
         this.runner.run();
     }
 
     @Test
-    void testFlow() throws TimeoutException, QueueException {
-        Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "mail");
-        assertThat(execution.getTaskRunList(), hasSize(2));
-        assertThat(execution.getTaskRunList().get(1).getState().getCurrent(), is(State.Type.FAILED));
+    void testFlow() throws Exception {
+        var failedExecution = runAndCaptureExecution(
+            "main-flow-that-fails",
+            "mail"
+        );
+
+        assertThat(failedExecution.getTaskRunList(), hasSize(1));
+        assertThat(failedExecution.getTaskRunList().getFirst().getState().getCurrent(), is(State.Type.FAILED));
     }
 }

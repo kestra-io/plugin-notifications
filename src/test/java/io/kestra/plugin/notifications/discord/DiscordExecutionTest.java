@@ -1,15 +1,11 @@
 package io.kestra.plugin.notifications.discord;
 
-import com.google.common.collect.ImmutableMap;
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.models.executions.Execution;
-import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
+import io.kestra.plugin.notifications.AbstractNotificationTest;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,18 +13,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 @KestraTest
-class DiscordExecutionTest {
-
-    @Inject
-    private ApplicationContext applicationContext;
-
+public class DiscordExecutionTest extends AbstractNotificationTest {
     @Inject
     protected StandAloneRunner runner;
 
@@ -40,47 +31,42 @@ class DiscordExecutionTest {
 
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(DiscordExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(DiscordExecutionTest.class.getClassLoader().getResource("flows/common")));
+        repositoryLoader.load(Objects.requireNonNull(DiscordExecutionTest.class.getClassLoader().getResource("flows/discord")));
         this.runner.run();
     }
 
     @Test
-    void flow() throws TimeoutException, QueueException {
-        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
-        embeddedServer.start();
-
-        Execution execution = runnerUtils.runOne(
-            MAIN_TENANT,
-            "io.kestra.tests",
-            "discord",
-            null,
-            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+    void flow() throws Exception {
+        var failedExecution = runAndCaptureExecution(
+            "main-flow-that-fails",
+            "discord"
         );
 
-        assertThat(execution.getTaskRunList(), hasSize(3));
-        assertThat(FakeWebhookController.data, containsString(execution.getId()));
-        assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
-        assertThat(FakeWebhookController.data, containsString("Final task ID: failed"));
-        assertThat(FakeWebhookController.data, containsString("Kestra Discord notification"));
+        String receivedData = waitForWebhookData(() -> FakeWebhookController.data,5000);
+
+        assertThat(receivedData, containsString("https://mysuperhost.com/kestra/ui"));
+        assertThat(receivedData, containsString(failedExecution.getId()));
+        assertThat(receivedData, containsString("Failed on task `failed`"));
+        assertThat(receivedData, containsString("Final task ID: failed"));
+        assertThat(receivedData, containsString("Kestra Discord notification"));
     }
 
     @Test
-    void flow_Successful() throws TimeoutException, QueueException {
-        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
-        embeddedServer.start();
-
-        Execution execution = runnerUtils.runOne(
-            MAIN_TENANT,
-            "io.kestra.tests",
-            "discord-successful",
-            null,
-            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+    void flowSuccessful() throws Exception {
+        var execution = runAndCaptureExecution(
+            "main-flow-that-succeeds",
+            "discord-successful"
         );
 
-        assertThat(execution.getTaskRunList(), hasSize(3));
-        assertThat(FakeWebhookController.data, containsString(execution.getId()));
-        assertThat(FakeWebhookController.data, not(containsString("Failed on task `failed`")));
-        assertThat(FakeWebhookController.data, containsString("Final task ID: discord-log-success"));
-    }
+        String receivedData = waitForWebhookData(() -> FakeWebhookController.data,5000);
 
+        assertThat(receivedData, containsString("https://mysuperhost.com/kestra/ui"));
+        assertThat(receivedData, containsString(execution.getId()));
+        assertThat(FakeWebhookController.data, not(containsString("Failed on task `failed`")));
+        assertThat(FakeWebhookController.data, containsString("Final task ID: success"));
+        assertThat(receivedData, containsString("Kestra Discord notification"));
+    }
 }
+
+

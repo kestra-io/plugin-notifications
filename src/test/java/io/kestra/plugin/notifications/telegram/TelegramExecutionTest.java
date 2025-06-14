@@ -57,9 +57,9 @@ class TelegramExecutionTest {
         );
 
         assertThat(FakeTelegramController.token, comparesEqualTo("token"));
-        assertThat(FakeTelegramController.message.chat_id(), comparesEqualTo("channel"));
-        assertThat(FakeTelegramController.message.text(), containsString("<io.kestra.tests telegram"));
-        assertThat(FakeTelegramController.message.text(), containsString("Failed on task `failed`"));
-        assertThat(FakeTelegramController.message.text(), containsString("Final task ID ➛ failed"));
+        assertThat(FakeTelegramController.message.getChatId(), comparesEqualTo("channel"));
+        assertThat(FakeTelegramController.message.getText(), containsString("<io.kestra.tests telegram"));
+        assertThat(FakeTelegramController.message.getText(), containsString("Failed on task `failed`"));
+        assertThat(FakeTelegramController.message.getText(), containsString("Final task ID ➛ failed"));
     }
 }

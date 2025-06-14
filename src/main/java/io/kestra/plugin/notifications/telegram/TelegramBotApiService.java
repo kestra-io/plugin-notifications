@@ -1,5 +1,7 @@
 package io.kestra.plugin.notifications.telegram;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.HttpResponse;
@@ -7,6 +9,9 @@ import io.kestra.core.http.client.HttpClient;
 import io.kestra.core.http.client.HttpClientException;
 import io.kestra.core.http.client.HttpClientResponseException;
 import io.micronaut.http.HttpStatus;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.net.URI;
 import java.util.Objects;
@@ -47,7 +52,27 @@ public class TelegramBotApiService {
     public record TelegramBotApiResponse(boolean ok, TelegramMessage result) {
     }
 
-    public record TelegramMessage(String chat_id, String text, String parse_mode) {
+    @Getter
+    @NoArgsConstructor
+    @EqualsAndHashCode
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TelegramMessage {
+        @JsonProperty("chat_id")
+        private String chatId;
+
+        private String text;
+
+        @JsonProperty("parse_mode")
+        private String parseMode;
+
+        @JsonProperty("message_id")
+        private Integer messageId;
+
+        public TelegramMessage(String chatId, String text, String parseMode) {
+            this.chatId = chatId;
+            this.text = text;
+            this.parseMode = parseMode;
+        }
     }
 
     public static class ErrorSendingMessageException extends Exception {

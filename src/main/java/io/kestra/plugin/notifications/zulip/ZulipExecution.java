@@ -62,8 +62,8 @@ public class ZulipExecution extends ZulipTemplate implements ExecutionInterface 
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        this.templateUri = Property.of("zulip-template.peb");
-        this.templateRenderMap = Property.of(ExecutionService.executionMap(runContext, this));
+        this.templateUri = Property.ofValue("zulip-template.peb");
+        this.templateRenderMap = Property.ofValue(ExecutionService.executionMap(runContext, this));
 
         return super.run(runContext);
     }

@@ -40,7 +40,7 @@ public class PagerDutyAlertTest {
 
         PagerDutyAlert task = PagerDutyAlert.builder()
             .url(embeddedServer.getURI() + "/webhook-unit-test")
-            .payload(Property.of(
+            .payload(Property.ofValue(
                 Files.asCharSource(
                     new File(Objects.requireNonNull(PagerDutyAlertTest.class.getClassLoader()
                             .getResource("pagerduty.peb"))

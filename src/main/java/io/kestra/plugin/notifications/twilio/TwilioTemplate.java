@@ -81,7 +81,7 @@ public abstract class TwilioTemplate extends TwilioAlert {
             map.put("tag", runContext.render(this.tag).as(String.class).get());
         }
 
-        this.payload = Property.of(JacksonMapper.ofJson().writeValueAsString(map));
+        this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));
 
         return super.run(runContext);
     }

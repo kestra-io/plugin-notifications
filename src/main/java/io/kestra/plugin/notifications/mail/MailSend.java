@@ -1,19 +1,20 @@
 package io.kestra.plugin.notifications.mail;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.mail.util.ByteArrayDataSource;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import lombok.extern.jackson.Jacksonized;
 import org.simplejavamail.api.email.AttachmentResource;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
@@ -26,7 +27,7 @@ import org.slf4j.Logger;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
@@ -66,6 +67,48 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     subject: "Kestra workflow failed for the flow {{flow.id}} in the namespace {{flow.namespace}}"
                     htmlTextContent: "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
                 """
+        ),
+        @Example(
+            title = "Send an email with attachments.",
+            full = true,
+            code = """
+                id: send_email
+                namespace: company.team
+
+                inputs:
+                  - id: attachments
+                    type: ARRAY
+                    itemType: JSON
+
+                tasks:
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.mail.MailSend
+                    from: hello@kestra.io
+                    to: hello@kestra.io
+                    attachments: {{ inputs.attachments | toJson }}
+                """
+        ),
+        @Example(
+            title = "Send an email with an embedded image.",
+            full = true,
+            code = """
+                id: send_email
+                namespace: company.team
+
+                inputs:
+                  - id: embedded_image_uri
+                    type: STRING
+
+                tasks:
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.mail.MailSend
+                    from: hello@kestra.io
+                    to: hello@kestra.io
+                    embeddedImages:
+                      - name: kestra.png
+                        uri: "{{ inputs.embedded_image_uri }}"
+                        contentType: image/png
+                """
         )
     }
 )
@@ -96,14 +139,14 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         description = "Will default to SMTPS if left empty"
     )
     @Builder.Default
-    private final Property<TransportStrategy> transportStrategy = Property.of(TransportStrategy.SMTPS);
+    private final Property<TransportStrategy> transportStrategy = Property.ofValue(TransportStrategy.SMTPS);
 
     @Schema(
         title = "Integer value in milliseconds. Default is 10000 milliseconds, i.e. 10 seconds",
         description = "It controls the maximum timeout value when sending emails."
     )
     @Builder.Default
-    private final Property<Integer> sessionTimeout = Property.of(10000);
+    private final Property<Integer> sessionTimeout = Property.ofValue(10000);
 
     /* Mail info */
     @Schema(
@@ -145,17 +188,17 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     @Schema(
         title = "Adds an attachment to the email message",
         description = "The attachment will be shown in the email client as separate files available for download or display." +
-            "inline if the client supports it (for example, most browsers display PDF's in a popup window)."
+            "Inline if the client supports it (for example, most browsers display PDF's in a popup window).",
+        anyOf = {List.class, String.class} // Can be a List<Attachment> or a String like "{{ inputs.attachments | toJson }})"
     )
-    @PluginProperty(dynamic = true)
-    private List<Attachment> attachments;
+    private Property<Object> attachments;
 
     @Schema(
         title = "Adds image data to this email that can be referred to from the email HTML body.",
-        description = "The provided images are assumed to be of MIME type png, jpg, or whatever the email client supports as valid image that can be embedded in HTML content."
+        description = "The provided images are assumed to be of MIME type png, jpg, or whatever the email client supports as valid image that can be embedded in HTML content.",
+        anyOf = {List.class, String.class} // Can be a List<Attachment> or a String like "{{ inputs.attachments | toJson }})"
     )
-    @PluginProperty(dynamic = true)
-    private List<Attachment> embeddedImages;
+    private Property<Object> embeddedImages;
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
@@ -169,7 +212,6 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         final String textContent = runContext.render(this.plainTextContent).as(String.class)
             .orElse("Please view this email in a modern email client");
 
-        // Building email to send
         EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
             .to(runContext.render(to).as(String.class).orElseThrow())
             .from(runContext.render(from).as(String.class).orElseThrow())
@@ -178,19 +220,24 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             .withPlainText(textContent)
             .withReturnReceiptTo();
 
-        if (this.attachments != null) {
-            builder.withAttachments(this.attachmentResources(this.attachments, runContext));
+        var renderedAttachments = runContext.render(attachments).as(Object.class).orElse("");
+        var attachmentsList = getAttachments(renderedAttachments);
+
+        if (!attachmentsList.isEmpty()) {
+            builder.withAttachments(this.attachmentResources(attachmentsList, runContext));
         }
 
-        if (this.embeddedImages != null) {
-            builder.withEmbeddedImages(this.attachmentResources(this.embeddedImages, runContext));
+        var renderedEmbeddedImages = runContext.render(embeddedImages).as(Object.class).orElse("");
+        var embeddedImagesList = getAttachments(renderedEmbeddedImages);
+
+        if (!embeddedImagesList.isEmpty()) {
+            builder.withEmbeddedImages(this.attachmentResources(embeddedImagesList, runContext));
         }
 
         runContext.render(cc).as(String.class).ifPresent(builder::cc);
 
         Email email = builder.buildEmail();
 
-        // Building mailer to send email
         try (Mailer mailer = MailerBuilder
             .withSMTPServer(
                 runContext.render(this.host).as(String.class).orElse(null),
@@ -200,7 +247,6 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             )
             .withTransportStrategy(runContext.render(transportStrategy).as(TransportStrategy.class).orElse(TransportStrategy.SMTPS))
             .withSessionTimeout(runContext.render(sessionTimeout).as(Integer.class).orElse(10000))
-            // .withDebugLogging(true)
             .buildMailer()) {
             mailer.sendMail(email);
         }
@@ -208,8 +254,8 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         return null;
     }
 
-    private List<AttachmentResource> attachmentResources(List<Attachment> list, RunContext runContext) throws Exception {
-        return list
+    private List<AttachmentResource> attachmentResources(List<Attachment> attachments, RunContext runContext) throws Exception {
+        return attachments
             .stream()
             .map(throwFunction(attachment -> {
                 InputStream inputStream = runContext.storage()
@@ -220,12 +266,32 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
                     new ByteArrayDataSource(inputStream, runContext.render(attachment.getContentType()).as(String.class).orElseThrow())
                 );
             }))
-            .collect(Collectors.toList());
+            .toList();
+    }
+
+    private List<Attachment> getAttachments(Object attachments) throws JsonProcessingException {
+        if (attachments instanceof String content) {
+            if (content.isBlank()) {
+                return List.of();
+            }
+
+            String innerJsonString = JacksonMapper.ofJson().readValue(content, String.class);
+            List<Map<String, Object>> deserializedContent = JacksonMapper.ofJson().readValue(innerJsonString, new TypeReference<>() {
+            });
+            return deserializedContent.stream().map(item -> Attachment.builder()
+                .name(Property.ofValue((String) item.get("name")))
+                .uri(Property.ofValue((String) item.get("uri")))
+                .contentType(Property.ofValue((String) item.getOrDefault("contentType", "application/octet-stream")))
+                .build()).toList();
+        }
+        if (attachments instanceof List attachmentsList) {
+            return attachmentsList;
+        }
+        throw new IllegalArgumentException("The `attachments` attribute must be a String or a List");
     }
 
     @Getter
     @Builder
-    @Jacksonized
     public static class Attachment {
         @Schema(
             title = "An attachment URI from Kestra internal storage"
@@ -245,6 +311,6 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         )
         @NotNull
         @Builder.Default
-        private Property<String> contentType = Property.of("application/octet-stream");
+        private Property<String> contentType = Property.ofValue("application/octet-stream");
     }
 }

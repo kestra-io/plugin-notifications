@@ -58,14 +58,14 @@ public class MailSendTest {
 
         template = Files.asCharSource(
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
-                .getResource("mail-template.hbs.peb"))
+                    .getResource("mail-template.hbs.peb"))
                 .toURI()),
             StandardCharsets.UTF_8
         ).read();
 
         textTemplate = Files.asCharSource(
             new File(Objects.requireNonNull(MailExecution.class.getClassLoader()
-                .getResource("text-template.hbs.peb"))
+                    .getResource("text-template.hbs.peb"))
                 .toURI()),
             StandardCharsets.UTF_8
         ).read();
@@ -93,7 +93,15 @@ public class MailSendTest {
             "customFields", ImmutableMap.of(
                 "Env", "dev"
             ),
-            "customMessage", "myCustomMessage"
+            "customMessage", "myCustomMessage",
+            "attachments", """
+                    [
+                        {
+                            "name": "application-test.yml",
+                            "uri": "kestra:///file/storage/get.yml",
+                            "contentType": "text/yaml"
+                        }
+                    ]"""
         ));
     }
 
@@ -101,29 +109,41 @@ public class MailSendTest {
     @DisplayName("Send email with html and plain text contents")
     void sendEmail() throws Exception {
         RunContext runContext = getRunContext();
-        URL resource = MailSendTest.class.getClassLoader().getResource("application-test.yml");
-
-        URI put = storageInterface.put(
+        String attachmentFilename = "application-test.yml";
+        URL attachmentResource = MailSendTest.class.getClassLoader().getResource(attachmentFilename);
+        URI putAttachment = storageInterface.put(
             MAIN_TENANT,
             null,
             new URI("/file/storage/get.yml"),
-            new FileInputStream(Objects.requireNonNull(resource).getFile())
+            new FileInputStream(Objects.requireNonNull(attachmentResource).getFile())
+        );
+        String embeddedImageFilename = "kestra.png";
+        URL embeddedImageResource = MailSendTest.class.getClassLoader().getResource(embeddedImageFilename);
+        URI putEmbeddedImage = storageInterface.put(
+            MAIN_TENANT,
+            null,
+            new URI("/file/storage/get-embedded-image.yml"),
+            new FileInputStream(Objects.requireNonNull(embeddedImageResource).getFile())
         );
 
         MailSend mailSend = MailSend.builder()
-            .host(Property.of("localhost"))
-            .port(Property.of(greenMail.getSmtp().getPort()))
-            .from(Property.of(FROM))
-            .to(Property.of(TO))
-            .subject(Property.of(SUBJECT))
-            .htmlTextContent(new Property<>(template))
-            .plainTextContent(new Property<>(textTemplate))
-            .transportStrategy(Property.of(TransportStrategy.SMTP))
-            .attachments(List.of(MailSend.Attachment.builder()
-                .name(Property.of("application.yml"))
-                .uri(Property.of(put.toString()))
-                .contentType(Property.of("text/yaml"))
-                .build())
+            .host(Property.ofValue("localhost"))
+            .port(Property.ofValue(greenMail.getSmtp().getPort()))
+            .from(Property.ofValue(FROM))
+            .to(Property.ofValue(TO))
+            .subject(Property.ofValue(SUBJECT))
+            .htmlTextContent(Property.ofExpression(template))
+            .plainTextContent(Property.ofValue(textTemplate))
+            .transportStrategy(Property.ofValue(TransportStrategy.SMTP))
+            .attachments(Property.ofExpression("{{ attachments | toJson }}"))
+            .embeddedImages(Property.ofValue(
+                    List.of(MailSend.Attachment.builder()
+                        .name(Property.ofValue(embeddedImageFilename))
+                        .uri(Property.ofValue(putEmbeddedImage.toString()))
+                        .contentType(Property.ofValue("image/png"))
+                        .build()
+                    )
+                )
             )
             .build();
 
@@ -151,13 +171,14 @@ public class MailSendTest {
         assertThat(body, containsString("<strong>Status :</strong> SUCCE=\r\nSS"));
         assertThat(body, containsString("<strong>Env :</strong> dev"));
         assertThat(body, containsString("myCustomMessage"));
+        assertThat(body, containsString("Content-Type: image/png; filename=kestra.png; name=kestra.png"));
 
         MimeBodyPart filePart = ((MimeBodyPart) content.getBodyPart(1));
         String file = IOUtils.toString(filePart.getInputStream(), StandardCharsets.UTF_8);
 
-        assertThat(filePart.getContentType(), is("text/yaml; filename=application.yml; name=application.yml"));
-        assertThat(filePart.getFileName(), is("application.yml"));
-        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(MAIN_TENANT, null, put), StandardCharsets.UTF_8)));
+        assertThat(filePart.getContentType(), is("text/yaml; filename=" + attachmentFilename + "; name=" + attachmentFilename));
+        assertThat(filePart.getFileName(), is(attachmentFilename));
+        assertThat(file.replace("\r", ""), is(IOUtils.toString(storageInterface.get(MAIN_TENANT, null, putAttachment), StandardCharsets.UTF_8)));
     }
 
     @Test
@@ -166,15 +187,15 @@ public class MailSendTest {
         RunContext runContext = getRunContext();
 
         Assertions.assertThrows(MailException.class, () -> {
-        MailSend mailSend = MailSend.builder()
-                .host(Property.of("fake-host-unknown.com"))
-                .port(Property.of(465))
-                .from(Property.of(FROM))
-                .to(Property.of(TO))
-                .subject(Property.of(SUBJECT))
-                .htmlTextContent(Property.of(template))
-                .plainTextContent(Property.of(textTemplate))
-                .transportStrategy(Property.of(TransportStrategy.SMTP))
+            MailSend mailSend = MailSend.builder()
+                .host(Property.ofValue("fake-host-unknown.com"))
+                .port(Property.ofValue(465))
+                .from(Property.ofValue(FROM))
+                .to(Property.ofValue(TO))
+                .subject(Property.ofValue(SUBJECT))
+                .htmlTextContent(Property.ofExpression(template))
+                .plainTextContent(Property.ofValue(textTemplate))
+                .transportStrategy(Property.ofValue(TransportStrategy.SMTP))
                 .build();
 
             mailSend.run(runContext);

@@ -1,0 +1,25 @@
+id: squadcast
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: send_alert
+    type: io.kestra.plugin.notifications.squadcast.SquadcastExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    message: "Kestra Squadcast alert"
+    executionId: "{{trigger.executionId}}"
+    priority: P1
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

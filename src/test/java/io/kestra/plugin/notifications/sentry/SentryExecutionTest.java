@@ -1,15 +1,11 @@
 package io.kestra.plugin.notifications.sentry;
 
-import com.google.common.collect.ImmutableMap;
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.models.executions.Execution;
-import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.StandAloneRunner;
+import io.kestra.plugin.notifications.AbstractNotificationTest;
 import io.kestra.plugin.notifications.FakeWebhookController;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,18 +13,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 
 @KestraTest
-public class SentryExecutionTest {
-
-    @Inject
-    private ApplicationContext applicationContext;
+public class SentryExecutionTest extends AbstractNotificationTest {
 
     @Inject
     protected StandAloneRunner runner;
@@ -41,29 +31,25 @@ public class SentryExecutionTest {
 
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
-        repositoryLoader.load(Objects.requireNonNull(SentryExecutionTest.class.getClassLoader().getResource("flows")));
+        repositoryLoader.load(Objects.requireNonNull(SentryExecutionTest.class.getClassLoader().getResource("flows/common")));
+        repositoryLoader.load(Objects.requireNonNull(SentryExecutionTest.class.getClassLoader().getResource("flows/sentry")));
         this.runner.run();
     }
 
     @Test
-    void flow() throws TimeoutException, QueueException {
-        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
-        embeddedServer.start();
-
-        Execution execution = runnerUtils.runOne(
-            MAIN_TENANT,
-            "io.kestra.tests",
-            "sentry",
-            null,
-            (f, e) -> ImmutableMap.of("url", embeddedServer.getURI().toString())
+    void flow() throws Exception {
+        var failedExecution = runAndCaptureExecution(
+            "main-flow-that-fails",
+            "sentry"
         );
 
-        assertThat(execution.getTaskRunList(), hasSize(3));
-        assertThat(FakeWebhookController.data, containsString(execution.getId()));
-        assertThat(FakeWebhookController.data, containsString("https://mysuperhost.com/kestra/ui"));
-        assertThat(FakeWebhookController.data, containsString("Failed on task `failed`"));
-        assertThat(FakeWebhookController.data, containsString("\"Final task ID\":\"failed\""));
-        assertThat(FakeWebhookController.data, containsString("Kestra Sentry alert"));
+        String receivedData = waitForWebhookData(() -> FakeWebhookController.data,5000);
+
+        assertThat(receivedData, containsString(failedExecution.getId()));
+        assertThat(receivedData, containsString("https://mysuperhost.com/kestra/ui"));
+        assertThat(receivedData, containsString("Failed on task `failed`"));
+        assertThat(receivedData, containsString("\"Final task ID\":\"failed\""));
+        assertThat(receivedData, containsString("Kestra Sentry alert"));
     }
 
 }

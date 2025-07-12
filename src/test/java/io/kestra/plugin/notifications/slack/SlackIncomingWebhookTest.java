@@ -24,6 +24,8 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @KestraTest
 class SlackIncomingWebhookTest {
@@ -109,5 +111,59 @@ class SlackIncomingWebhookTest {
             .doesNotThrowAnyException();
 
         assertThat(FakeWebhookController.headers).containsEntry("demo-api-key", "demo");
+    }
+
+    @Test
+    void shouldSendMessageTextWithMarkdown() throws Exception {
+        RunContext runContext = runContextFactory.of(ImmutableMap.of());
+
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
+        String messageText =
+            "Breaking \"news\":\n" +
+                "*This is bold* _italic_ ~strike~\n" +
+                "<https://example.com|Link>\n" +
+                "Line2\n" +
+                "Emoji: :tada:";
+
+        SlackIncomingWebhook task = SlackIncomingWebhook.builder()
+            .url(embeddedServer.getURI() + "/webhook-unit-test")
+            .messageText(Property.ofValue(messageText))
+            .build();
+
+        task.run(runContext);
+
+        assertThatCode(() -> JacksonMapper.ofJson().readTree(FakeWebhookController.data))
+            .doesNotThrowAnyException();
+
+        assertThat(FakeWebhookController.data).contains("*This is bold*");
+        assertThat(FakeWebhookController.data).contains("\\\"news\\\"");
+        assertThat(FakeWebhookController.data).contains("<https://example.com|Link>");
+        assertThat(FakeWebhookController.data).contains("Line2");
+        assertThat(FakeWebhookController.data).contains(":tada:");
+    }
+
+    @Test
+    void shouldThrowWhenInvalidJsonPayload() {
+        RunContext runContext = runContextFactory.of(ImmutableMap.of());
+
+        EmbeddedServer embeddedServer = applicationContext.getBean(EmbeddedServer.class);
+        embeddedServer.start();
+
+        String invalidPayload = "Breaking \"news\":\n*This is bold*";
+
+        SlackIncomingWebhook task = SlackIncomingWebhook.builder()
+            .url(embeddedServer.getURI() + "/webhook-unit-test")
+            .payload(Property.ofValue(invalidPayload))
+            .build();
+
+        Exception thrown = assertThrows(
+            com.fasterxml.jackson.core.JsonParseException.class,
+            () -> task.run(runContext),
+            "Expected JsonParseException due to invalid payload"
+        );
+
+        assertThat(thrown.getMessage()).contains("Unrecognized token");
     }
 }

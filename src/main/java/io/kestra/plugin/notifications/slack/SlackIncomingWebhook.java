@@ -99,6 +99,40 @@ import java.net.URI;
                 """
         ),
         @Example(
+            title = "Send a Slack message with 'messageText' (handles Slack markdown, no escaping needed)",
+            full = true,
+            code = """
+                id: slack_incoming_webhook
+                namespace: company.team
+
+                inputs:
+                 - id: prompt
+                   type: STRING
+                   defaults: Summarize top 5 news from my region.\s
+
+                tasks:
+                 - id: news
+                   type: io.kestra.plugin.openai.Responses
+                   apiKey: "{{ kv('OPENAI_API_KEY') }}"
+                   model: gpt-4.1-mini
+                   input: "{{ inputs.prompt }}"
+                   toolChoice: REQUIRED
+                   tools:
+                     - type: web_search_preview
+                       search_context_size: low
+                       user_location:
+                         type: approximate
+                         city: Berlin
+                         region: Berlin
+                         country: DE
+
+                 - id: send_via_slack
+                   type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+                   url: https://kestra.io/api/mock
+                   messageText: "Current news from Berlin: {{ outputs.news.outputText }}"
+                """
+        ),
+        @Example(
             title = "Send a [Rocket.Chat](https://www.rocket.chat/) message via [incoming webhook](https://docs.rocket.chat/docs/integrations#incoming-webhook-script).",
             full = true,
             code = """
@@ -157,23 +191,25 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
     )
     protected Property<String> payload;
 
+    @Schema(
+        title = "Message Text or JSON String",
+        description = "The message content as a raw string. Can be plain text with markdown, or a JSON object. If not a valid JSON object, it's automatically wrapped in `{\"text\": \"...\"}`. This property is ignored if `payload` is set."
+    )
+    private Property<String> messageText;
+
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
         String url = runContext.render(this.url);
+        Object payloadObject = prepareMessage(runContext);
 
+        runContext.logger().debug("Send Slack webhook: {}", payloadObject);
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
-            var payload = JacksonMapper.ofJson() // explicitly pass it as a JsonNode to HttpRequest to avoid encoding issues
-                .readTree(
-                    runContext.render(this.payload).as(String.class).orElse(null)
-                );
-
-            runContext.logger().debug("Send Slack webhook: {}", payload);
             HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
                 .addHeader("Content-Type", "application/json")
                 .uri(URI.create(url))
                 .method("POST")
                 .body(HttpRequest.JsonRequestBody.builder()
-                    .content(payload)
+                    .content(payloadObject)
                     .build());
 
             HttpRequest request = requestBuilder.build();
@@ -187,5 +223,38 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
             }
         }
         return null;
+    }
+
+    private Object prepareMessage(RunContext runContext) throws Exception {
+        if (payload != null) {
+            String renderedPayload = runContext.render(payload).as(String.class).orElse(null);
+            return JacksonMapper.ofJson().readTree(renderedPayload);
+        }
+
+        if (messageText != null) {
+            String renderedMessageText = runContext.render(this.messageText).as(String.class).orElseThrow();
+
+            try {
+                // first we try as Json for more flexibility
+                return JacksonMapper.ofJson().readTree(renderedMessageText);
+            } catch (Exception e) {
+                // not valid Json, so proceed with markdown text
+                renderedMessageText = toSlackMrkdwn(renderedMessageText);
+                return JacksonMapper.ofJson().createObjectNode().put("text", renderedMessageText);
+            }
+        }
+
+        throw new IllegalArgumentException("Either 'messageText' or 'payload' must be provided");
+    }
+
+    private String toSlackMrkdwn(String text) {
+        if (text == null) return null;
+        // for bold text
+        text = text.replaceAll("\\*\\*(.*?)\\*\\*", "*$1*");
+        // for italic text
+        text = text.replaceAll("__(.*?)__", "_$1_");
+        // for links
+        text = text.replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<$2|$1>");
+        return text;
     }
 }

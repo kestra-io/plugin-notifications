@@ -108,7 +108,7 @@ import java.net.URI;
                 inputs:
                  - id: prompt
                    type: STRING
-                   defaults: Summarize top 5 news from my region.\s
+                   defaults: Summarize top 5 news from my region.
 
                 tasks:
                  - id: news
@@ -193,7 +193,7 @@ public class SlackIncomingWebhook extends AbstractHttpOptionsTask {
 
     @Schema(
         title = "Message Text or JSON String",
-        description = "The message content as a raw string. Can be plain text with markdown, or a JSON object. If not a valid JSON object, it's automatically wrapped in `{\"text\": \"...\"}`. This property is ignored if `payload` is set."
+        description = "The message content as a raw string. It can be plain text with markdown, or a JSON object. If not a valid JSON object, it is automatically wrapped in `{\"text\": \"...\"}`. This property is ignored if the `payload` property is set."
     )
     private Property<String> messageText;
 

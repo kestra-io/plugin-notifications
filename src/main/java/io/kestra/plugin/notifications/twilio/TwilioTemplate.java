@@ -70,15 +70,15 @@ public abstract class TwilioTemplate extends TwilioAlert {
         }
 
         if (runContext.render(this.body).as(String.class).isPresent()) {
-            map.put("body", runContext.render(this.body).as(String.class).get());
+            map.put("Body", runContext.render(this.body).as(String.class).get());
         }
 
         if (runContext.render(this.identity).as(String.class).isPresent()) {
-            map.put("identity", runContext.render(this.identity).as(String.class).get());
+            map.put("Identity", runContext.render(this.identity).as(String.class).get());
         }
 
         if (runContext.render(this.tag).as(String.class).isPresent()) {
-            map.put("tag", runContext.render(this.tag).as(String.class).get());
+            map.put("Tag", runContext.render(this.tag).as(String.class).get());
         }
 
         this.payload = Property.ofValue(JacksonMapper.ofJson().writeValueAsString(map));

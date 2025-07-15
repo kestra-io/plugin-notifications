@@ -9,6 +9,7 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.notifications.AbstractHttpOptionsTask;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,8 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @SuperBuilder
 @ToString
@@ -112,15 +115,18 @@ public class TwilioAlert extends AbstractHttpOptionsTask {
 
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
             String payload = runContext.render(this.payload).as(String.class).orElse(null);
+            String authHeader = Base64.getEncoder().encodeToString(
+                (runContext.render(accountSID) + ":" + runContext.render(authToken)).getBytes(StandardCharsets.UTF_8)
+            );
 
             runContext.logger().debug("Send Twilio notification: {}", payload);
             HttpRequest.HttpRequestBuilder requestBuilder = createRequestBuilder(runContext)
-                .addHeader("Content-Type", "application/json")
-                .addHeader(runContext.render(accountSID), runContext.render(authToken))
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                .addHeader("Authorization", "Basic " + authHeader)
                 .uri(URI.create(url))
                 .method("POST")
-                .body(HttpRequest.StringRequestBody.builder()
-                    .content(payload)
+                .body(HttpRequest.UrlEncodedRequestBody.builder()
+                    .content(JacksonMapper.toMap(payload))
                     .build());
 
             HttpRequest request = requestBuilder.build();

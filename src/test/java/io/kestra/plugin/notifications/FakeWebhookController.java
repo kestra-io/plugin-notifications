@@ -2,7 +2,9 @@ package io.kestra.plugin.notifications;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 
@@ -15,12 +17,14 @@ public class FakeWebhookController {
     public static Map<String, String> headers = new HashMap<>();
 
     @Post
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public HttpResponse<String> post(@Body String data) {
         FakeWebhookController.data = data;
         return HttpResponse.ok("ok");
     }
 
     @Post("/with-headers")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public HttpResponse<String> postWithHeaders(HttpRequest<?> request, @Body String data) {
 
         FakeWebhookController.data = data;

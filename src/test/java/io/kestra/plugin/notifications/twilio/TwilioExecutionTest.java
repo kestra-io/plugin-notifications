@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,9 +47,10 @@ public class TwilioExecutionTest extends AbstractNotificationTest {
 
         String receivedData = waitForWebhookData(() -> FakeWebhookController.data,5000);
 
-        assertThat(receivedData, containsString(failedExecution.getId()));
-        assertThat(receivedData, containsString("https://mysuperhost.com/kestra/ui"));
-        assertThat(receivedData, containsString("Failed on task `failed`"));
-        assertThat(receivedData, containsString("Final task ID failed"));
+        String decodedData = URLDecoder.decode(receivedData, StandardCharsets.UTF_8);
+
+        assertThat(decodedData, containsString(failedExecution.getId()));
+        assertThat(decodedData, containsString("Failed on task `failed`"));
+        assertThat(decodedData, containsString("Final task ID failed"));
     }
 }

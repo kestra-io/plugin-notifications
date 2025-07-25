@@ -53,7 +53,7 @@ import java.net.URI;
                     payload: |
                       {
                         "username": "MyUsername",
-                        "content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}"
+                        "content": "Failure alert for flow {{ flow.namespace }}.{{ flow.id }} with ID {{ execution.id }}",
                         "embedList": [{
                                 "title": "Discord Notification"
                             }]
@@ -79,7 +79,7 @@ import java.net.URI;
                         "embeds": [
                             {
                                 "title": "Hello from Kestra",
-                                "color": 16777215
+                                "color": 16777215,
                                 "description": "This is a test message from Kestra",
                                 "footer": {
                                     "text": "Footer text"

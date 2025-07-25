@@ -36,7 +36,6 @@ import java.util.Map;
                   - id: send_alert
                     type: io.kestra.plugin.notifications.slack.SlackExecution
                     url: "{{ secret('SLACK_WEBHOOK') }}" # format: https://hooks.slack.com/services/xzy/xyz/xyz
-                    channel: "#general"
                     executionId: "{{trigger.executionId}}"
 
                 triggers:

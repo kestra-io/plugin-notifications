@@ -21,7 +21,7 @@ import java.util.Map;
 @Schema(
     title = "Send a Zulip message with the execution information.",
     description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.\n\n" +
-    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [ZulipIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/slack/io.kestra.plugin.notifications.slack.slackincomingwebhook) task."
+    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [ZulipIncomingWebhook](https://kestra.io/plugins/plugin-notifications/zulip/io.kestra.plugin.notifications.zulip.zulipincomingwebhook) task."
 )
 @Plugin(
     examples = {

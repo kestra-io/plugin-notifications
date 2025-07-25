@@ -62,6 +62,7 @@ import java.util.Map;
                   - id: send_alert_to_rocket_chat
                     type: io.kestra.plugin.notifications.slack.SlackExecution
                     url: "{{ secret('ROCKET_CHAT_WEBHOOK') }}"
+                    channel: "#errors"
                     username: "Kestra TEST"
                     iconUrl: "https://avatars.githubusercontent.com/u/59033362?s=48"
                     executionId: "{{ trigger.executionId }}"

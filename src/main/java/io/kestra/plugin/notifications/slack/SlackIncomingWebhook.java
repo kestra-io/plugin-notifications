@@ -133,7 +133,7 @@ import java.net.URI;
                 """
         ),
         @Example(
-            title = "Send a [Rocket.Chat](https://www.rocket.chat/) message via [incoming webhook](https://docs.rocket.chat/docs/integrations#incoming-webhook-script).",
+            title = "Send a Rocket Chat message via [Slack incoming webhook](https://docs.rocket.chat/docs/integrations#incoming-webhook-script).",
             full = true,
             code = """
                 id: rocket_chat_notification

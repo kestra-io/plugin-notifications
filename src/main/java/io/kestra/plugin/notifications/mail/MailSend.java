@@ -127,7 +127,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 
                   - id: convert_to_csv
                     type: "io.kestra.plugin.serdes.csv.IonToCsv"
-                    from: "{{ outputs.ship_audit_logs.outputs.file.uris }}"
+                    from: "{{ outputs.ship_audit_logs.outputs.file.uris | first }}"
 
                   - id: send_email
                     type: io.kestra.plugin.notifications.mail.MailSend

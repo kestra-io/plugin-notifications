@@ -109,6 +109,46 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                         uri: "{{ inputs.embedded_image_uri }}"
                         contentType: image/png
                 """
+        ),
+        @Example(
+            title = "Export Kestra audit logs to a CSV file and send it by email.",
+            full = true,
+            code = """
+                id: export_audit_logs_csv
+                namespace: company.team
+
+                tasks:
+                  - id: ship_audit_logs
+                    type: "io.kestra.plugin.ee.core.log.AuditLogShipper"
+                    lookbackPeriod: P1D
+                    logExporters:
+                      - id: file
+                        type: io.kestra.plugin.ee.core.log.FileLogExporter
+
+                  - id: convert_to_csv
+                    type: "io.kestra.plugin.serdes.csv.IonToCsv"
+                    from: "{{ outputs.ship_audit_logs.outputs.file.uris }}"
+
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.mail.MailSend
+                    from: hello@kestra.io
+                    to: hello@kestra.io
+                    username: "{{ secret('EMAIL_USERNAME') }}"
+                    password: "{{ secret('EMAIL_PASSWORD') }}"
+                    host: mail.privateemail.com
+                    port: 465 # or 587
+                    subject: "Weekly Kestra Audit Logs CSV Export"
+                    htmlTextContent: "Weekly Kestra Audit Logs CSV Export"
+                    attachments: 
+                      - name: audit_logs.csv
+                        uri: "{{ outputs.convert_to_csv.uri }}"
+                        contentType: text/csv
+
+                triggers:
+                  - id: schedule
+                    type: io.kestra.plugin.core.trigger.Schedule
+                    cron: 0 10 * * 5
+                """
         )
     }
 )
@@ -173,21 +213,21 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
     @Schema(
         title = "The optional email message body in HTML text",
-        description = "Both text and HTML can be provided; either will be offered to the email client as alternative content." +
+        description = "Both text and HTML can be provided; either will be offered to the email client as alternative content. " +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely."
     )
     protected Property<String> htmlTextContent;
 
     @Schema(
         title = "The optional email message body in plain text",
-        description = "Both text and HTML can be provided; either will be offered to the email client as alternative content." +
+        description = "Both text and HTML can be provided; either will be offered to the email client as alternative content. " +
             "Email clients that support it, will favor HTML over plain text and ignore the text body completely."
     )
     protected Property<String> plainTextContent;
 
     @Schema(
         title = "Adds an attachment to the email message",
-        description = "The attachment will be shown in the email client as separate files available for download or display." +
+        description = "The attachment will be shown in the email client as separate files available for download or display. " +
             "Inline if the client supports it (for example, most browsers display PDF's in a popup window).",
         anyOf = {List.class, String.class} // Can be a List<Attachment> or a String like "{{ inputs.attachments | toJson }})"
     )

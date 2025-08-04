@@ -340,14 +340,15 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
         private Property<String> uri;
 
         @Schema(
-            title = "The name of the attachment (eg. 'filename.txt')"
+            title = "The name of the attachment (e.g., 'filename.txt')"
         )
         @NotNull
         private Property<String> name;
 
         @Schema(
-            title = "One or more 'Cc' (carbon copy) optional recipient email address(es). Use semicolon as a delimiter to provide several addresses",
-            description = "Note that each email address must be compliant with the RFC2822 format"
+            title = "The media type or MIME (Multipurpose Internet Mail Extensions) type of the resource being sent",
+            description = "For example, 'text/plain', 'image/png', 'application/pdf', `text/csv`, etc. " +
+                "If not provided, it will default to 'application/octet-stream'."
         )
         @NotNull
         @Builder.Default

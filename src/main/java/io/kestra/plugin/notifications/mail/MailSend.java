@@ -109,6 +109,46 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                         uri: "{{ inputs.embedded_image_uri }}"
                         contentType: image/png
                 """
+        ),
+        @Example(
+            title = "Export Kestra audit logs to a CSV file and send it by email.",
+            full = true,
+            code = """
+                id: export_audit_logs_csv
+                namespace: company.team
+
+                tasks:
+                  - id: ship_audit_logs
+                    type: "io.kestra.plugin.ee.core.log.AuditLogShipper"
+                    lookbackPeriod: P1D
+                    logExporters:
+                      - id: file
+                        type: io.kestra.plugin.ee.core.log.FileLogExporter
+
+                  - id: convert_to_csv
+                    type: "io.kestra.plugin.serdes.csv.IonToCsv"
+                    from: "{{ outputs.ship_audit_logs.outputs.file.uris | first }}"
+
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.mail.MailSend
+                    from: hello@kestra.io
+                    to: hello@kestra.io
+                    username: "{{ secret('EMAIL_USERNAME') }}"
+                    password: "{{ secret('EMAIL_PASSWORD') }}"
+                    host: mail.privateemail.com
+                    port: 465 # or 587
+                    subject: "Weekly Kestra Audit Logs CSV Export"
+                    htmlTextContent: "Weekly Kestra Audit Logs CSV Export"
+                    attachments:
+                      - name: audit_logs.csv
+                        uri: "{{ outputs.convert_to_csv.uri }}"
+                        contentType: text/csv
+
+                triggers:
+                  - id: schedule
+                    type: io.kestra.plugin.core.trigger.Schedule
+                    cron: 0 10 * * 5
+                """
         )
     }
 )
@@ -270,24 +310,66 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     }
 
     private List<Attachment> getAttachments(Object attachments) throws JsonProcessingException {
-        if (attachments instanceof String content) {
-            if (content.isBlank()) {
+        switch (attachments) {
+            case null -> {
                 return List.of();
             }
 
-            String innerJsonString = JacksonMapper.ofJson().readValue(content, String.class);
-            List<Map<String, Object>> deserializedContent = JacksonMapper.ofJson().readValue(innerJsonString, new TypeReference<>() {
+            case List<?> list -> {
+                if (list.isEmpty()) return List.of();
+
+                if (list.getFirst() instanceof Attachment) {
+                    @SuppressWarnings("unchecked")
+                    List<Attachment> typed = (List<Attachment>) list;
+                    return typed;
+                } else {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> items = (List<Map<String, Object>>) list;
+                    return toAttachments(items);
+                }
+            }
+
+            case String content -> {
+                String trimmed = content.trim();
+                if (trimmed.isEmpty()) return List.of();
+
+                if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+                    return parseJsonAttachmentString(trimmed);
+                }
+
+                String innerJson = JacksonMapper.ofJson().readValue(trimmed, String.class);
+                return parseJsonAttachmentString(innerJson);
+            }
+            default -> {
+            }
+        }
+
+        throw new IllegalArgumentException("The `attachments` attribute must be a String or a List");
+    }
+
+    private List<Attachment> parseJsonAttachmentString(String json) throws JsonProcessingException {
+        String t = json.trim();
+        if (t.startsWith("[")) {
+            List<Map<String, Object>> items = JacksonMapper.ofJson().readValue(t, new TypeReference<>() {
             });
-            return deserializedContent.stream().map(item -> Attachment.builder()
+            return toAttachments(items);
+        } else if (t.startsWith("{")) {
+            Map<String, Object> item = JacksonMapper.ofJson().readValue(t, new TypeReference<>() {
+            });
+            return toAttachments(List.of(item));
+        } else {
+            return List.of();
+        }
+    }
+
+    private static List<Attachment> toAttachments(List<Map<String, Object>> items) {
+        return items.stream()
+            .map(item -> Attachment.builder()
                 .name(Property.ofValue((String) item.get("name")))
                 .uri(Property.ofValue((String) item.get("uri")))
                 .contentType(Property.ofValue((String) item.getOrDefault("contentType", "application/octet-stream")))
-                .build()).toList();
-        }
-        if (attachments instanceof List attachmentsList) {
-            return attachmentsList;
-        }
-        throw new IllegalArgumentException("The `attachments` attribute must be a String or a List");
+                .build())
+            .toList();
     }
 
     @Getter

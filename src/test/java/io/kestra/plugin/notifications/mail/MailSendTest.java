@@ -8,6 +8,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.storages.StorageInterface;
 import jakarta.inject.Inject;
 import jakarta.mail.Message;
@@ -200,5 +201,65 @@ public class MailSendTest {
 
             mailSend.run(runContext);
         });
+    }
+
+    @Test
+    void sendsEmailWithCsvAttachment_fromYamlList() throws Exception {
+        RunContext runContext = getRunContext();
+
+        String src = "application-test.yml";
+        URL res = MailSendTest.class.getClassLoader().getResource(src);
+        URI putDataset = storageInterface.put(
+            MAIN_TENANT,
+            null,
+            new URI("/file/storage/products.csv"),
+            new FileInputStream(Objects.requireNonNull(res).getFile())
+        );
+
+        List<Map<String, Object>> attachments = List.of(
+            Map.of(
+                "name", "data.csv",
+                "uri", putDataset.toString(),
+                "contentType", "text/csv"
+            )
+        );
+
+        MailSend mailSend = MailSend.builder()
+            .host(Property.ofValue("localhost"))
+            .port(Property.ofValue(greenMail.getSmtp().getPort()))
+            .from(Property.ofValue(FROM))
+            .to(Property.ofValue(TO))
+            .subject(Property.ofValue(SUBJECT))
+            .htmlTextContent(Property.ofValue("find attached your dataset as a CSV file"))
+            .plainTextContent(Property.ofValue(textTemplate))
+            .transportStrategy(Property.ofValue(TransportStrategy.SMTP))
+            .attachments(Property.ofValue(attachments))
+            .build();
+
+        mailSend.run(runContext);
+
+        MimeMessage[] received = greenMail.getReceivedMessages();
+        assertThat(received.length, is(1));
+
+        MimeMessage mimeMessage = received[0];
+        MimeMultipart content = (MimeMultipart) mimeMessage.getContent();
+
+        assertThat(content.getCount(), is(2));
+
+        MimeBodyPart bodyPart = (MimeBodyPart) content.getBodyPart(0);
+        String body = IOUtils.toString(bodyPart.getInputStream(), StandardCharsets.UTF_8);
+
+        assertThat(mimeMessage.getFrom()[0].toString(), is(FROM));
+        assertThat(((InternetAddress) mimeMessage.getRecipients(Message.RecipientType.TO)[0]).getAddress(), is(TO));
+        assertThat(mimeMessage.getSubject(), is(SUBJECT));
+        assertThat(body, containsString("find attached your dataset as a CSV file"));
+
+        MimeBodyPart filePart = (MimeBodyPart) content.getBodyPart(1);
+        String file = IOUtils.toString(filePart.getInputStream(), StandardCharsets.UTF_8);
+
+        assertThat(filePart.getContentType(), containsString("text/csv"));
+        assertThat(filePart.getFileName(), is("data.csv"));
+        assertThat(file.replace("\r", ""),
+            is(IOUtils.toString(storageInterface.get(MAIN_TENANT, null, putDataset), StandardCharsets.UTF_8)));
     }
 }

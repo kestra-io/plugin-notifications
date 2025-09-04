@@ -4,7 +4,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
-import io.kestra.core.runners.StandAloneRunner;
+import io.kestra.core.runners.TestRunner;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.is;
 @KestraTest
 class SendGridMailExecutionTest extends AbstractNotificationTest {
     @Inject
-    protected StandAloneRunner runner;
+    protected TestRunner runner;
 
     @Inject
     protected RunnerUtils runnerUtils;

@@ -3,7 +3,7 @@ package io.kestra.plugin.notifications.google;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.RunnerUtils;
-import io.kestra.core.runners.StandAloneRunner;
+import io.kestra.core.runners.TestRunner;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
 import io.kestra.plugin.notifications.FakeWebhookController;
 import jakarta.inject.Inject;
@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.not;
 public class GoogleChatExecutionTest extends AbstractNotificationTest {
 
     @Inject
-    protected StandAloneRunner runner;
+    protected TestRunner runner;
 
     @Inject
     protected RunnerUtils runnerUtils;

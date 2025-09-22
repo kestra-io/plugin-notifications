@@ -1,0 +1,12 @@
+id: x
+namespace: company.team
+
+tasks:
+  - id: notify_failure
+    type: io.kestra.plugin.notifications.x.XExecution
+    url: "http://localhost:59443/webhook-unit-test"
+    bearerToken: "test-bearer-token"
+
+  - id: fail_task
+    type: io.kestra.core.tasks.executions.Fail
+    message: "This task intentionally fails for testing"

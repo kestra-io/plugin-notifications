@@ -1,0 +1,6 @@
+{% set emoji = execution.state.current == "SUCCESS" ? "✅" : (execution.state.current == "FAILED" ? "❌" : (execution.state.current == "WARNING" ? "⚠️" : (execution.state.current == "KILLED" ? "🛑" : "ℹ️"))) %}
+{{ emoji }} {{ execution.state.current }}: {{ execution.namespace }}.{{ execution.flowId }} (Duration: {{ duration }})
+#Kestra #Automation
+{% if link is defined and link is not empty %}
+{{ link }}
+{% endif %}

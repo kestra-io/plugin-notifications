@@ -12,9 +12,9 @@ import io.kestra.core.tenant.TenantService;
 import jakarta.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +30,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@Disabled("Need a SendGrid API key")
+@EnabledIfEnvironmentVariable(named = "SENDGRID_API_KEY", matches = ".+")
 @KestraTest
 public class SendGridMailSendTest {
 

@@ -52,7 +52,7 @@ dependencies {
 
     // libs
     api 'org.simplejavamail:simple-java-mail:8.12.6'
-    api 'org.eclipse.angus:jakarta.mail:2.0.4'
+    api 'org.eclipse.angus:jakarta.mail:2.0.5'
     api ('com.sendgrid:sendgrid-java:4.10.3') {
         exclude group: 'com.fasterxml.jackson.core'
     }

@@ -2,7 +2,6 @@ package io.kestra.plugin.notifications.messenger;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
@@ -63,20 +62,17 @@ public class MessengerExecution extends MessengerTemplate implements ExecutionIn
         title = "The execution id to use",
         description = "Default is the current execution, change it to {{ trigger.executionId }} if you use this task with a Flow trigger to use the original execution."
     )
-    @PluginProperty(dynamic = true)
     @Builder.Default
     private final Property<String> executionId = Property.ofExpression("{{ execution.id }}");
 
     @Schema(
         title = "Custom fields to be added on notification"
     )
-    @PluginProperty(dynamic = true)
     private Property<Map<String, Object>> customFields;
 
     @Schema(
         title = "Custom message to be added on notification"
     )
-    @PluginProperty(dynamic = true)
     private Property<String> customMessage;
 
     @Override

@@ -3,7 +3,6 @@ package io.kestra.plugin.notifications.messenger;
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.HttpResponse;
 import io.kestra.core.http.client.HttpClient;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
@@ -29,22 +28,18 @@ import java.util.Map;
 public abstract class MessengerTemplate extends AbstractHttpOptionsTask {
 
     @Schema(title = "Facebook Page ID", description = "Facebook Page ID that will send the messages")
-    @PluginProperty(dynamic = true)
     @NotNull
     protected String pageId;
 
     @Schema(title = "Page Access Token", description = "Facebook Page Access Token with pages_messaging permission")
-    @PluginProperty(dynamic = true)
     @NotNull
     protected String accessToken;
 
     @Schema(title = "List of recipient PSIDs (Page-scoped IDs)", description = "At least one recipient PSID is required")
-    @PluginProperty(dynamic = true)
     @NotNull
     protected Property<List<String>> recipientIds;
 
     @Schema(title = "Messaging type", description = "Type of message (RESPONSE, UPDATE, MESSAGE_TAG)")
-    @PluginProperty(dynamic = true)
     @Builder.Default
     protected Property<String> messagingType = Property.ofValue("UPDATE");
 

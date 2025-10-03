@@ -1,0 +1,31 @@
+id: messenger
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: messenger
+    type: io.kestra.plugin.notifications.messenger.MessengerExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    pageId: "827899830403766"
+    accessToken: "test_access_token"
+    recipientIds:
+      - "24745216345137108"
+    executionId: "{{ trigger.executionId }}"
+    customMessage: "myCustomMessage"
+    customFields:
+      Environment: "DEV"
+      Cloud: "GCP"
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

@@ -1,0 +1,23 @@
+Execution {{ execution.state.current }}
+
+Details:
+- ID: {{ execution.id }}
+- Namespace: {{ execution.namespace }}
+- Flow: {{ execution.flowId }}
+- Started: {{ startDate }}
+- Duration: {{ duration }}
+{% if firstFailed %}
+- Failed Task: {{ firstFailed.taskId }}
+{% endif %}
+{% if customMessage is defined %}
+
+{{ customMessage }}
+{% endif %}
+{% if customFields is defined %}
+
+{% for field in customFields %}
+- {{ field.key }}: {{ field.value }}
+{% endfor %}
+{% endif %}
+
+View Execution: {{ link }}

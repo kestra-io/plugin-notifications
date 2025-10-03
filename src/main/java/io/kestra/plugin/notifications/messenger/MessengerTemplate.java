@@ -41,7 +41,7 @@ public abstract class MessengerTemplate extends AbstractHttpOptionsTask {
 
     @Schema(title = "Messaging type", description = "Type of message (RESPONSE, UPDATE, MESSAGE_TAG)")
     @Builder.Default
-    protected Property<String> messagingType = Property.ofValue("UPDATE");
+    protected Property<MessagingType> messagingType = Property.ofValue(MessagingType.UPDATE);
 
     @Schema(title = "Template to use", hidden = true)
     protected Property<String> templateUri;
@@ -60,7 +60,7 @@ public abstract class MessengerTemplate extends AbstractHttpOptionsTask {
         final var rRecipientIds = runContext.render(this.recipientIds).asList(String.class);
         final var rAccessToken = runContext.render(this.accessToken);
         final var rPageId = runContext.render(this.pageId);
-        final var rMessagingType = runContext.render(this.messagingType).as(String.class).orElse("UPDATE");
+        final var rMessagingType = runContext.render(this.messagingType).as(MessagingType.class).orElse(MessagingType.UPDATE);
         final var rUrl = runContext.render(this.url).as(String.class);
 
         if (rRecipientIds.isEmpty()) {

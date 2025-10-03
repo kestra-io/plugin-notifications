@@ -1,5 +1,4 @@
-
-    Execution {{ execution.state.current }}
+Execution {{ execution.state.current }}
 
 Details:
 - ID: {{ execution.id }}

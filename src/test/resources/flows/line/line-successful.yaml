@@ -1,0 +1,31 @@
+id: line-successful
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: line-success-notification
+    type: io.kestra.plugin.notifications.line.LineExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    channelAccessToken: "test-channel-access-token"
+    recipientIds:
+      - "LINE_USER_ID_123"
+    executionId: "{{ trigger.executionId }}"
+    customMessage: "Workflow completed successfully"
+    customFields:
+      Environment: "DEV"
+      Status: "SUCCESS"
+      Region: "Asia-Pacific"
+
+triggers:
+  - id: on_success
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-succeeds
+          states: [ SUCCESS ]

@@ -1,0 +1,54 @@
+id: comprehensive_line_test
+namespace: company.team
+description: Comprehensive test of LINE notification with all features
+
+tasks:
+  - id: simulate_data_processing
+    type: io.kestra.plugin.core.log.Log
+    message: "Processing data for market analytics..."
+    
+  - id: send_comprehensive_line_notification
+    type: io.kestra.plugin.notifications.line.LineExecution
+    channelAccessToken: "{{ secret('LINE_CHANNEL_ACCESS_TOKEN') }}"
+    recipientIds:
+      - "LINE_USER_ID_123"  
+      - "LINE_USER_ID_456"  
+    executionId: "{{ execution.id }}"
+    customMessage: |
+      Market Analytics: Data pipeline execution completed!
+      
+      Key Metrics:
+      - Records processed: 1,250,000
+      - Processing time: {{ duration }}
+      - Data quality score: 98.5%
+      
+      This comprehensive test includes:
+      - Custom LINE messaging 
+      - Detailed execution info 
+      - Custom fields support 
+      - Market data analysis
+      
+    customFields:
+      Environment: "Production"
+      Region: "Asia-Pacific" 
+      Market: "Stock Exchange"
+      Data Source: "Market Feed API"
+      Processing Node: "us-east-1"
+      Team: "Analytics"
+      Owner: "admin@company.com"
+      Priority: "High"
+      Cost Center: "ANALYTICS-001"
+      Compliance: "Approved"
+
+triggers:
+  - id: monitor_analytics
+    type: io.kestra.plugin.core.trigger.Flow
+    conditions:
+      - type: io.kestra.plugin.core.condition.ExecutionStatus
+        in:
+          - SUCCESS
+          - FAILED
+          - WARNING
+      - type: io.kestra.plugin.core.condition.ExecutionNamespace
+        namespace: company.team
+        prefix: true

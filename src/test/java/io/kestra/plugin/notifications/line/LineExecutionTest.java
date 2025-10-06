@@ -39,7 +39,7 @@ public class LineExecutionTest extends AbstractNotificationTest {
     void flow() throws Exception {
         var execution = runAndCaptureExecution(
                 "main-flow-that-fails",
-                "line-failure-notification");
+                "line-failure");
 
         String receivedData = waitForWebhookData(() -> FakeWebhookController.data, 5000);
 
@@ -56,7 +56,7 @@ public class LineExecutionTest extends AbstractNotificationTest {
     void flow_successfulFlowShowLastTaskId() throws Exception {
         var execution = runAndCaptureExecution(
                 "main-flow-that-succeeds",
-                "line-successful-notification");
+                "line-successful");
 
         String receivedData = waitForWebhookData(() -> FakeWebhookController.data, 5000);
 

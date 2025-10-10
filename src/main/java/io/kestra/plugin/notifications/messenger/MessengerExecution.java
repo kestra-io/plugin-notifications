@@ -59,19 +59,19 @@ import java.util.Map;
 public class MessengerExecution extends MessengerTemplate implements ExecutionInterface {
 
     @Schema(
-        title = "The execution id to use",
+        title = "The execution ID to use",
         description = "Default is the current execution, change it to {{ trigger.executionId }} if you use this task with a Flow trigger to use the original execution."
     )
     @Builder.Default
     private final Property<String> executionId = Property.ofExpression("{{ execution.id }}");
 
     @Schema(
-        title = "Custom fields to be added on notification"
+        title = "Custom fields to be added in the notification"
     )
     private Property<Map<String, Object>> customFields;
 
     @Schema(
-        title = "Custom message to be added on notification"
+        title = "Custom message to be added in the notification"
     )
     private Property<String> customMessage;
 

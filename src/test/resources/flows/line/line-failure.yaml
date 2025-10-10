@@ -1,0 +1,32 @@
+id: line-failure
+namespace: io.kestra.tests
+
+inputs:
+  - id: url
+    type: STRING
+    defaults: "http://localhost:59443"
+
+tasks:
+  - id: line-failure-notification
+    type: io.kestra.plugin.notifications.line.LineExecution
+    url: "{{ inputs.url }}/webhook-unit-test"
+    channelAccessToken: "test-channel-access-token"
+    recipientIds:
+      - "LINE_USER_ID_123"
+    executionId: "{{ trigger.executionId }}"
+    customMessage: "Production alert - immediate attention required!"
+    customFields:
+      Environment: "DEV"
+      Region: "Asia-Pacific"
+      Team: "Platform Engineering"
+      Priority: "High"
+
+triggers:
+  - id: on_failure
+    type: io.kestra.plugin.core.trigger.Flow
+    preconditions:
+      id: flow_trigger
+      flows:
+        - namespace: io.kestra.tests
+          flowId: main-flow-that-fails
+          states: [ FAILED ]

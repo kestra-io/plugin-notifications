@@ -27,22 +27,18 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Send a LINE message",
-    description = "Send a message via LINE Messaging API to specified recipients"
+    title = "Send a LINE broadcast message",
+    description = "Send a broadcast message to all users who have added the LINE Official Account. Warning: limited to 60 requests per hour."
 )
 public abstract class LineTemplate extends AbstractHttpOptionsTask {
 
-    @Schema(title = "LINE Messaging API URL", description = "The LINE API endpoint URL")
+    @Schema(title = "LINE Messaging API URL", description = "The LINE API endpoint URL to broadcast a message to a channel")
     @Builder.Default
-    protected Property<String> url = Property.ofValue("https://api.line.me/v2/bot/message/push");
+    protected Property<String> url = Property.ofValue("https://api.line.me/v2/bot/message/broadcast");
 
     @Schema(title = "Channel Access Token", description = "LINE Channel Access Token for authentication")
     @NotNull
     protected Property<String> channelAccessToken;
-
-    @Schema(title = "Recipient User IDs", description = "List of LINE user IDs to send the message to")
-    @NotNull
-    protected Property<List<String>> recipientIds;
 
     @Schema(title = "Template to use", hidden = true)
     protected Property<String> templateUri;
@@ -65,47 +61,38 @@ public abstract class LineTemplate extends AbstractHttpOptionsTask {
 
     @Override
     public VoidOutput run(RunContext runContext) throws Exception {
-        final var rRecipientIds = runContext.render(this.recipientIds).asList(String.class);
         final var rChannelAccessToken = runContext.render(this.channelAccessToken).as(String.class)
-                .orElseThrow();
+            .orElseThrow();
         final var rUrl = runContext.render(this.url).as(String.class)
-                .orElse("https://api.line.me/v2/bot/message/push");
-
-        if (rRecipientIds.isEmpty()) {
-            throw new IllegalArgumentException("At least one recipient ID is required");
-        }
+            .orElse("https://api.line.me/v2/bot/message/broadcast");
 
         String messageText = getMessageText(runContext);
 
         try (HttpClient client = new HttpClient(runContext, super.httpClientConfigurationWithOptions())) {
-            for (String recipientId : rRecipientIds) {
-                Map<String, Object> messagePayload = new HashMap<>();
-                messagePayload.put("to", recipientId);
-                messagePayload.put("messages", List.of(Map.of(
-                        "type", "text",
-                        "text", messageText)));
+            Map<String, Object> messagePayload = new HashMap<>();
+            messagePayload.put("messages", List.of(Map.of(
+                "type", "text",
+                "text", messageText
+            )));
 
-                String payload = JacksonMapper.ofJson().writeValueAsString(messagePayload);
+            String payload = JacksonMapper.ofJson().writeValueAsString(messagePayload);
 
-                runContext.logger().debug("Sending LINE message to {}: {}", recipientId, payload);
+            runContext.logger().debug("Broadcasting LINE message: {}", payload);
 
-                HttpRequest request = createRequestBuilder(runContext)
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authorization", "Bearer " + rChannelAccessToken)
-                        .uri(URI.create(rUrl))
-                        .method("POST")
-                        .body(HttpRequest.StringRequestBody.builder().content(payload).build())
-                        .build();
+            HttpRequest request = createRequestBuilder(runContext)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + rChannelAccessToken)
+                .uri(URI.create(rUrl))
+                .method("POST")
+                .body(HttpRequest.StringRequestBody.builder().content(payload).build())
+                .build();
 
-                HttpResponse<String> response = client.request(request, String.class);
+            HttpResponse<String> response = client.request(request, String.class);
 
-                runContext.logger().debug("Response: {}", response.getBody());
-
-                if (response.getStatus().getCode() == 200) {
-                    runContext.logger().info("LINE message sent successfully to {}", recipientId);
-                } else {
-                    runContext.logger().error("Failed to send LINE message to {}: {}", recipientId, response.getBody());
-                }
+            if (response.getStatus().getCode() == 200) {
+                runContext.logger().info("LINE broadcast message sent successfully");
+            } else {
+                runContext.logger().error("Failed to send LINE broadcast message: {}", response.getBody());
             }
         }
 
@@ -121,13 +108,13 @@ public abstract class LineTemplate extends AbstractHttpOptionsTask {
         final var rTemplateUri = runContext.render(this.templateUri).as(String.class);
         if (rTemplateUri.isPresent()) {
             String template = IOUtils.toString(
-                    Objects.requireNonNull(
-                            this.getClass().getClassLoader().getResourceAsStream(rTemplateUri.get())),
-                    StandardCharsets.UTF_8);
+                Objects.requireNonNull(
+                    this.getClass().getClassLoader().getResourceAsStream(rTemplateUri.get())),
+                StandardCharsets.UTF_8);
 
             Map<String, Object> templateVars = templateRenderMap != null
-                    ? runContext.render(templateRenderMap).asMap(String.class, Object.class)
-                    : Map.of();
+                ? runContext.render(templateRenderMap).asMap(String.class, Object.class)
+                : Map.of();
 
             return runContext.render(template, templateVars);
         }

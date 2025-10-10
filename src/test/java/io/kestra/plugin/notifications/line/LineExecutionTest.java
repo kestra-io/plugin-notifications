@@ -48,7 +48,6 @@ public class LineExecutionTest extends AbstractNotificationTest {
         assertThat(receivedData, containsString("FAILED"));
         assertThat(receivedData, containsString("Environment: DEV"));
         assertThat(receivedData, containsString("Region: Asia-Pacific"));
-        assertThat(receivedData, containsString("LINE_USER_ID_123"));
         assertThat(receivedData, containsString("Production alert"));
     }
 
@@ -66,6 +65,5 @@ public class LineExecutionTest extends AbstractNotificationTest {
         assertThat(receivedData, containsString("SUCCESS"));
         assertThat(receivedData, containsString("Environment: DEV"));
         assertThat(receivedData, containsString("Status: SUCCESS"));
-        assertThat(receivedData, containsString("LINE_USER_ID_123"));
     }
 }

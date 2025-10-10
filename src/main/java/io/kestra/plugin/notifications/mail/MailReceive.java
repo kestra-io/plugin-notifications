@@ -29,9 +29,16 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Trigger on new email messages.", description = "Monitor a mailbox for new emails via IMAP or POP3 protocols.")
-@Plugin(examples = {
-        @Example(title = "Monitor Gmail inbox for new emails", full = true, code = """
+@Schema(
+    title = "Trigger on new email messages.",
+    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols."
+)
+@Plugin(
+    examples = {
+        @Example(
+            title = "Monitor Gmail inbox for new emails",
+            full = true,
+            code = """
                 id: email_monitor
                 namespace: company.team
 
@@ -55,8 +62,11 @@ import java.util.stream.Collectors;
                     folder: INBOX
                     pollingInterval: PT30S
                     ssl: true
-                """),
-        @Example(title = "Monitor POP3 mailbox with custom settings", code = """
+                """
+        ),
+        @Example(
+            title = "Monitor POP3 mailbox with custom settings",
+            code = """
                 triggers:
                   - id: pop3_mail_trigger
                     type: io.kestra.plugin.notifications.mail.MailReceive
@@ -68,8 +78,11 @@ import java.util.stream.Collectors;
                     pollingInterval: PT2M
                     ssl: true
                     trustAllCertificates: false
-                """),
-        @Example(title = "Monitor specific folder with IMAP", code = """
+                """
+        ),
+        @Example(
+            title = "Monitor specific folder with IMAP",
+            code = """
                 triggers:
                   - id: imap_folder_trigger
                     type: io.kestra.plugin.notifications.mail.MailReceive
@@ -81,8 +94,10 @@ import java.util.stream.Collectors;
                     folder: "Important"
                     pollingInterval: PT1M
                     ssl: true
-                """)
-})
+                """
+        )
+    }
+)
 public class MailReceive extends AbstractTrigger
         implements PollingTriggerInterface, TriggerOutput<MailReceive.Output> {
 

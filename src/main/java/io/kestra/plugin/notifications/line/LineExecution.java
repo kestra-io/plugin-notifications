@@ -20,7 +20,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Schema(
     title = "Send a LINE message with the execution information.",
-    description = "Send execution details via Line notification including execution link, ID, namespace, flow name, start date, duration, and status." 
+    description = "Send execution details via Line notification including execution link, ID, namespace, flow name, start date, duration, and status."
 )
 @Plugin(
     examples = {
@@ -35,10 +35,7 @@ import java.util.Map;
                   - id: send_line_alert
                     type: io.kestra.plugin.notifications.line.LineExecution
                     channelAccessToken: "{{ secret('LINE_CHANNEL_ACCESS_TOKEN') }}"
-                    recipientIds:
-                      - "LINE_USER_ID_1"
-                      - "LINE_USER_ID_2"
-                    executionId: "{{ trigger.executionId }}"
+                    executionId: "{{ trigger.executionId ?? 0 }}"
                     customMessage: "Production workflow failed - immediate attention required!"
                     customFields:
                       Environment: "Production"
@@ -69,15 +66,12 @@ import java.util.Map;
                   - id: send_line_notification
                     type: io.kestra.plugin.notifications.line.LineExecution
                     channelAccessToken: "{{ secret('LINE_CHANNEL_ACCESS_TOKEN') }}"
-                    recipientIds:
-                      - "LINE_USER_ID_1"
-                    executionId: "{{ trigger.executionId }}"
+                    executionId: "{{ trigger.executionId ?? 0 }}"
                     customMessage: "Data pipeline execution completed"
                     customFields:
                       Environment: "Production"
                       Region: "Asia-Pacific"
-                      Records Processed: "{{ outputs.process_data.recordsProcessed }}"
-                      Duration: "{{ trigger.execution.duration }}"
+                      Duration: "{{ trigger.execution.duration ?? 0 }}"
 
                 triggers:
                   - id: success_notifications

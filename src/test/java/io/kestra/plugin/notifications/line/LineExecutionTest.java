@@ -29,17 +29,17 @@ public class LineExecutionTest extends AbstractNotificationTest {
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
         repositoryLoader
-                .load(Objects.requireNonNull(LineExecutionTest.class.getClassLoader().getResource("flows/common")));
+            .load(Objects.requireNonNull(LineExecutionTest.class.getClassLoader().getResource("flows/common")));
         repositoryLoader
-                .load(Objects.requireNonNull(LineExecutionTest.class.getClassLoader().getResource("flows/line")));
+            .load(Objects.requireNonNull(LineExecutionTest.class.getClassLoader().getResource("flows/line")));
         this.runner.run();
     }
 
     @Test
     void flow() throws Exception {
         var execution = runAndCaptureExecution(
-                "main-flow-that-fails",
-                "line-failure");
+            "main-flow-that-fails",
+            "line-failure");
 
         String receivedData = waitForWebhookData(() -> FakeWebhookController.data, 5000);
 
@@ -54,8 +54,8 @@ public class LineExecutionTest extends AbstractNotificationTest {
     @Test
     void flow_successfulFlowShowLastTaskId() throws Exception {
         var execution = runAndCaptureExecution(
-                "main-flow-that-succeeds",
-                "line-successful");
+            "main-flow-that-succeeds",
+            "line-successful");
 
         String receivedData = waitForWebhookData(() -> FakeWebhookController.data, 5000);
 

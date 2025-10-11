@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
                     username: "{{ secret('GMAIL_USERNAME') }}"
                     password: "{{ secret('GMAIL_PASSWORD') }}"
                     folder: INBOX
-                    pollingInterval: PT30S
+                    interval: PT30S
                     ssl: true
                 """
         ),
@@ -75,7 +75,7 @@ import java.util.stream.Collectors;
                     port: 995
                     username: "{{ secret('EMAIL_USERNAME') }}"
                     password: "{{ secret('EMAIL_PASSWORD') }}"
-                    pollingInterval: PT2M
+                    interval: PT2M
                     ssl: true
                     trustAllCertificates: false
                 """
@@ -92,7 +92,7 @@ import java.util.stream.Collectors;
                     username: "{{ secret('EMAIL_USERNAME') }}"
                     password: "{{ secret('EMAIL_PASSWORD') }}"
                     folder: "Important"
-                    pollingInterval: PT1M
+                    interval: PT1M
                     ssl: true
                 """
         )
@@ -132,7 +132,7 @@ public class MailReceive extends AbstractTrigger
     @Schema(title = "Polling interval", description = "How often to check for new emails")
     @Builder.Default
     @PluginProperty
-    private final Duration pollingInterval = Duration.ofSeconds(60);
+    private final Duration interval = Duration.ofSeconds(60);
 
     @Schema(title = "Use SSL", description = "Whether to use SSL/TLS encryption")
     @Builder.Default
@@ -144,7 +144,7 @@ public class MailReceive extends AbstractTrigger
 
     @Override
     public Duration getInterval() {
-        return this.pollingInterval;
+        return this.interval;
     }
 
     @Override
@@ -389,7 +389,7 @@ public class MailReceive extends AbstractTrigger
         }
 
         ZonedDateTime lastCheckTime = context.getNextExecutionDate() != null
-                ? context.getNextExecutionDate().minus(this.pollingInterval)
+                ? context.getNextExecutionDate().minus(this.interval)
                 : ZonedDateTime.now().minus(Duration.ofHours(1));
 
         runContext.logger().info("Checking for emails newer than: {}", lastCheckTime);

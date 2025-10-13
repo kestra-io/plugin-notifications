@@ -132,7 +132,7 @@ public class MailReceive extends AbstractTrigger
     @Schema(title = "Polling interval", description = "How often to check for new emails")
     @Builder.Default
     @PluginProperty
-    private final Duration interval = Duration.ofSeconds(60);
+    private final Property<Duration> interval = Property.ofValue(Duration.ofSeconds(60));
 
     @Schema(title = "Use SSL", description = "Whether to use SSL/TLS encryption")
     @Builder.Default

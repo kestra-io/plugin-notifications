@@ -3,7 +3,6 @@ package io.kestra.plugin.notifications.mail;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.conditions.ConditionContext;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.property.Property;
@@ -22,7 +21,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @SuperBuilder
 @ToString
@@ -98,8 +97,8 @@ import java.util.stream.Collectors;
         )
     }
 )
-public class MailReceive extends AbstractTrigger
-        implements PollingTriggerInterface, TriggerOutput<MailReceive.Output> {
+public class MailReceivedTrigger extends AbstractTrigger
+        implements PollingTriggerInterface, TriggerOutput<MailReceivedTrigger.Output> {
 
     public enum Protocol {
         IMAP,
@@ -131,7 +130,6 @@ public class MailReceive extends AbstractTrigger
 
     @Schema(title = "Polling interval", description = "How often to check for new emails")
     @Builder.Default
-    @PluginProperty
     private final Property<Duration> interval = Property.ofValue(Duration.ofSeconds(60));
 
     @Schema(title = "Use SSL", description = "Whether to use SSL/TLS encryption")
@@ -144,7 +142,7 @@ public class MailReceive extends AbstractTrigger
 
     @Override
     public Duration getInterval() {
-        return this.interval;
+        return Duration.ofSeconds(60);
     }
 
     @Override
@@ -158,13 +156,14 @@ public class MailReceive extends AbstractTrigger
         String rFolder = runContext.render(this.folder).as(String.class).orElse("INBOX");
         Boolean rSsl = runContext.render(this.ssl).as(Boolean.class).orElse(true);
         Boolean rTrustAllCertificates = runContext.render(this.trustAllCertificates).as(Boolean.class).orElse(false);
+        Duration rInterval = runContext.render(this.interval).as(Duration.class).orElse(Duration.ofSeconds(60));
 
         Integer rPort = runContext.render(this.port).as(Integer.class)
                 .orElse(getDefaultPort(Protocol.valueOf(rProtocol), rSsl));
 
         try {
             List<EmailData> newEmails = fetchNewEmails(runContext, rProtocol, rHost, rPort, rUsername, rPassword,
-                    rFolder, rSsl, rTrustAllCertificates, context);
+                    rFolder, rSsl, rTrustAllCertificates, context, rInterval);
 
             if (newEmails.isEmpty()) {
                 return Optional.empty();
@@ -184,8 +183,8 @@ public class MailReceive extends AbstractTrigger
                     .body(latest.getBody())
                     .messageId(latest.getMessageId())
                     .attachments(latest.getAttachments())
-                    .newEmailsCount(newEmails.size())
-                    .allNewEmails(newEmails)
+                    .total(newEmails.size())
+                    .emails(newEmails)
                     .build();
 
             Execution execution = TriggerService.generateExecution(this, conditionContext, context, output);
@@ -199,7 +198,7 @@ public class MailReceive extends AbstractTrigger
 
     private List<EmailData> fetchNewEmails(RunContext runContext, String rProtocol, String rHost, Integer rPort,
             String rUsername, String rPassword, String rFolder, Boolean rSsl, Boolean rTrustAllCertificates,
-            TriggerContext context) throws MessagingException, IOException {
+            TriggerContext context, Duration rInterval) throws MessagingException, IOException {
 
         Properties props = setupMailProperties(rProtocol, rHost, rPort, rSsl, rTrustAllCertificates, runContext);
 
@@ -210,7 +209,7 @@ public class MailReceive extends AbstractTrigger
         try {
             connectToStore(store, rHost, rPort, rUsername, rPassword, runContext);
 
-            return processMessages(store, rFolder, context, runContext);
+            return processMessages(store, rFolder, context, runContext, rInterval);
 
         } finally {
             if (store.isConnected()) {
@@ -378,7 +377,7 @@ public class MailReceive extends AbstractTrigger
     }
 
     private List<EmailData> processMessages(Store store, String rFolder, TriggerContext context,
-            RunContext runContext) throws MessagingException, IOException {
+            RunContext runContext, Duration rInterval) throws MessagingException, IOException {
         Folder mailFolder = store.getFolder(rFolder);
         mailFolder.open(Folder.READ_ONLY);
 
@@ -389,7 +388,7 @@ public class MailReceive extends AbstractTrigger
         }
 
         ZonedDateTime lastCheckTime = context.getNextExecutionDate() != null
-                ? context.getNextExecutionDate().minus(this.interval)
+                ? context.getNextExecutionDate().minus(rInterval)
                 : ZonedDateTime.now().minus(Duration.ofHours(1));
 
         runContext.logger().info("Checking for emails newer than: {}", lastCheckTime);

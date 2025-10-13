@@ -464,7 +464,7 @@ public class MailReceive extends AbstractTrigger
         private final List<AttachmentInfo> attachments;
 
         @Schema(title = "Total number of new emails found")
-        private final Integer newEmailsCount;
+        private final Integer total;
 
         @Schema(title = "All new emails found")
         private final List<EmailData> emails;

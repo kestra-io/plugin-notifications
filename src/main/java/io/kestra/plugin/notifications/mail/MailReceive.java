@@ -254,7 +254,7 @@ public class MailReceive extends AbstractTrigger
         }
         return Arrays.stream(addresses)
                 .map(addr -> ((InternetAddress) addr).getAddress())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private String extractTextContent(Message message) throws MessagingException, IOException {

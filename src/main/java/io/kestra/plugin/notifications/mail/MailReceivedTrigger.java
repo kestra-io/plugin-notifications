@@ -234,7 +234,7 @@ public class MailReceivedTrigger extends AbstractTrigger
     }
 
     private String extractTextContent(Message message) throws MessagingException, IOException {
-        if (message.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
+        if (message.isMimeType("multipart/*")) {
             MimeMultipart multipart = (MimeMultipart) message.getContent();
             return extractTextFromMultipart(multipart);
         }
@@ -247,7 +247,7 @@ public class MailReceivedTrigger extends AbstractTrigger
 
         for (int i = 0; i < count; i++) {
             BodyPart bodyPart = multipart.getBodyPart(i);
-            if (bodyPart.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
+            if (bodyPart.isMimeType("multipart/*")) {
                 result.append(extractTextFromMultipart((MimeMultipart) bodyPart.getContent()));
             } else {
                 result.append(bodyPart.getContent().toString());
@@ -260,7 +260,7 @@ public class MailReceivedTrigger extends AbstractTrigger
     private List<AttachmentInfo> extractAttachments(Message message) throws MessagingException, IOException {
         List<AttachmentInfo> attachments = new ArrayList<>();
 
-        if (message.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
+        if (message.isMimeType("multipart/*")) {
             MimeMultipart multipart = (MimeMultipart) message.getContent();
             extractAttachmentsFromMultipart(multipart, attachments);
         }
@@ -285,7 +285,7 @@ public class MailReceivedTrigger extends AbstractTrigger
                         .build();
 
                 attachments.add(attachment);
-            } else if (bodyPart.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
+            } else if (bodyPart.isMimeType("multipart/*")) {
                 extractAttachmentsFromMultipart((MimeMultipart) bodyPart.getContent(), attachments);
             }
         }

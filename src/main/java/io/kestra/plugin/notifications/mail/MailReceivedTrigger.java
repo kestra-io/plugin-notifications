@@ -9,6 +9,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.triggers.*;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.micronaut.http.MediaType;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -22,22 +23,14 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Trigger on new email messages.",
-    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols."
-)
-@Plugin(
-    examples = {
-        @Example(
-            title = "Monitor Gmail inbox for new emails",
-            full = true,
-            code = """
+@Schema(title = "Trigger on new email messages.", description = "Monitor a mailbox for new emails via IMAP or POP3 protocols.")
+@Plugin(examples = {
+        @Example(title = "Monitor Gmail inbox for new emails", full = true, code = """
                 id: email_monitor
                 namespace: company.team
 
@@ -46,9 +39,9 @@ import java.util.*;
                     type: io.kestra.core.tasks.log.Log
                     message: |
                       New email received:
-                      Subject: {{ trigger.subject }}
-                      From: {{ trigger.from }}
-                      Date: {{ trigger.date }}
+                      Subject: {{ trigger.latestEmail.subject }}
+                      From: {{ trigger.latestEmail.from }}
+                      Date: {{ trigger.latestEmail.date }}
 
                 triggers:
                   - id: gmail_inbox_trigger
@@ -61,11 +54,8 @@ import java.util.*;
                     folder: INBOX
                     interval: PT30S
                     ssl: true
-                """
-        ),
-        @Example(
-            title = "Monitor POP3 mailbox with custom settings",
-            code = """
+                """),
+        @Example(title = "Monitor POP3 mailbox with custom settings", code = """
                 triggers:
                   - id: pop3_mail_trigger
                     type: io.kestra.plugin.notifications.mail.MailReceive
@@ -77,11 +67,8 @@ import java.util.*;
                     interval: PT2M
                     ssl: true
                     trustAllCertificates: false
-                """
-        ),
-        @Example(
-            title = "Monitor specific folder with IMAP",
-            code = """
+                """),
+        @Example(title = "Monitor specific folder with IMAP", code = """
                 triggers:
                   - id: imap_folder_trigger
                     type: io.kestra.plugin.notifications.mail.MailReceive
@@ -93,10 +80,8 @@ import java.util.*;
                     folder: "Important"
                     interval: PT1M
                     ssl: true
-                """
-        )
-    }
-)
+                """)
+})
 public class MailReceivedTrigger extends AbstractTrigger
         implements PollingTriggerInterface, TriggerOutput<MailReceivedTrigger.Output> {
 
@@ -174,15 +159,7 @@ public class MailReceivedTrigger extends AbstractTrigger
                     .orElse(newEmails.getFirst());
 
             Output output = Output.builder()
-                    .subject(latest.getSubject())
-                    .from(latest.getFrom())
-                    .to(latest.getTo())
-                    .cc(latest.getCc())
-                    .bcc(latest.getBcc())
-                    .date(latest.getDate())
-                    .body(latest.getBody())
-                    .messageId(latest.getMessageId())
-                    .attachments(latest.getAttachments())
+                    .latestEmail(latest)
                     .total(newEmails.size())
                     .emails(newEmails)
                     .build();
@@ -257,15 +234,11 @@ public class MailReceivedTrigger extends AbstractTrigger
     }
 
     private String extractTextContent(Message message) throws MessagingException, IOException {
-        if (message.isMimeType("text/plain")) {
-            return (String) message.getContent();
-        } else if (message.isMimeType("text/html")) {
-            return (String) message.getContent();
-        } else if (message.isMimeType("multipart/*")) {
+        if (message.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
             MimeMultipart multipart = (MimeMultipart) message.getContent();
             return extractTextFromMultipart(multipart);
         }
-        return "";
+        return (String) message.getContent();
     }
 
     private String extractTextFromMultipart(MimeMultipart multipart) throws MessagingException, IOException {
@@ -274,13 +247,10 @@ public class MailReceivedTrigger extends AbstractTrigger
 
         for (int i = 0; i < count; i++) {
             BodyPart bodyPart = multipart.getBodyPart(i);
-
-            if (bodyPart.isMimeType("text/plain")) {
-                result.append(bodyPart.getContent().toString());
-            } else if (bodyPart.isMimeType("text/html")) {
-                result.append(bodyPart.getContent().toString());
-            } else if (bodyPart.isMimeType("multipart/*")) {
+            if (bodyPart.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
                 result.append(extractTextFromMultipart((MimeMultipart) bodyPart.getContent()));
+            } else {
+                result.append(bodyPart.getContent().toString());
             }
         }
 
@@ -290,7 +260,7 @@ public class MailReceivedTrigger extends AbstractTrigger
     private List<AttachmentInfo> extractAttachments(Message message) throws MessagingException, IOException {
         List<AttachmentInfo> attachments = new ArrayList<>();
 
-        if (message.isMimeType("multipart/*")) {
+        if (message.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
             MimeMultipart multipart = (MimeMultipart) message.getContent();
             extractAttachmentsFromMultipart(multipart, attachments);
         }
@@ -315,7 +285,7 @@ public class MailReceivedTrigger extends AbstractTrigger
                         .build();
 
                 attachments.add(attachment);
-            } else if (bodyPart.isMimeType("multipart/*")) {
+            } else if (bodyPart.isMimeType(MediaType.MULTIPART_FORM_DATA)) {
                 extractAttachmentsFromMultipart((MimeMultipart) bodyPart.getContent(), attachments);
             }
         }
@@ -435,32 +405,8 @@ public class MailReceivedTrigger extends AbstractTrigger
     @Getter
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "Email subject")
-        private final String subject;
-
-        @Schema(title = "Sender email address")
-        private final String from;
-
-        @Schema(title = "Recipient email addresses")
-        private final List<String> to;
-
-        @Schema(title = "CC email addresses")
-        private final List<String> cc;
-
-        @Schema(title = "BCC email addresses")
-        private final List<String> bcc;
-
-        @Schema(title = "Email date")
-        private final ZonedDateTime date;
-
-        @Schema(title = "Email body content")
-        private final String body;
-
-        @Schema(title = "Message ID")
-        private final String messageId;
-
-        @Schema(title = "Email attachments")
-        private final List<AttachmentInfo> attachments;
+        @Schema(title = "Latest email received", description = "The most recent email that triggered this execution")
+        private final EmailData latestEmail;
 
         @Schema(title = "Total number of new emails found")
         private final Integer total;

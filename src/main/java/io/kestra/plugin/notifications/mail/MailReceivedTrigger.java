@@ -51,7 +51,7 @@ import java.util.*;
 
                 triggers:
                   - id: gmail_inbox_trigger
-                    type: io.kestra.plugin.notifications.mail.MailReceive
+                    type: io.kestra.plugin.notifications.mail.MailReceivedTrigger
                     protocol: IMAP
                     host: imap.gmail.com
                     port: 993
@@ -67,7 +67,7 @@ import java.util.*;
             code = """
                 triggers:
                   - id: pop3_mail_trigger
-                    type: io.kestra.plugin.notifications.mail.MailReceive
+                    type: io.kestra.plugin.notifications.mail.MailReceivedTrigger
                     protocol: POP3
                     host: pop.example.com
                     port: 995
@@ -83,7 +83,7 @@ import java.util.*;
             code = """
                 triggers:
                   - id: imap_folder_trigger
-                    type: io.kestra.plugin.notifications.mail.MailReceive
+                    type: io.kestra.plugin.notifications.mail.MailReceivedTrigger
                     protocol: IMAP
                     host: mail.example.com
                     port: 993

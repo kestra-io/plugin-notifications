@@ -106,7 +106,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest"
     testImplementation "org.hamcrest:hamcrest-library"
 
-    testImplementation group: 'com.icegreen', name: 'greenmail-junit5', version: '2.1.5'
+    testImplementation group: 'com.icegreen', name: 'greenmail-junit5', version: '2.1.7'
     testImplementation "io.micronaut:micronaut-http-client"
     testImplementation "io.micronaut:micronaut-http-server-netty"
     testImplementation "io.micronaut.reactor:micronaut-reactor-http-client"

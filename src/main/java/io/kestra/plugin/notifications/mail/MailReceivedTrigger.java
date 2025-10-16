@@ -19,16 +19,9 @@ import java.util.*;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Trigger on new email messages.",
-    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols."
-)
-@Plugin(
-    examples = {
-        @Example(
-            title = "Monitor Gmail inbox for new emails",
-            full = true,
-            code = """
+@Schema(title = "Trigger on new email messages.", description = "Monitor a mailbox for new emails via IMAP or POP3 protocols.")
+@Plugin(examples = {
+        @Example(title = "Monitor Gmail inbox for new emails", full = true, code = """
                 id: email_monitor
                 namespace: company.team
 
@@ -52,25 +45,25 @@ import java.util.*;
                     folder: INBOX
                     interval: PT30S
                     ssl: true
-                """
-        )
-    }
-)
+                """)
+})
 public class MailReceivedTrigger extends AbstractMailTrigger
         implements PollingTriggerInterface, TriggerOutput<MailService.Output> {
 
     @Override
     public Optional<Execution> evaluate(ConditionContext conditionContext, TriggerContext context) throws Exception {
         RunContext runContext = conditionContext.getRunContext();
-        MailService.MailConfiguration  mailConfig = renderMailConfiguration(runContext);
+        MailService.MailConfiguration mailConfig = renderMailConfiguration(runContext);
 
         try {
-            ZonedDateTime lastCheckTime = context.getNextExecutionDate() != null
-                    ? context.getNextExecutionDate().minus(mailConfig.interval)
-                    : ZonedDateTime.now().minus(Duration.ofHours(1));
-
-            List<MailService.EmailData> newEmails = MailService.fetchNewEmails(runContext, mailConfig.protocol, mailConfig.host, mailConfig.port,
-                    mailConfig.username, mailConfig.password, mailConfig.folder, mailConfig.ssl, mailConfig.trustAllCertificates, lastCheckTime);
+            ZonedDateTime lastCheckTime = context.getDate() != null
+                    ? context.getDate()
+                    : ZonedDateTime.now()
+                            .minus(mailConfig.interval != null ? mailConfig.interval : Duration.ofHours(1));
+            List<MailService.EmailData> newEmails = MailService.fetchNewEmails(runContext, mailConfig.protocol,
+                    mailConfig.host, mailConfig.port,
+                    mailConfig.username, mailConfig.password, mailConfig.folder, mailConfig.ssl,
+                    mailConfig.trustAllCertificates, lastCheckTime);
 
             if (newEmails.isEmpty()) {
                 return Optional.empty();

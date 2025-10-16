@@ -243,8 +243,8 @@ public class MailService {
     }
 
     public static List<EmailData> fetchNewEmails(RunContext runContext, String protocol, String host, Integer port,
-            String username, String password, String folder, Boolean ssl, Boolean trustAllCertificates,
-            ZonedDateTime lastCheckTime) throws MessagingException, IOException {
+                                                 String username, String password, String folder, Boolean ssl, Boolean trustAllCertificates,
+                                                 ZonedDateTime lastCheckTime) throws MessagingException, IOException {
 
         Properties props = setupMailProperties(protocol, host, port, ssl, trustAllCertificates, runContext);
         String protocolName = getProtocolName(protocol, ssl);
@@ -258,7 +258,8 @@ public class MailService {
             if (store.isConnected()) {
                 try {
                     store.close();
-                } catch (MessagingException ignored) {
+                } catch (MessagingException e) {
+                    runContext.logger().warn("Failed to close mail store", e);
                 }
             }
         }
@@ -266,47 +267,57 @@ public class MailService {
 
     private static List<EmailData> processMessages(Store store, String folder, ZonedDateTime lastCheckTime,
             RunContext runContext) throws MessagingException, IOException {
-        Folder mailFolder = store.getFolder(folder);
-        mailFolder.open(Folder.READ_ONLY);
-
-        int messageCount = mailFolder.getMessageCount();
-        if (messageCount == 0) {
-            runContext.logger().info("No messages found in folder: {}", folder);
-            return Collections.emptyList();
-        }
-
-        runContext.logger().info("Checking for emails newer than: {}", lastCheckTime);
-
-        int messagesToCheck = Math.min(messageCount, 10);
-        Message[] messages = mailFolder.getMessages(messageCount - messagesToCheck + 1, messageCount);
-
-        runContext.logger().info("Checking {} messages out of {} total", messagesToCheck, messageCount);
-
         List<EmailData> newEmails = new ArrayList<>();
-        for (Message message : messages) {
-            if (message instanceof MimeMessage mimeMessage) {
-                Date receivedDate = message.getReceivedDate() != null ? message.getReceivedDate()
-                        : message.getSentDate();
+        Folder mailFolder = store.getFolder(folder);
+        try{
+            mailFolder.open(Folder.READ_ONLY);
 
-                if (receivedDate != null) {
-                    ZonedDateTime messageDate = ZonedDateTime.ofInstant(receivedDate.toInstant(),
-                            lastCheckTime.getZone());
+            int messageCount = mailFolder.getMessageCount();
+            if (messageCount == 0) {
+                runContext.logger().info("No messages found in folder: {}", folder);
+                return Collections.emptyList();
+            }
 
-                    runContext.logger().debug("Message date: {}, Last check: {}, Is newer: {}",
-                            messageDate, lastCheckTime, messageDate.isAfter(lastCheckTime));
+            runContext.logger().info("Checking for emails newer than: {}", lastCheckTime);
 
-                    if (messageDate.isAfter(lastCheckTime)) {
-                        EmailData emailData = parseEmailData(mimeMessage);
-                        if (emailData != null) {
-                            newEmails.add(emailData);
-                            runContext.logger().info("New email - Subject: '{}', From: '{}', Body: '{}'",
-                                    emailData.getSubject(), emailData.getFrom(),
-                                    emailData.getBody().length() > 100 ? emailData.getBody().substring(0, 100) + "..."
-                                            : emailData.getBody());
+            int messagesToCheck = Math.min(messageCount, 10);
+            Message[] messages = mailFolder.getMessages(messageCount - messagesToCheck + 1, messageCount);
+
+            runContext.logger().info("Checking {} messages out of {} total", messagesToCheck, messageCount);
+
+            for (Message message : messages) {
+                if (message instanceof MimeMessage mimeMessage) {
+                    Date receivedDate = message.getReceivedDate() != null ? message.getReceivedDate()
+                            : message.getSentDate();
+
+                    if (receivedDate != null) {
+                        ZonedDateTime messageDate = ZonedDateTime.ofInstant(receivedDate.toInstant(),
+                                lastCheckTime.getZone());
+
+                        runContext.logger().debug("Message date: {}, Last check: {}, Is newer: {}",
+                                messageDate, lastCheckTime, messageDate.isAfter(lastCheckTime));
+
+                        if (messageDate.isAfter(lastCheckTime)) {
+                            EmailData emailData = parseEmailData(mimeMessage);
+                            if (emailData != null) {
+                                newEmails.add(emailData);
+                                runContext.logger().info("New email - Subject: '{}', From: '{}', Body: '{}'",
+                                        emailData.getSubject(), emailData.getFrom(),
+                                        emailData.getBody().length() > 100 ? emailData.getBody().substring(0, 100) + "..."
+                                                : emailData.getBody());
+                            }
                         }
+                    } else {
+                        runContext.logger().debug("Message has no received date or sent date.");
                     }
-                } else {
-                    runContext.logger().debug("Message has no received date or sent date.");
+                }
+            }
+    } finally {
+            if (mailFolder.isOpen()) {
+                try {
+                    mailFolder.close(false);
+                } catch (MessagingException e) {
+                    runContext.logger().warn("Failed to close mail folder", e);
                 }
             }
         }

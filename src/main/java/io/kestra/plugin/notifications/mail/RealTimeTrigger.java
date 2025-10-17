@@ -32,12 +32,19 @@ import java.util.concurrent.atomic.AtomicReference;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Trigger a flow when an email is received in real-time.", description = "Monitor a mailbox for new emails via IMAP or POP3 protocols and create one execution per email received. "
-        +
-        "For IMAP, uses IDLE command for true real-time monitoring. For POP3, uses polling. " +
-        "If you would like to process multiple emails in batch, use the MailReceivedTrigger instead.")
-@Plugin(examples = {
-        @Example(title = "Monitor Gmail inbox for new emails in real-time", full = true, code = """
+@Schema(
+    title = "Trigger a flow when an email is received in real-time.",
+    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols and create one execution per email received. "
+        + "For IMAP, uses IDLE command for true real-time monitoring. "
+        + "For POP3, uses polling. "
+        + "If you would like to process multiple emails in batch, use the MailReceivedTrigger instead."
+)
+@Plugin(
+    examples = {
+        @Example(
+            title = "Monitor Gmail inbox for new emails in real-time",
+            full = true,
+            code = """
                 id: realtime_email_monitor
                 namespace: company.team
 
@@ -61,8 +68,11 @@ import java.util.concurrent.atomic.AtomicReference;
                     password: "{{ secret('GMAIL_PASSWORD') }}"
                     folder: INBOX
                     ssl: true
-                """),
-        @Example(title = "Monitor POP3 mailbox in real-time", code = """
+                """
+        ),
+        @Example(
+            title = "Monitor POP3 mailbox in real-time",
+            code = """
                 triggers:
                   - id: realtime_pop3_trigger
                     type: io.kestra.plugin.notifications.mail.RealTimeTrigger
@@ -73,8 +83,10 @@ import java.util.concurrent.atomic.AtomicReference;
                     password: "{{ secret('EMAIL_PASSWORD') }}"
                     ssl: true
                     interval: PT30S
-                """)
-})
+                """
+        )
+    }
+)
 public class RealTimeTrigger extends AbstractMailTrigger
         implements RealtimeTriggerInterface, TriggerOutput<MailService.EmailData> {
 

@@ -19,9 +19,16 @@ import java.util.*;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Trigger on new email messages.", description = "Monitor a mailbox for new emails via IMAP or POP3 protocols.")
-@Plugin(examples = {
-        @Example(title = "Monitor Gmail inbox for new emails", full = true, code = """
+@Schema(
+    title = "Trigger on new email messages.",
+    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols."
+)
+@Plugin(
+    examples = {
+        @Example(
+            title = "Monitor Gmail inbox for new emails",
+            full = true,
+            code = """
                 id: email_monitor
                 namespace: company.team
 
@@ -45,8 +52,10 @@ import java.util.*;
                     folder: INBOX
                     interval: PT30S
                     ssl: true
-                """)
-})
+                """
+        )
+    }
+)
 public class MailReceivedTrigger extends AbstractMailTrigger
         implements PollingTriggerInterface, TriggerOutput<MailService.Output> {
 

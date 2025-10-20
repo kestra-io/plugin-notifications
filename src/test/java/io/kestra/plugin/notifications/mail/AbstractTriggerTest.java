@@ -6,7 +6,6 @@ import com.icegreen.greenmail.util.ServerSetup;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
-import io.kestra.core.repositories.LocalFlowRepositoryLoader;
 import io.kestra.core.runners.FlowListeners;
 import io.kestra.core.runners.TestRunner;
 import io.kestra.core.utils.IdUtils;
@@ -23,7 +22,6 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import reactor.core.publisher.Flux;
 
@@ -43,9 +41,6 @@ public abstract class AbstractTriggerTest extends AbstractNotificationTest {
 
     @Inject
     protected TestRunner runner;
-
-    @Inject
-    protected LocalFlowRepositoryLoader repositoryLoader;
 
     @Inject
     protected ApplicationContext applicationContext;

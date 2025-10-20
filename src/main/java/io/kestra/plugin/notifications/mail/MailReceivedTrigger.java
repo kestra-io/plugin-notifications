@@ -66,9 +66,9 @@ public class MailReceivedTrigger extends AbstractMailTrigger
 
         try {
             ZonedDateTime lastCheckTime = context.getDate() != null
-                    ? context.getDate()
-                    : ZonedDateTime.now()
-                            .minus(mailConfig.interval != null ? mailConfig.interval : Duration.ofHours(1));
+                ? context.getDate()
+                : ZonedDateTime.now()
+                .minus(mailConfig.interval != null ? mailConfig.interval : Duration.ofHours(1));
             List<MailService.EmailData> newEmails = MailService.fetchNewEmails(runContext, mailConfig.protocol,
                     mailConfig.host, mailConfig.port,
                     mailConfig.username, mailConfig.password, mailConfig.folder, mailConfig.ssl,

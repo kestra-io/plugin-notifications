@@ -15,10 +15,11 @@ import jakarta.mail.event.MessageCountListener;
 import jakarta.mail.internet.MimeMessage;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.eclipse.angus.mail.imap.IMAPFolder;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
+import java.lang.reflect.Method;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -34,10 +35,12 @@ import java.util.concurrent.atomic.AtomicReference;
 @NoArgsConstructor
 @Schema(
     title = "Trigger a flow when an email is received in real-time.",
-    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols and create one execution per email received. "
-        + "For IMAP, uses IDLE command for true real-time monitoring. "
-        + "For POP3, uses polling. "
-        + "If you would like to process multiple emails in batch, use the MailReceivedTrigger instead."
+    description = """
+        Monitor a mailbox for new emails via IMAP or POP3 protocols and create one execution per email received.
+        For IMAP, uses the IDLE command for true real-time monitoring.
+        For POP3, uses polling.
+        If you would like to process multiple emails in batch, use the MailReceivedTrigger instead.
+        """
 )
 @Plugin(
     examples = {
@@ -88,7 +91,7 @@ import java.util.concurrent.atomic.AtomicReference;
     }
 )
 public class RealTimeTrigger extends AbstractMailTrigger
-        implements RealtimeTriggerInterface, TriggerOutput<MailService.EmailData> {
+    implements RealtimeTriggerInterface, TriggerOutput<MailService.EmailData> {
 
     @Builder.Default
     @Getter(AccessLevel.NONE)
@@ -104,7 +107,7 @@ public class RealTimeTrigger extends AbstractMailTrigger
 
     @Builder.Default
     @Getter(AccessLevel.NONE)
-    private final AtomicReference<IMAPFolder> activeFolder = new AtomicReference<>();
+    private final AtomicReference<Folder> activeFolder = new AtomicReference<>();
 
     @Builder.Default
     @Getter(AccessLevel.NONE)
@@ -116,20 +119,20 @@ public class RealTimeTrigger extends AbstractMailTrigger
         MailService.MailConfiguration mailConfig = renderMailConfiguration(runContext);
 
         runContext.logger().info("Starting real-time email monitoring using {} protocol on {}:{}",
-                mailConfig.protocol, mailConfig.host, mailConfig.port);
+            mailConfig.protocol, mailConfig.host, mailConfig.port);
 
         return createRealtimeEmailStream(runContext, mailConfig)
-                .map(emailData -> {
-                    runContext.logger().info("Real-time trigger: New email from '{}' with subject '{}'",
-                            emailData.getFrom(), emailData.getSubject());
-                    return TriggerService.generateRealtimeExecution(this, conditionContext, context, emailData);
-                })
-                .onErrorContinue(
-                        (throwable, o) -> runContext.logger().error("Error in real-time email stream", throwable))
-                .doFinally(signalType -> {
-                    runContext.logger().info("Email stream finished with signal: {}", signalType);
-                    this.waitForTermination.countDown();
-                });
+            .map(emailData -> {
+                runContext.logger().info("Real-time trigger: New email from '{}' with subject '{}'",
+                    emailData.getFrom(), emailData.getSubject());
+                return TriggerService.generateRealtimeExecution(this, conditionContext, context, emailData);
+            })
+            .onErrorContinue(
+                (throwable, o) -> runContext.logger().error("Error in real-time email stream", throwable))
+            .doFinally(signalType -> {
+                runContext.logger().info("Email stream finished with signal: {}", signalType);
+                this.waitForTermination.countDown();
+            });
     }
 
     private Flux<EmailData> createRealtimeEmailStream(RunContext runContext, MailConfiguration config) {
@@ -143,26 +146,27 @@ public class RealTimeTrigger extends AbstractMailTrigger
     private Flux<EmailData> createImapIdleStream(RunContext runContext, MailConfiguration config) {
         return Flux.create(sink -> {
             Store store = null;
-            IMAPFolder folder = null;
+            Folder folder = null;
 
             try {
                 Properties props = MailService.setupMailProperties(config.protocol, config.host, config.port,
-                        config.ssl, config.trustAllCertificates, runContext);
+                    config.ssl, config.trustAllCertificates, runContext);
                 Session session = Session.getInstance(props, null);
                 store = session.getStore(MailService.getProtocolName(config.protocol, config.ssl));
 
                 MailService.connectToStore(store, config.host, config.port, config.username, config.password,
-                        runContext);
-                folder = (IMAPFolder) store.getFolder(config.folder);
+                    runContext);
+                folder = store.getFolder(config.folder);
                 folder.open(Folder.READ_ONLY);
 
                 // Store references for cleanup
                 activeStore.set(store);
                 activeFolder.set(folder);
 
+                runContext.logger().info("Connected to {}:{}", config.host, config.port);
                 runContext.logger().info("Starting IMAP IDLE monitoring on folder: {}", config.folder);
 
-                final IMAPFolder finalFolder = folder;
+                final Folder finalFolder = folder;
                 folder.addMessageCountListener(new MessageCountListener() {
                     @Override
                     public void messagesAdded(MessageCountEvent e) {
@@ -175,7 +179,7 @@ public class RealTimeTrigger extends AbstractMailTrigger
                                     EmailData emailData = MailService.parseEmailData(mimeMessage);
                                     if (emailData != null) {
                                         runContext.logger().info("IMAP IDLE: New email - Subject: '{}', From: '{}'",
-                                                emailData.getSubject(), emailData.getFrom());
+                                            emailData.getSubject(), emailData.getFrom());
                                         sink.next(emailData);
                                     }
                                 }
@@ -192,10 +196,10 @@ public class RealTimeTrigger extends AbstractMailTrigger
                     }
                 });
 
-                // Start IDLE in current thread
+                // Start IDLE using reflection to support different IMAP implementations
                 while (isActive.get() && finalFolder.isOpen()) {
                     try {
-                        finalFolder.idle();
+                        idleFolder(finalFolder, runContext);
                     } catch (Exception e) {
                         if (isActive.get()) {
                             runContext.logger().error("IMAP IDLE error", e);
@@ -223,7 +227,22 @@ public class RealTimeTrigger extends AbstractMailTrigger
         }, FluxSink.OverflowStrategy.BUFFER);
     }
 
-    private void cleanupImapResources(RunContext runContext, Store store, IMAPFolder folder) {
+    private void idleFolder(Folder folder, RunContext runContext) throws Exception {
+        // Use reflection to call idle() method to support both com.sun.mail.imap.IMAPFolder
+        // and org.eclipse.angus.mail.imap.IMAPFolder implementations
+        try {
+            Method idleMethod = folder.getClass().getMethod("idle");
+            idleMethod.invoke(folder);
+        } catch (NoSuchMethodException e) {
+            runContext.logger().warn("IDLE method not available for folder type: {}, falling back to polling",
+                folder.getClass().getName());
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            throw new MessagingException("Failed to invoke IDLE on folder", e);
+        }
+    }
+
+    private void cleanupImapResources(RunContext runContext, Store store, Folder folder) {
         try {
             runContext.logger().info("Cleaning up IMAP resources");
 
@@ -256,44 +275,45 @@ public class RealTimeTrigger extends AbstractMailTrigger
             runContext.logger().info("Initialized POP3 polling with lastFetched: {}", lastFetched.get());
         }
 
-        return Flux.interval(config.interval)
-                .takeWhile(tick -> isActive.get())
-                .flatMap(tick -> {
-                    try {
-                        if (!isActive.get()) {
-                            return Flux.empty();
-                        }
-
-                        ZonedDateTime currentLastFetched = lastFetched.get();
-                        runContext.logger().debug("POP3 polling: checking for emails after {}", currentLastFetched);
-
-                        List<MailService.EmailData> newEmails = MailService.fetchNewEmails(runContext, config.protocol,
-                                config.host, config.port, config.username, config.password, config.folder,
-                                config.ssl, config.trustAllCertificates, currentLastFetched);
-
-                        if (!newEmails.isEmpty()) {
-                            ZonedDateTime latestEmailDate = newEmails.stream()
-                                    .map(MailService.EmailData::getDate)
-                                    .filter(Objects::nonNull)
-                                    .max(ZonedDateTime::compareTo)
-                                    .orElse(currentLastFetched);
-
-                            lastFetched.set(latestEmailDate);
-
-                            runContext.logger().info("POP3 polling: found {} new emails, updated lastFetched to {}",
-                                    newEmails.size(), latestEmailDate);
-                        } else {
-                            runContext.logger().debug("POP3 polling: no new emails found");
-                        }
-
-                        return Flux.fromIterable(newEmails);
-                    } catch (Exception e) {
-                        if (isActive.get()) {
-                            runContext.logger().error("Error in POP3 polling", e);
-                        }
+        return Flux.interval(Duration.ZERO, config.interval)
+            .takeWhile(tick -> isActive.get())
+            .doOnNext(tick -> runContext.logger().info("POP3 polling cycle: {}", tick))
+            .flatMap(tick -> {
+                try {
+                    if (!isActive.get()) {
                         return Flux.empty();
                     }
-                },1);
+
+                    ZonedDateTime currentLastFetched = lastFetched.get();
+                    runContext.logger().info("POP3 polling: checking for emails after {}", currentLastFetched);
+
+                    List<MailService.EmailData> newEmails = MailService.fetchNewEmails(runContext, config.protocol,
+                        config.host, config.port, config.username, config.password, config.folder,
+                        config.ssl, config.trustAllCertificates, currentLastFetched);
+
+                    if (!newEmails.isEmpty()) {
+                        ZonedDateTime latestEmailDate = newEmails.stream()
+                            .map(MailService.EmailData::getDate)
+                            .filter(Objects::nonNull)
+                            .max(ZonedDateTime::compareTo)
+                            .orElse(currentLastFetched);
+
+                        lastFetched.set(latestEmailDate);
+
+                        runContext.logger().info("POP3 polling: found {} new emails, updated lastFetched to {}",
+                            newEmails.size(), latestEmailDate);
+                    } else {
+                        runContext.logger().info("POP3 polling: no new emails found");
+                    }
+
+                    return Flux.fromIterable(newEmails);
+                } catch (Exception e) {
+                    if (isActive.get()) {
+                        runContext.logger().error("Error in POP3 polling", e);
+                    }
+                    return Flux.empty();
+                }
+            }, 1);
     }
 
     @Override
@@ -311,7 +331,7 @@ public class RealTimeTrigger extends AbstractMailTrigger
             return;
         }
 
-        IMAPFolder folder = activeFolder.get();
+        Folder folder = activeFolder.get();
         if (folder != null) {
             try {
                 if (folder.isOpen()) {

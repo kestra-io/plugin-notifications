@@ -1,0 +1,25 @@
+id: mail-received-trigger
+namespace: io.kestra.tests
+
+tasks:
+  - id: process-realtime-email
+    type: io.kestra.core.tasks.log.Log
+    message: |
+      Real-time email received:
+      Subject: {{ trigger.latestEmail.subject }}
+      From: {{ trigger.latestEmail.from }}
+      Date: {{ trigger.latestEmail.date }}
+      Body: {{ trigger.latestEmail.body }}
+
+triggers:
+  - id: realtime-trigger
+    type: io.kestra.plugin.notifications.mail.MailReceivedTrigger
+    protocol: IMAP
+    host: localhost
+    port: 3144
+    username: test@localhost
+    password: password
+    folder: INBOX
+    ssl: false
+    trustAllCertificates: true
+    interval: PT1S

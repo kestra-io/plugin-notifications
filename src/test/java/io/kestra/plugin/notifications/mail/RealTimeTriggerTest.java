@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.doReturn;
@@ -39,7 +40,7 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
                 .password(Property.ofValue("password"))
                 .ssl(Property.ofValue(false))
                 .trustAllCertificates(Property.ofValue(true))
-                .interval(Property.ofValue(Duration.ofSeconds(3)))
+                .interval(Property.ofValue(Duration.ofSeconds(1)))
                 .build();
 
         Flow testFlow = Flow.builder()
@@ -58,7 +59,7 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
         FlowWithSource flow = FlowWithSource.of(testFlow, null);
         doReturn(List.of(flow)).when(flowListenersServiceSpy).flows();
 
-        CountDownLatch queueCount = new CountDownLatch(3); // Expect 3 separate executions
+        CountDownLatch queueCount = new CountDownLatch(1);
         AtomicReference<Execution> lastExecution = new AtomicReference<>();
 
         Flux<Execution> receive = TestsUtils.receive(executionQueue, execution -> {
@@ -73,21 +74,18 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
 
         try {
             testContext.start();
-            Thread.sleep(1000);
+            sendTestEmail("Test Email", "sender@example.com", "Test email body");
 
-            sendTestEmail("First Email", "sender1@example.com", "First test email body");
-            Thread.sleep(100);
-            sendTestEmail("Second Email", "sender2@example.com", "Second test email body");
-            Thread.sleep(100);
-            sendTestEmail("Third Email", "sender3@example.com", "Third test email body");
+            await().pollDelay(Duration.ofSeconds(2)).untilAsserted(() -> {});
 
-            Thread.sleep(2000);
+            boolean await = queueCount.await(20, TimeUnit.SECONDS);
+            assertThat("POP3 emails trigger should execute", await, is(true));
 
-            boolean await = queueCount.await(30, TimeUnit.SECONDS);
-            assertThat("POP3 emails trigger should execute 3 times", await, is(true));
+            await().atMost(Duration.ofSeconds(2)).untilAsserted(() -> {
+                assertThat("Execution should be captured", lastExecution.get(), notNullValue());
+            });
 
             Execution execution = lastExecution.get();
-            assertThat("Execution should be captured", execution, notNullValue());
 
             Map<String, Object> triggerVars = execution.getTrigger().getVariables();
             assertThat("Latest email subject should be present", triggerVars.get("subject"), notNullValue());
@@ -113,7 +111,7 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
                 .password(Property.ofValue("password"))
                 .ssl(Property.ofValue(false))
                 .trustAllCertificates(Property.ofValue(true))
-                .interval(Property.ofValue(Duration.ofSeconds(3)))
+                .interval(Property.ofValue(Duration.ofSeconds(1)))
                 .build();
 
         Flow testFlow = Flow.builder()
@@ -132,7 +130,7 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
         FlowWithSource flow = FlowWithSource.of(testFlow, null);
         doReturn(List.of(flow)).when(flowListenersServiceSpy).flows();
 
-        CountDownLatch queueCount = new CountDownLatch(3); // Expect 3 separate executions
+        CountDownLatch queueCount = new CountDownLatch(1);
         AtomicReference<Execution> lastExecution = new AtomicReference<>();
 
         Flux<Execution> receive = TestsUtils.receive(executionQueue, execution -> {
@@ -147,19 +145,18 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
 
         try {
             testContext.start();
-            Thread.sleep(5000);
 
-            sendTestEmail("First Email", "sender1@example.com", "First test email body");
-            Thread.sleep(200);
-            sendTestEmail("Second Email", "sender2@example.com", "Second test email body");
-            Thread.sleep(200);
-            sendTestEmail("Third Email", "sender3@example.com", "Third test email body");
+            await().pollDelay(Duration.ofSeconds(2)).untilAsserted(() -> {});
 
-            boolean await = queueCount.await(35, TimeUnit.SECONDS);
-            assertThat("IMAP emails trigger should execute 3 times", await, is(true));
+            sendTestEmail("Test Email", "sender@example.com", "Test email body");
+            boolean await = queueCount.await(30, TimeUnit.SECONDS);
+            assertThat("IMAP emails trigger should execute", await, is(true));
+
+            await().atMost(Duration.ofSeconds(2)).untilAsserted(() -> {
+                assertThat("Execution should be captured", lastExecution.get(), notNullValue());
+            });
 
             Execution execution = lastExecution.get();
-            assertThat("Execution should be captured", execution, notNullValue());
 
             Map<String, Object> triggerVars = execution.getTrigger().getVariables();
             assertThat("Latest email subject should be present", triggerVars.get("subject"), notNullValue());

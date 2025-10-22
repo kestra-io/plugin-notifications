@@ -65,10 +65,7 @@ public class MailReceivedTrigger extends AbstractMailTrigger
         MailService.MailConfiguration mailConfig = renderMailConfiguration(runContext);
 
         try {
-            ZonedDateTime lastCheckTime = context.getDate() != null
-                ? context.getDate()
-                : ZonedDateTime.now()
-                .minus(mailConfig.interval != null ? mailConfig.interval : Duration.ofHours(1));
+            ZonedDateTime lastCheckTime = getLastCheckTime(context,mailConfig.interval);
             List<MailService.EmailData> newEmails = MailService.fetchNewEmails(runContext, mailConfig.protocol,
                     mailConfig.host, mailConfig.port,
                     mailConfig.username, mailConfig.password, mailConfig.folder, mailConfig.ssl,
@@ -95,5 +92,12 @@ public class MailReceivedTrigger extends AbstractMailTrigger
             runContext.logger().error("Error checking for new emails", e);
             throw new RuntimeException("Failed to fetch emails: " + e.getMessage(), e);
         }
+    }
+
+    private ZonedDateTime getLastCheckTime(TriggerContext context,Duration interval){
+            if(context.getNextExecutionDate()==null){
+                return ZonedDateTime.now().minus(getInterval());
+            }
+        return context.getNextExecutionDate().minus(interval);
     }
 }

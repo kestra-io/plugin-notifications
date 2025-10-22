@@ -21,7 +21,7 @@ import jakarta.inject.Named;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import reactor.core.publisher.Flux;
 
@@ -52,19 +52,20 @@ public abstract class AbstractTriggerTest extends AbstractNotificationTest {
     @Named(QueueFactoryInterface.EXECUTION_NAMED)
     protected QueueInterface<Execution> executionQueue;
 
+    @BeforeEach
+    void cleanupBeforeEach() throws Exception {
+        greenMail.purgeEmailFromAllMailboxes();
+    }
+
     protected static class TestContext {
         final DefaultWorker worker;
         final AbstractScheduler scheduler;
-        final Thread workerThread;
-        final Thread schedulerThread;
         final Flux<Execution> receive;
 
         TestContext(ApplicationContext applicationContext, FlowListeners flowListeners, QueueInterface<Execution> queue,
                 String flowId, CountDownLatch latch) {
             this.worker = applicationContext.createBean(DefaultWorker.class, IdUtils.create(), 8, null);
             this.scheduler = new JdbcScheduler(applicationContext, flowListeners);
-            this.workerThread = new Thread(worker::run);
-            this.schedulerThread = new Thread(scheduler::run);
             this.receive = TestsUtils.receive(queue, execution -> {
                 if (execution.getLeft().getFlowId().equals(flowId)) {
                     latch.countDown();
@@ -73,8 +74,8 @@ public abstract class AbstractTriggerTest extends AbstractNotificationTest {
         }
 
         void start() {
-            workerThread.start();
-            schedulerThread.start();
+            worker.run();
+            scheduler.run();
         }
 
         void shutdown() {
@@ -82,15 +83,8 @@ public abstract class AbstractTriggerTest extends AbstractNotificationTest {
                 worker.shutdown();
                 scheduler.close();
                 receive.blockLast();
-            } catch (Exception e) {
-                // Ignore cleanup errors
-            }
+            } catch (Exception ignored) {}
         }
-    }
-
-    @BeforeAll
-    void setUp() throws Exception {
-        greenMail.purgeEmailFromAllMailboxes();
     }
 
     protected void sendTestEmail(String subject, String from, String body) throws MessagingException {

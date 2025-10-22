@@ -18,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
-import java.lang.reflect.Method;
+import org.eclipse.angus.mail.imap.IMAPFolder;
+
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -146,7 +147,7 @@ public class RealTimeTrigger extends AbstractMailTrigger
     private Flux<EmailData> createImapIdleStream(RunContext runContext, MailConfiguration config) {
         return Flux.create(sink -> {
             Store store = null;
-            Folder folder = null;
+            IMAPFolder Imapfolder = null;
 
             try {
                 Properties props = MailService.setupMailProperties(config.protocol, config.host, config.port,
@@ -156,17 +157,17 @@ public class RealTimeTrigger extends AbstractMailTrigger
 
                 MailService.connectToStore(store, config.host, config.port, config.username, config.password,
                     runContext);
-                folder = store.getFolder(config.folder);
-                folder.open(Folder.READ_ONLY);
+                Imapfolder = (IMAPFolder) store.getFolder(config.folder);
+                Imapfolder.open(Folder.READ_ONLY);
 
                 // Store references for cleanup
                 activeStore.set(store);
-                activeFolder.set(folder);
+                activeFolder.set(Imapfolder);
 
                 runContext.logger().info("Connected to {}:{}", config.host, config.port);
                 runContext.logger().info("Starting IMAP IDLE monitoring on folder: {}", config.folder);
 
-                final Folder finalFolder = folder;
+                final IMAPFolder folder = Imapfolder;
                 folder.addMessageCountListener(new MessageCountListener() {
                     @Override
                     public void messagesAdded(MessageCountEvent e) {
@@ -192,14 +193,12 @@ public class RealTimeTrigger extends AbstractMailTrigger
                     }
 
                     @Override
-                    public void messagesRemoved(MessageCountEvent e) {
-                    }
+                    public void messagesRemoved(MessageCountEvent e) {}
                 });
 
-                // Start IDLE using reflection to support different IMAP implementations
-                while (isActive.get() && finalFolder.isOpen()) {
+                while (isActive.get() && folder.isOpen()) {
                     try {
-                        idleFolder(finalFolder, runContext);
+                        folder.idle();
                     } catch (Exception e) {
                         if (isActive.get()) {
                             runContext.logger().error("IMAP IDLE error", e);
@@ -221,28 +220,13 @@ public class RealTimeTrigger extends AbstractMailTrigger
                 }
             } finally {
                 sink.complete();
-                cleanupImapResources(runContext, store, folder);
+                cleanupImapResources(runContext, store, Imapfolder);
             }
 
         }, FluxSink.OverflowStrategy.BUFFER);
     }
 
-    private void idleFolder(Folder folder, RunContext runContext) throws Exception {
-        // Use reflection to call idle() method to support both com.sun.mail.imap.IMAPFolder
-        // and org.eclipse.angus.mail.imap.IMAPFolder implementations
-        try {
-            Method idleMethod = folder.getClass().getMethod("idle");
-            idleMethod.invoke(folder);
-        } catch (NoSuchMethodException e) {
-            runContext.logger().warn("IDLE method not available for folder type: {}, falling back to polling",
-                folder.getClass().getName());
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            throw new MessagingException("Failed to invoke IDLE on folder", e);
-        }
-    }
-
-    private void cleanupImapResources(RunContext runContext, Store store, Folder folder) {
+    private void cleanupImapResources(RunContext runContext, Store store, IMAPFolder folder) {
         try {
             runContext.logger().info("Cleaning up IMAP resources");
 
@@ -271,7 +255,7 @@ public class RealTimeTrigger extends AbstractMailTrigger
     private Flux<EmailData> createPop3PollingStream(RunContext runContext, MailConfiguration config) {
 
         if (lastFetched.get() == null) {
-            lastFetched.set(ZonedDateTime.now().minus(config.interval));
+            lastFetched.set(ZonedDateTime.now().minus(getInterval()));
             runContext.logger().info("Initialized POP3 polling with lastFetched: {}", lastFetched.get());
         }
 

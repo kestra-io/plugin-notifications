@@ -101,6 +101,8 @@ dependencies {
     testImplementation group: "io.kestra", name: "runner-memory", version: kestraVersion
     testImplementation group: "io.kestra", name: "jdbc-h2", version: kestraVersion
     testImplementation group: "io.kestra", name: "storage-local", version: kestraVersion
+    testImplementation group: "io.kestra", name: "scheduler", version: kestraVersion
+    testImplementation group: "io.kestra", name: "worker", version: kestraVersion
 
     testImplementation "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.hamcrest:hamcrest"
@@ -111,6 +113,8 @@ dependencies {
     testImplementation "io.micronaut:micronaut-http-server-netty"
     testImplementation "io.micronaut.reactor:micronaut-reactor-http-client"
     testImplementation "org.awaitility:awaitility:4.3.0"
+
+    implementation("jakarta.mail:jakarta.mail-api:2.1.3")
 }
 
 /**********************************************************************************************************************\

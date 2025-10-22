@@ -30,9 +30,9 @@ class MailExecutionTest extends AbstractNotificationTest {
 
     @BeforeEach
     void init() throws IOException, URISyntaxException {
-            repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows/common")));
-            repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows/mail")));
-            this.runner.run();
+        repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows/common")));
+        repositoryLoader.load(Objects.requireNonNull(MailExecutionTest.class.getClassLoader().getResource("flows/mail")));
+        this.runner.run();
     }
 
     @Test

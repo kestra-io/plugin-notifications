@@ -10,6 +10,7 @@ import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.runners.DefaultRunContext;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.RetryUtils;
 import io.kestra.core.utils.UriProvider;
 import io.kestra.plugin.notifications.ExecutionInterface;
@@ -109,10 +110,11 @@ public class ExecutionService {
                 .toList();
         }
 
-        TaskRun lastTaskRun = taskRuns.getLast();
-
-        templateRenderMap.put("firstFailed", State.Type.FAILED.equals(lastTaskRun.getState().getCurrent()) ? lastTaskRun : false);
-        templateRenderMap.put("lastTask", lastTaskRun);
+        if (!ListUtils.isEmpty(taskRuns)) {
+            TaskRun lastTaskRun = taskRuns.getLast();
+            templateRenderMap.put("firstFailed", State.Type.FAILED.equals(lastTaskRun.getState().getCurrent()) ? lastTaskRun : false);
+            templateRenderMap.put("lastTask", lastTaskRun);
+        }
 
         return templateRenderMap;
     }

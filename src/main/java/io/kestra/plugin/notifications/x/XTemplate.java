@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @SuperBuilder
-@ToString(exclude = { "bearerToken", "consumerKey", "consumerSecret", "accessToken", "accessSecret" })
+@ToString(exclude = {"bearerToken", "consumerKey", "consumerSecret", "accessToken", "accessSecret"})
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
@@ -77,9 +77,9 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
             String rAccessSecretValue = runContext.render(this.accessSecret).as(String.class).orElseThrow();
 
             authHeader = buildOAuth1Header(
-                    runContext,
-                    rUrl,
-                    rConsumerKeyValue,
+                runContext,
+                rUrl,
+                rConsumerKeyValue,
                 rConsumerSecretValue,
                 rAccessTokenValue,
                 rAccessSecretValue);
@@ -89,8 +89,8 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
 
         if (rPostText.length() > MAX_POST_LENGTH) {
             throw new IllegalArgumentException(
-                    String.format("Tweet message exceeds maximum length of %d characters. Current length: %d",
-                            MAX_POST_LENGTH, rPostText.length()));
+                String.format("Tweet message exceeds maximum length of %d characters. Current length: %d",
+                    MAX_POST_LENGTH, rPostText.length()));
         }
 
         Map<String, Object> postPayload = new HashMap<>();
@@ -102,12 +102,12 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
             runContext.logger().debug("Sending X post");
 
             HttpRequest request = createRequestBuilder(runContext)
-                    .addHeader("Content-Type", "application/json")
-                    .addHeader("Authorization", authHeader)
-                    .uri(URI.create(rUrl))
-                    .method("POST")
-                    .body(HttpRequest.StringRequestBody.builder().content(payload).build())
-                    .build();
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", authHeader)
+                .uri(URI.create(rUrl))
+                .method("POST")
+                .body(HttpRequest.StringRequestBody.builder().content(payload).build())
+                .build();
 
             HttpResponse<String> response = client.request(request, String.class);
 
@@ -133,8 +133,8 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
                 throw new IllegalArgumentException("Template resource not found: " + rTemplateUri.get());
             }
             String template = IOUtils.toString(
-                    resourceStream,
-                    StandardCharsets.UTF_8);
+                resourceStream,
+                StandardCharsets.UTF_8);
 
             Map<String, Object> rTemplateVars = runContext.render(templateRenderMap).asMap(String.class, Object.class);
 
@@ -145,7 +145,7 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
     }
 
     private String buildOAuth1Header(RunContext runContext, String url,
-            String consumerKey, String consumerSecret, String token, String secret) {
+                                     String consumerKey, String consumerSecret, String token, String secret) {
         try {
             String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
             String nonce = UUID.randomUUID().toString().replace("-", "");
@@ -161,17 +161,17 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
             String signatureBaseString = createSignatureBaseString(url, oauthParams);
 
             String signingKey = URLEncoder.encode(consumerSecret, StandardCharsets.UTF_8) + "&" +
-                    URLEncoder.encode(secret, StandardCharsets.UTF_8);
+                URLEncoder.encode(secret, StandardCharsets.UTF_8);
 
             String signature = generateSignature(signatureBaseString, signingKey);
 
             return String.format(
-                    "OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%s\", oauth_token=\"%s\", oauth_version=\"1.0\"",
-                    consumerKey,
-                    nonce,
-                    URLEncoder.encode(signature, StandardCharsets.UTF_8),
-                    timestamp,
-                    token);
+                "OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%s\", oauth_token=\"%s\", oauth_version=\"1.0\"",
+                consumerKey,
+                nonce,
+                URLEncoder.encode(signature, StandardCharsets.UTF_8),
+                timestamp,
+                token);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate OAuth 1.0a header", e);
         }
@@ -179,18 +179,18 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
 
     private String createSignatureBaseString(String url, Map<String, String> params) {
         String sortedParams = params.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8) + "=" +
-                        URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
-                .collect(Collectors.joining("&"));
+            .sorted(Map.Entry.comparingByKey())
+            .map(entry -> URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8) + "=" +
+                URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+            .collect(Collectors.joining("&"));
 
         return "POST" + "&" +
-                URLEncoder.encode(url, StandardCharsets.UTF_8) + "&" +
-                URLEncoder.encode(sortedParams, StandardCharsets.UTF_8);
+            URLEncoder.encode(url, StandardCharsets.UTF_8) + "&" +
+            URLEncoder.encode(sortedParams, StandardCharsets.UTF_8);
     }
 
     private String generateSignature(String signatureBaseString, String signingKey)
-            throws NoSuchAlgorithmException, InvalidKeyException {
+        throws NoSuchAlgorithmException, InvalidKeyException {
         Mac mac = Mac.getInstance(OAUTH_1_ALGORITHM);
         SecretKeySpec secretKeySpec = new SecretKeySpec(signingKey.getBytes(StandardCharsets.UTF_8), OAUTH_1_ALGORITHM);
         mac.init(secretKeySpec);

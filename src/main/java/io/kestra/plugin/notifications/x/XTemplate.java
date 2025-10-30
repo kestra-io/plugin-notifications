@@ -71,30 +71,30 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
         if (rBearerToken.isPresent()) {
             authHeader = "Bearer " + rBearerToken.orElseThrow();
         } else {
-            String consumerKeyValue = runContext.render(this.consumerKey).as(String.class).orElseThrow();
-            String consumerSecretValue = runContext.render(this.consumerSecret).as(String.class).orElseThrow();
-            String accessTokenValue = runContext.render(this.accessToken).as(String.class).orElseThrow();
-            String accessSecretValue = runContext.render(this.accessSecret).as(String.class).orElseThrow();
+            String rConsumerKeyValue = runContext.render(this.consumerKey).as(String.class).orElseThrow();
+            String rConsumerSecretValue = runContext.render(this.consumerSecret).as(String.class).orElseThrow();
+            String rAccessTokenValue = runContext.render(this.accessToken).as(String.class).orElseThrow();
+            String rAccessSecretValue = runContext.render(this.accessSecret).as(String.class).orElseThrow();
 
             authHeader = buildOAuth1Header(
                     runContext,
                     rUrl,
-                    consumerKeyValue,
-                    consumerSecretValue,
-                    accessTokenValue,
-                    accessSecretValue);
+                    rConsumerKeyValue,
+                rConsumerSecretValue,
+                rAccessTokenValue,
+                rAccessSecretValue);
         }
 
-        String postText = getPostText(runContext);
+        String rPostText = getPostText(runContext);
 
-        if (postText.length() > MAX_POST_LENGTH) {
+        if (rPostText.length() > MAX_POST_LENGTH) {
             throw new IllegalArgumentException(
                     String.format("Tweet message exceeds maximum length of %d characters. Current length: %d",
-                            MAX_POST_LENGTH, postText.length()));
+                            MAX_POST_LENGTH, rPostText.length()));
         }
 
         Map<String, Object> postPayload = new HashMap<>();
-        postPayload.put("text", postText);
+        postPayload.put("text", rPostText);
 
         String payload = JacksonMapper.ofJson().writeValueAsString(postPayload);
 
@@ -136,9 +136,9 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
                     resourceStream,
                     StandardCharsets.UTF_8);
 
-            Map<String, Object> templateVars = runContext.render(templateRenderMap).asMap(String.class, Object.class);
+            Map<String, Object> rTemplateVars = runContext.render(templateRenderMap).asMap(String.class, Object.class);
 
-            return runContext.render(template, templateVars);
+            return runContext.render(template, rTemplateVars);
         }
 
         return rTextBody.orElse("");

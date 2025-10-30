@@ -1,5 +1,5 @@
-🔔 {{ execution.state.current }}: {{ execution.namespace }}/{{ execution.flowId }}
-{% if firstFailed != false %}⚠️ Failed: {{ firstFailed.taskId }}
+{{ execution.state.current }}: {{ execution.namespace }}/{{ execution.flowId }}
+{% if firstFailed != false %} Failed: {{ firstFailed.taskId }}
 {% endif %}{% if customMessage is defined %}{{ customMessage }}
 {% endif %}{% if customFields is defined %}{% for field in customFields %}{{ field.key }}: {{ field.value }}
 {% endfor %}{% endif %}🔗 {{ link }}

@@ -136,9 +136,7 @@ public abstract class XTemplate extends AbstractHttpOptionsTask {
                     resourceStream,
                     StandardCharsets.UTF_8);
 
-            Map<String, Object> templateVars = templateRenderMap != null
-                    ? runContext.render(templateRenderMap).asMap(String.class, Object.class)
-                    : Map.of();
+            Map<String, Object> templateVars = runContext.render(templateRenderMap).asMap(String.class, Object.class);
 
             return runContext.render(template, templateVars);
         }

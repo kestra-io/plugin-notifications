@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.zenduty
+name: "zenduty"
+title: "Zenduty"
+description: "This sub-group of plugins contains tasks for Zenduty notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

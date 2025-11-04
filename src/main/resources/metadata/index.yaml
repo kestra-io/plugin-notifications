@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications
+name: "notifications"
+title: "Notifications"
+description: "Send notifications from Kestra workflows using various channels."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

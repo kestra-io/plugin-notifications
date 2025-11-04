@@ -2,7 +2,6 @@ package io.kestra.plugin.notifications.slack;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
-import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.TestRunner;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
 import io.kestra.plugin.notifications.FakeWebhookController;
@@ -22,9 +21,6 @@ import static org.hamcrest.Matchers.not;
 class SlackExecutionTest extends AbstractNotificationTest {
     @Inject
     protected TestRunner runner;
-
-    @Inject
-    protected RunnerUtils runnerUtils;
 
     @Inject
     protected LocalFlowRepositoryLoader repositoryLoader;

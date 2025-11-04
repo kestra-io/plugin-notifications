@@ -3,7 +3,6 @@ package io.kestra.plugin.notifications.sendgrid;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
-import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.TestRunner;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
 import jakarta.inject.Inject;
@@ -22,9 +21,6 @@ import static org.hamcrest.Matchers.is;
 class SendGridMailExecutionTest extends AbstractNotificationTest {
     @Inject
     protected TestRunner runner;
-
-    @Inject
-    protected RunnerUtils runnerUtils;
 
     @Inject
     protected LocalFlowRepositoryLoader repositoryLoader;

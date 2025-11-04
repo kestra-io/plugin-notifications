@@ -2,11 +2,8 @@ package io.kestra.plugin.notifications.telegram;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
-import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.TestRunner;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +27,7 @@ class TelegramExecutionTest extends AbstractNotificationTest {
     @Inject
     protected TestRunner runner;
     @Inject
-    protected RunnerUtils runnerUtils;
-    @Inject
-    protected LocalFlowRepositoryLoader repositoryLoader;
-    @Inject
-    private ApplicationContext applicationContext;
+    protected LocalFlowRepositoryLoader repositoryLoader;;
 
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {

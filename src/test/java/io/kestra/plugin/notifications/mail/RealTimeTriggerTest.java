@@ -5,6 +5,7 @@ import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.FlowWithSource;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.FlowListeners;
+import io.kestra.core.utils.Await;
 import io.kestra.core.utils.TestsUtils;
 import io.kestra.plugin.core.debug.Return;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.doReturn;
@@ -76,14 +77,20 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
             testContext.start();
             sendTestEmail("Test Email", "sender@example.com", "Test email body");
 
-            await().pollDelay(Duration.ofSeconds(2)).untilAsserted(() -> {});
+            Thread.sleep(Duration.ofSeconds(2).toMillis());
 
             boolean await = queueCount.await(20, TimeUnit.SECONDS);
             assertThat("POP3 emails trigger should execute", await, is(true));
 
-            await().atMost(Duration.ofSeconds(2)).untilAsserted(() -> {
-                assertThat("Execution should be captured", lastExecution.get(), notNullValue());
-            });
+            try {
+                Await.until(
+                    () -> lastExecution.get() != null,
+                    Duration.ofMillis(100),
+                    Duration.ofSeconds(2)
+                );
+            } catch (TimeoutException e) {
+                throw new AssertionError("Execution was not captured within 2 seconds", e);
+            }
 
             Execution execution = lastExecution.get();
 
@@ -146,15 +153,21 @@ class RealTimeTriggerTest extends AbstractTriggerTest {
         try {
             testContext.start();
 
-            await().pollDelay(Duration.ofSeconds(2)).untilAsserted(() -> {});
+            Thread.sleep(Duration.ofSeconds(2).toMillis());
 
             sendTestEmail("Test Email", "sender@example.com", "Test email body");
             boolean await = queueCount.await(30, TimeUnit.SECONDS);
             assertThat("IMAP emails trigger should execute", await, is(true));
 
-            await().atMost(Duration.ofSeconds(2)).untilAsserted(() -> {
-                assertThat("Execution should be captured", lastExecution.get(), notNullValue());
-            });
+            try {
+                Await.until(
+                    () -> lastExecution.get() != null,
+                    Duration.ofMillis(100),
+                    Duration.ofSeconds(2)
+                );
+            } catch (TimeoutException e) {
+                throw new AssertionError("Execution was not captured within 2 seconds", e);
+            }
 
             Execution execution = lastExecution.get();
 

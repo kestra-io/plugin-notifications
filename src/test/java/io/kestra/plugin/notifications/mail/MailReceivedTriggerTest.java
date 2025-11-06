@@ -75,7 +75,7 @@ class MailReceivedTriggerTest extends AbstractTriggerTest {
         try {
             testContext.start();
 
-            Thread.sleep(Duration.ofSeconds(2).toMillis());
+            Thread.sleep(Duration.ofSeconds(1).toMillis());
 
             sendTestEmail("First Email", "sender1@example.com", "First test email body");
 
@@ -159,7 +159,7 @@ class MailReceivedTriggerTest extends AbstractTriggerTest {
         try {
             testContext.start();
 
-            Thread.sleep(Duration.ofSeconds(2).toMillis());
+            Thread.sleep(Duration.ofSeconds(1).toMillis());
 
             sendTestEmail("First Email", "sender1@example.com", "First test email body");
 

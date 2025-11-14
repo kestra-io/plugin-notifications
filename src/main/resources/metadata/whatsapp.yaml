@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.whatsapp
+name: "whatsapp"
+title: "Whatsapp"
+description: "This sub-group of plugins contains tasks for WhatsApp notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

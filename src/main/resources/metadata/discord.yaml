@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.discord
+name: "discord"
+title: "Discord"
+description: "This sub-group of plugins contains tasks for Discord notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

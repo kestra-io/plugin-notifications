@@ -4,20 +4,20 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
-import io.kestra.core.runners.RunnerUtils;
+import io.kestra.core.runners.TestRunnerUtils;
+import io.kestra.core.utils.Await;
 import io.kestra.core.utils.TestsUtils;
-import io.kestra.plugin.notifications.telegram.FakeTelegramController;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -46,7 +45,7 @@ public class AbstractNotificationTest {
     protected QueueInterface<Execution> executionQueue;
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     @BeforeAll
     void startServer() {
@@ -77,11 +76,12 @@ public class AbstractNotificationTest {
      */
     public static String waitForWebhookData(Supplier<String> dataSupplier, long timeoutMs) throws InterruptedException, TimeoutException {
         try {
-            return await()
-                .atMost(5, SECONDS)
-                .pollInterval(100, MILLISECONDS)
-                .until(dataSupplier::get, notNullValue());
-        } catch (ConditionTimeoutException e) {
+            return Await.until(
+                dataSupplier::get,
+                Duration.ofMillis(100),
+                Duration.ofSeconds(5)
+            );
+        } catch (TimeoutException e) {
             throw new TimeoutException("Webhook data did not arrive within " + timeoutMs + "ms.");
         }
     }

@@ -2,7 +2,6 @@ package io.kestra.plugin.notifications.google;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
-import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.TestRunner;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
 import io.kestra.plugin.notifications.FakeWebhookController;
@@ -23,9 +22,6 @@ public class GoogleChatExecutionTest extends AbstractNotificationTest {
 
     @Inject
     protected TestRunner runner;
-
-    @Inject
-    protected RunnerUtils runnerUtils;
 
     @Inject
     protected LocalFlowRepositoryLoader repositoryLoader;

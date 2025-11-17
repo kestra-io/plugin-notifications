@@ -2,22 +2,19 @@ package io.kestra.plugin.notifications.telegram;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
-import io.kestra.core.runners.RunnerUtils;
 import io.kestra.core.runners.TestRunner;
+import io.kestra.core.utils.Await;
 import io.kestra.plugin.notifications.AbstractNotificationTest;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -30,11 +27,7 @@ class TelegramExecutionTest extends AbstractNotificationTest {
     @Inject
     protected TestRunner runner;
     @Inject
-    protected RunnerUtils runnerUtils;
-    @Inject
-    protected LocalFlowRepositoryLoader repositoryLoader;
-    @Inject
-    private ApplicationContext applicationContext;
+    protected LocalFlowRepositoryLoader repositoryLoader;;
 
     @BeforeEach
     protected void init() throws IOException, URISyntaxException {
@@ -50,10 +43,15 @@ class TelegramExecutionTest extends AbstractNotificationTest {
             "telegram"
         );
 
-        await()
-            .atMost(5, SECONDS)
-            .pollInterval(100, MILLISECONDS)
-            .until(() -> FakeTelegramController.message, notNullValue());
+        try {
+           Await.until(
+                () -> FakeTelegramController.message,
+                Duration.ofMillis(100),
+                Duration.ofSeconds(5)
+            );
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Timed out waiting for FakeTelegramController.message to be set", e);
+        }
 
         assertThat(FakeTelegramController.token, comparesEqualTo("token"));
         assertThat(FakeTelegramController.message.getChatId(), comparesEqualTo("channel"));

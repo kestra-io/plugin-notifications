@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.sendgrid
+name: "sendgrid"
+title: "Sendgrid"
+description: "This subgroup of plugins contains tasks for SendGrid email notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

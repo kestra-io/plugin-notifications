@@ -21,8 +21,7 @@ import java.util.*;
 public class ExecutionService {
     public static Execution findExecution(RunContext runContext, Property<String> executionId) throws IllegalVariableEvaluationException, NoSuchElementException {
         ExecutionRepositoryInterface executionRepository = ((DefaultRunContext)runContext).getApplicationContext().getBean(ExecutionRepositoryInterface.class);
-        RetryUtils.Instance<Execution, NoSuchElementException> retryInstance = ((DefaultRunContext)runContext).getApplicationContext().getBean(RetryUtils.class)
-            .of(Exponential.builder()
+        RetryUtils.Instance<Execution, NoSuchElementException> retryInstance = RetryUtils.of(Exponential.builder()
                 .delayFactor(2.0)
                 .interval(Duration.ofSeconds(1))
                 .maxInterval(Duration.ofSeconds(15))

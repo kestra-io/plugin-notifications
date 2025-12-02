@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.sentry
+name: "sentry"
+title: "Sentry"
+description: "This sub-group of plugins contains tasks for Sentry notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

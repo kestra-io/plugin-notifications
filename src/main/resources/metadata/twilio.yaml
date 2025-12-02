@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.twilio
+name: "twilio"
+title: "Twilio"
+description: "This sub-group of plugins contains tasks for Twilio notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

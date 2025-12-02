@@ -262,4 +262,37 @@ public class MailSendTest {
         assertThat(file.replace("\r", ""),
             is(IOUtils.toString(storageInterface.get(MAIN_TENANT, null, putDataset), StandardCharsets.UTF_8)));
     }
+
+    @Test
+    @DisplayName("Send email with SSL trust configuration")
+    void sendEmailWithSslTrustConfig() throws Exception {
+        RunContext runContext = getRunContext();
+
+        MailSend mailSend = MailSend.builder()
+            .host(Property.ofValue("localhost"))
+            .port(Property.ofValue(greenMail.getSmtp().getPort()))
+            .from(Property.ofValue(FROM))
+            .to(Property.ofValue(TO))
+            .subject(Property.ofValue(SUBJECT))
+            .htmlTextContent(Property.ofValue("<p>Test email with SSL trust configuration</p>"))
+            .plainTextContent(Property.ofValue("Test email with SSL trust configuration"))
+            .transportStrategy(Property.ofValue(TransportStrategy.SMTP))
+            .verifyServerIdentity(Property.ofValue(false))
+            .trustedHosts(Property.ofValue(List.of("localhost", "127.0.0.1")))
+            .build();
+
+        mailSend.run(runContext);
+
+        MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
+
+        assertThat(receivedMessages.length, is(1));
+
+        MimeMessage mimeMessage = receivedMessages[0];
+        assertThat(mimeMessage.getFrom()[0].toString(), is(FROM));
+        assertThat(((InternetAddress) mimeMessage.getRecipients(Message.RecipientType.TO)[0]).getAddress(), is(TO));
+        assertThat(mimeMessage.getSubject(), is(SUBJECT));
+
+        String body = IOUtils.toString(mimeMessage.getInputStream(), StandardCharsets.UTF_8);
+        assertThat(body, containsString("Test email with SSL trust configuration"));
+    }
 }

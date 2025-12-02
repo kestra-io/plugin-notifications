@@ -149,6 +149,32 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.core.trigger.Schedule
                     cron: 0 10 * * 5
                 """
+        ),
+        @Example(
+            title = "Send an email using an internal mail server with self-signed certificate and specific trusted hosts.",
+            full = true,
+            code = """
+                id: send_email_internal
+                namespace: company.team
+
+                tasks:
+                  - id: send_email
+                    type: io.kestra.plugin.notifications.mail.MailSend
+                    from: noreply@company.local
+                    to: admin@company.local
+                    username: "{{ secret('INTERNAL_SMTP_USER') }}"
+                    password: "{{ secret('INTERNAL_SMTP_PASSWORD') }}"
+                    host: mail.company.local
+                    port: 587
+                    transportStrategy: SMTP_TLS
+                    subject: "Internal notification"
+                    htmlTextContent: "This email was sent from an internal mail server"
+                    verifyServerIdentity: false
+                    trustedHosts:
+                      - mail.company.local
+                      - smtp.company.local
+                      - 192.168.1.100
+                """
         )
     }
 )
@@ -187,6 +213,19 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
     )
     @Builder.Default
     private final Property<Integer> sessionTimeout = Property.ofValue(10000);
+
+    @Schema(
+        title = "Whether to verify the server identity",
+        description = "Will default to true if left empty"
+    )
+    @Builder.Default
+    private final Property<Boolean> verifyServerIdentity = Property.ofValue(true);
+
+    @Schema(
+        title = "Trusted SSL/TLS hosts",
+        description = "If provided, only the specified hosts will be trusted for SSL/TLS connections"
+    )
+    private Property<List<String>> trustedHosts;
 
     /* Mail info */
     @Schema(
@@ -278,7 +317,8 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
 
         Email email = builder.buildEmail();
 
-        try (Mailer mailer = MailerBuilder
+        var rTrustedHosts = runContext.render(trustedHosts).asList(String.class);
+        var mailerBuilder = MailerBuilder
             .withSMTPServer(
                 runContext.render(this.host).as(String.class).orElse(null),
                 runContext.render(this.port).as(Integer.class).orElse(null),
@@ -287,7 +327,15 @@ public class MailSend extends Task implements RunnableTask<VoidOutput> {
             )
             .withTransportStrategy(runContext.render(transportStrategy).as(TransportStrategy.class).orElse(TransportStrategy.SMTPS))
             .withSessionTimeout(runContext.render(sessionTimeout).as(Integer.class).orElse(10000))
-            .buildMailer()) {
+            .verifyingServerIdentity(runContext.render(verifyServerIdentity).as(Boolean.class).orElse(true));
+
+        if (!rTrustedHosts.isEmpty()) {
+            mailerBuilder = mailerBuilder
+                .trustingAllHosts(false)
+                .trustingSSLHosts(rTrustedHosts.toArray(new String[0]));
+        }
+
+        try (Mailer mailer = mailerBuilder.buildMailer()) {
             mailer.sendMail(email);
         }
 

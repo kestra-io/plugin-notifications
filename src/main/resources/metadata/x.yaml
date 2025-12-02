@@ -1,0 +1,8 @@
+group: io.kestra.plugin.notifications.x
+name: "x"
+title: "X"
+description: "This sub-group of plugins contains tasks for X (formerly Twitter) notifications."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

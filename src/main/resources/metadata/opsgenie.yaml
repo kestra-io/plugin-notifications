@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.opsgenie
 name: "opsgenie"
 title: "Opsgenie"
-description: "This sub-group of plugins contains tasks for Opsgenie alert."
-body: ""
+description: "Tasks that create alerts in Opsgenie."
+body: "Provide the Opsgenie API endpoint and integration key, along with message, priority, responders, and tags to open alerts from Kestra flows and receive response payloads."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

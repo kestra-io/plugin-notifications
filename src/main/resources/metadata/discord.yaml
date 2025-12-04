@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.discord
 name: "discord"
 title: "Discord"
-description: "This sub-group of plugins contains tasks for Discord notifications."
-body: ""
+description: "Tasks that send notifications to Discord via webhooks."
+body: "Provide the Discord webhook URL and message content (optionally embeds/username/avatar) to post alerts from workflows into Discord channels."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

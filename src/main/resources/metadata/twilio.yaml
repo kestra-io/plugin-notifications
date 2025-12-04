@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.twilio
 name: "twilio"
 title: "Twilio"
-description: "This sub-group of plugins contains tasks for Twilio notifications."
-body: ""
+description: "Tasks that send SMS or voice notifications through Twilio."
+body: "Provide Twilio account SID/auth token plus from/to numbers and message text (or call URL) to deliver SMS or voice calls from Kestra workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

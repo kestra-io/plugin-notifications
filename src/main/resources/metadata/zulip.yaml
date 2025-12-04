@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.zulip
 name: "zulip"
 title: "Zulip"
-description: "This sub-group of plugins contains tasks for Zulip notifications."
-body: ""
+description: "Tasks that send messages to Zulip streams or users."
+body: "Provide Zulip server URL, email/API key, stream/topic or user targets, and message content to post notifications from Kestra workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

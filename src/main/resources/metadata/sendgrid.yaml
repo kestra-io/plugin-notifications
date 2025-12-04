@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.sendgrid
 name: "sendgrid"
 title: "Sendgrid"
-description: "This subgroup of plugins contains tasks for SendGrid email notifications."
-body: ""
+description: "Tasks that send email via SendGrid."
+body: "Set the SendGrid API key, from/to addresses, subject, and content (plus optional templates and attachments) to deliver emails through SendGrid from Kestra workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

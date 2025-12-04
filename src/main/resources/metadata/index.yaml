@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications
 name: "notifications"
 title: "Notifications"
-description: "Send notifications from Kestra workflows using various channels."
-body: ""
+description: "Tasks that send notifications from Kestra via email, chat, paging, and alert channels."
+body: "Choose a channel task (Slack, Teams, Discord, email, SMS, Opsgenie, PagerDuty, etc.), provide the required token/URL/credentials and destination (channel, user, service key), and send templated messages or incident payloads from workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

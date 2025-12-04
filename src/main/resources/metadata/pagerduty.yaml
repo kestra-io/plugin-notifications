@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.pagerduty
 name: "pagerduty"
 title: "Pagerduty"
-description: "This sub-group of plugins contains tasks for PagerDuty notifications."
-body: ""
+description: "Tasks that send events to PagerDuty."
+body: "Provide a PagerDuty routing/integration key with summary, source, severity, and optional custom details to trigger incidents or alerts from Kestra workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.telegram
 name: "telegram"
 title: "Telegram"
-description: "This sub-group of plugins contains tasks for Telegram notifications."
-body: ""
+description: "Tasks that send notifications via Telegram bots."
+body: "Set your Telegram bot token and chat ID to send messages (text or markdown) from Kestra workflows to chats or channels."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

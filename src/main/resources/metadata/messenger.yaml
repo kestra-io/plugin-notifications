@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.messenger
 name: "messenger"
 title: "Messenger"
-description: "This sub-group of plugins contains tasks for Messenger notifications."
-body: ""
+description: "Tasks that send notifications via Facebook Messenger."
+body: "Provide the Facebook Page access token and recipient ID to send text or template messages from workflows into Messenger conversations."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

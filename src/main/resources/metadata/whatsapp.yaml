@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.whatsapp
 name: "whatsapp"
 title: "Whatsapp"
-description: "This sub-group of plugins contains tasks for WhatsApp notifications."
-body: ""
+description: "Tasks that send WhatsApp messages (via Twilio API)."
+body: "Use Twilio WhatsApp credentials with from/to numbers and message content to push WhatsApp notifications from Kestra workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

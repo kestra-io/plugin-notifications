@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.mail
 name: "mail"
 title: "Mail"
-description: "This subgroup of plugins contains tasks for email notifications."
-body: ""
+description: "Tasks that send email notifications."
+body: "Configure SMTP server/port, credentials, from/to addresses, subject, and body/attachments to send emails from workflows; supports TLS/SSL settings for secure delivery."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

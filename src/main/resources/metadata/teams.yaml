@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.teams
 name: "teams"
 title: "Teams"
-description: "This sub-group of plugins contains tasks for Microsoft Teams notifications."
-body: ""
+description: "Tasks that send notifications to Microsoft Teams."
+body: "Provide the Teams incoming webhook URL and message payload (text or cards) to post alerts from Kestra flows into Teams channels."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

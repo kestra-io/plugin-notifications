@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.zenduty
 name: "zenduty"
 title: "Zenduty"
-description: "This sub-group of plugins contains tasks for Zenduty notifications."
-body: ""
+description: "Tasks that create incidents in Zenduty."
+body: "Use Zenduty routing keys and incident payloads (message, severity, entity) to trigger alerts from Kestra workflows and collect the API response."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

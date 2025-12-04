@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.line
 name: "line"
 title: "Line"
-description: "This sub-group of plugins contains tasks for sending LINE notifications."
-body: ""
+description: "Tasks that send notifications to LINE messaging."
+body: "Provide the LINE channel access token and target user/group to push messages from Kestra, supporting text content and optional attributes."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

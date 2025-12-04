@@ -1,8 +1,8 @@
 group: io.kestra.plugin.notifications.x
 name: "x"
 title: "X"
-description: "This sub-group of plugins contains tasks for X (formerly Twitter) notifications."
-body: ""
+description: "Tasks that post messages to X (formerly Twitter)."
+body: "Provide X API credentials and post content to publish tweets from Kestra workflows, handling auth and response payloads."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

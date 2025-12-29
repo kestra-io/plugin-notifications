@@ -26,7 +26,7 @@ import java.util.Map;
 
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [ZendutyAlert](https://kestra.io/plugins/plugin-notifications/tasks/zenduty/io.kestra.plugin.notifications.zenduty.zendutyalert) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-zenduty (io.kestra.plugin.zenduty)`.
+        This task is deprecated and has been replaced by `plugin-zenduty (io.kestra.plugin.zenduty)`.
         """
 )
 @Plugin(

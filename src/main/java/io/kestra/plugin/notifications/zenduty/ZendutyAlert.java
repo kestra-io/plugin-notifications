@@ -34,7 +34,7 @@ import java.net.URI;
 
         Check the [Zenduty integration documentation](https://docs.zenduty.com/docs/api) and the [Zenduty Events API specification](https://apidocs.zenduty.com/#tag/Events/paths/~1api~1events~1%7Bintegration_key%7D~1/post) for more details.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-zenduty (io.kestra.plugin.zenduty)`.
+        This task is deprecated and has been replaced by `plugin-zenduty (io.kestra.plugin.zenduty)`.
         """
 )
 @Plugin(

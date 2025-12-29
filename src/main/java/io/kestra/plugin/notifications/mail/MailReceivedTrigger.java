@@ -26,7 +26,7 @@ import java.util.*;
     description = """
         Monitor a mailbox for new emails via IMAP or POP3 protocols.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-email (io.kestra.plugin.email)`.
+        This task is deprecated and has been replaced by `plugin-email (io.kestra.plugin.email)`.
         """
 )
 @Plugin(

@@ -29,7 +29,7 @@ import java.util.Map;
 
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [OpsgenieAlert](https://kestra.io/plugins/plugin-notifications/tasks/opsgenie/io.kestra.plugin.notifications.opsgenie.opsgeniealert) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-opsgenie (io.kestra.plugin.opsgenie)`.
+        This task is deprecated and has been replaced by `plugin-opsgenie (io.kestra.plugin.opsgenie)`.
         """
 )
 @Plugin(

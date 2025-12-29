@@ -42,7 +42,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
         The `event_id` is an optional payload attribute that you can use to override the default event ID. If you don't specify it (recommended), Kestra will generate a random UUID. You can use this attribute to group events together, but note that this must be a UUID type. For more information, check the [Sentry documentation](https://docs.sentry.io/product/issues/grouping-and-fingerprints/).
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-sentry (io.kestra.plugin.sentry)`.
+        This task is deprecated and has been replaced by `plugin-sentry (io.kestra.plugin.sentry)`.
         """
 )
 @Plugin(

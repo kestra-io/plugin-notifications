@@ -34,7 +34,7 @@ import java.util.Base64;
     description = """
         Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://www.twilio.com/docs/notify/send-notifications#sending-notifications\">Twilio documentation</a> for more details..
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-twilio (io.kestra.plugin.twilio.notify)`.
+        This task is deprecated and has been replaced by `plugin-twilio (io.kestra.plugin.twilio.notify)`.
         """
 )
 @Plugin(

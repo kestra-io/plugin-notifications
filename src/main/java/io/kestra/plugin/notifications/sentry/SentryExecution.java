@@ -32,7 +32,7 @@ import java.util.Map;
 
         The `level` parameter is the severity of the issue. The task documentation lists all available options including `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`. The default value is `ERROR`.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-sentry (io.kestra.plugin.sentry)`.
+        This task is deprecated and has been replaced by `plugin-sentry (io.kestra.plugin.sentry)`.
         """
 )
 @Plugin(

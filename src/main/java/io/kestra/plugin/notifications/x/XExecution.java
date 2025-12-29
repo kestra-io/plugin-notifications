@@ -25,7 +25,7 @@ import java.util.Map;
     description = """
         Send execution details via X (Twitter) including execution link, ID, namespace, flow name, start date, duration, and status.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-x (io.kestra.plugin.x)`.
+        This task is deprecated and has been replaced by `plugin-x (io.kestra.plugin.x)`.
         """
 )
 @Plugin(

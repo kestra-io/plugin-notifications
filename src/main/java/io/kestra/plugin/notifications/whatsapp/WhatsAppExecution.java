@@ -26,7 +26,7 @@ import java.util.Map;
 
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [WhatsAppIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/whatsapp/io.kestra.plugin.notifications.whatsapp.whatsappincomingwebhook) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-meta (io.kestra.plugin.meta.whatsapp)`.
+        This task is deprecated and has been replaced by `plugin-meta (io.kestra.plugin.meta.whatsapp)`.
         """
 )
 @Plugin(

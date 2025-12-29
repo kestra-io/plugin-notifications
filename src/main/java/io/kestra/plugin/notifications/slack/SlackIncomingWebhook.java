@@ -32,7 +32,7 @@ import java.net.URI;
     description = """
         Add this task to send direct Slack notifications. Check the <a href=\"https://api.slack.com/messaging/webhooks\">Slack documentation</a> for more details.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-slack (io.kestra.plugin.slack)`.
+        This task is deprecated and has been replaced by `plugin-slack (io.kestra.plugin.slack)`.
         """
 )
 @Plugin(

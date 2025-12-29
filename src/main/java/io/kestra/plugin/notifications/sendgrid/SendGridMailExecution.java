@@ -25,7 +25,7 @@ import java.util.Map;
 
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting), as shown in this example. Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SendGridMailSend](https://kestra.io/plugins/plugin-notifications/tasks/mail/io.kestra.plugin.notifications.gendgrid.sendgridmailsend) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-twilio (io.kestra.plugin.twilio.sendgrid)`.
+        This task is deprecated and has been replaced by `plugin-twilio (io.kestra.plugin.twilio.sendgrid)`.
         """
 )
 @Plugin(

@@ -31,7 +31,7 @@ import java.net.URI;
     description = """
         Add this task to a list of `errors` tasks to implement custom flow-level failure noticiations. Check the [Microsoft Teams documentation](https://support.microsoft.com/en-us/office/create-incoming-webhooks-with-workflows-for-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498) for more details.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-microsoft365 (io.kestra.plugin.microsoft365.teams)`.
+        This task is deprecated and has been replaced by `plugin-microsoft365 (io.kestra.plugin.microsoft365.teams)`.
         """
 )
 @Plugin(

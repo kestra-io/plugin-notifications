@@ -31,7 +31,7 @@ import java.net.URI;
     description = """
         Add this task to send direct Squadcast notifications. Check the <a href=\"https://support.squadcast.com/docs/webhook\">Squadcast documentation</a> for more details.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-squadcast (io.kestra.plugin.squadcast)`.
+        This task is deprecated and has been replaced by `plugin-squadcast (io.kestra.plugin.squadcast)`.
         """
 )
 @Plugin(

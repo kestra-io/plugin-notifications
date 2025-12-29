@@ -26,7 +26,7 @@ import java.util.Map;
 
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting), as shown in this example. Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [MailSend](https://kestra.io/plugins/plugin-notifications/tasks/mail/io.kestra.plugin.notifications.mail.mailsend) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-email (io.kestra.plugin.email)`.
+        This task is deprecated and has been replaced by `plugin-email (io.kestra.plugin.email)`.
         """
 )
 @Plugin(

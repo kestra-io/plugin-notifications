@@ -26,7 +26,7 @@ import java.util.Map;
 
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [GoogleChatIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/google-chat/io.kestra.plugin.notifications.google.googlechatincomingwebhook) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-googleworkspace (io.kestra.plugin.googleworkspace.chat)`.
+        This task is deprecated and has been replaced by `plugin-googleworkspace (io.kestra.plugin.googleworkspace.chat)`.
         """
 )
 @Plugin(

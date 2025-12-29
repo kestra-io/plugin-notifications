@@ -26,7 +26,7 @@ import java.util.Map;
     description = """
         Send execution details via Line notification including execution link, ID, namespace, flow name, start date, duration, and status.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-line (io.kestra.plugin.line)`.
+        This task is deprecated and has been replaced by `plugin-line (io.kestra.plugin.line)`.
         """
 )
 @Plugin(

@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
         For POP3, uses polling.
         If you would like to process multiple emails in batch, use the MailReceivedTrigger instead.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-email (io.kestra.plugin.email)`.
+        This task is deprecated and has been replaced by `plugin-email (io.kestra.plugin.email)`.
         """
 )
 @Plugin(

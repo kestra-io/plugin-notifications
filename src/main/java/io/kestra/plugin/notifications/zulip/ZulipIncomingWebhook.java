@@ -31,7 +31,7 @@ import java.net.URI;
     description = """
         Add this task to send direct Zulip notifications. Check the <a href=\"https://api.zulip.com/messaging/webhooks\">Zulip documentation</a> for more details.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-zulip (io.kestra.plugin.zulip)`.
+        This task is deprecated and has been replaced by `plugin-zulip (io.kestra.plugin.zulip)`.
         """
 )
 @Plugin(

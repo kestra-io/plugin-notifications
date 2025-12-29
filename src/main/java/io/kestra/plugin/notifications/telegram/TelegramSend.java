@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @Schema(
     title = "Send an automated Telegram message from a workflow.",
     description = """
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-telegram (io.kestra.plugin.telegram)`.
+        This task is deprecated and has been replaced by `plugin-telegram (io.kestra.plugin.telegram)`.
         """
 )
 @Deprecated

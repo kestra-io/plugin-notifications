@@ -27,7 +27,7 @@ import java.util.Map;
         Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting).
         Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SquadcastIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/squadcast/io.kestra.plugin.notifications.squadcast.squadcastincomingwebhook) task.
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-squadcast (io.kestra.plugin.squadcast)`.
+        This task is deprecated and has been replaced by `plugin-squadcast (io.kestra.plugin.squadcast)`.
         """
 )
 @Plugin(

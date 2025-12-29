@@ -31,7 +31,7 @@ import java.net.URI;
     description = """
         Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgx-send-an-alert-event\">PagerDuty documentation</a> for more details..
 
-        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-pagerduty (io.kestra.plugin.pagerduty)`.
+        This task is deprecated and has been replaced by `plugin-pagerduty (io.kestra.plugin.pagerduty)`.
         """
 )
 @Plugin(

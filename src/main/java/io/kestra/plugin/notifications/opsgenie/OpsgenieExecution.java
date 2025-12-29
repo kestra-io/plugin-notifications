@@ -1,10 +1,13 @@
 package io.kestra.plugin.notifications.opsgenie;
 
+import com.google.common.util.concurrent.ExecutionError;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.core.execution.Fail;
 import io.kestra.plugin.notifications.ExecutionInterface;
 import io.kestra.plugin.notifications.services.ExecutionService;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,10 +21,16 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send an Opsgenie notification with the execution information.",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.\n\n" +
-        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [OpsgenieAlert](https://kestra.io/plugins/plugin-notifications/tasks/opsgenie/io.kestra.plugin.notifications.opsgenie.opsgeniealert) task."
+    description = """
+        The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.
+
+        Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [OpsgenieAlert](https://kestra.io/plugins/plugin-notifications/tasks/opsgenie/io.kestra.plugin.notifications.opsgenie.opsgeniealert) task.
+
+        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-opsgenie (io.kestra.plugin.opsgenie)`.
+        """
 )
 @Plugin(
     examples = {

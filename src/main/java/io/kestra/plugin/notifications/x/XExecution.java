@@ -7,6 +7,7 @@ import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
 import io.kestra.plugin.notifications.services.ExecutionService;
+import io.micronaut.context.env.Environment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,9 +19,14 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send an X (Twitter) post with execution information.",
-    description = "Send execution details via X (Twitter) including execution link, ID, namespace, flow name, start date, duration, and status."
+    description = """
+        Send execution details via X (Twitter) including execution link, ID, namespace, flow name, start date, duration, and status.
+
+        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-x (io.kestra.plugin.x)`.
+        """
 )
 @Plugin(
     examples = {

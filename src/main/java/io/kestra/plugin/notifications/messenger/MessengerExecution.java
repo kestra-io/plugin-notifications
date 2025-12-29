@@ -18,9 +18,14 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Messenger message with execution information.",
-    description = "Send execution details via Facebook Messenger including execution link, ID, namespace, flow name, start date, duration, and status."
+    description = """
+        Send execution details via Facebook Messenger including execution link, ID, namespace, flow name, start date, duration, and status.
+
+        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-meta (io.kestra.plugin.meta.messenger)`.
+        """
 )
 @Plugin(
     examples = {

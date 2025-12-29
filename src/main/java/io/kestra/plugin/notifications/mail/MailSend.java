@@ -36,8 +36,12 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
-    title = "Send an automated email from a workflow."
+    title = "Send an automated email from a workflow.",
+    description = """
+        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-email (io.kestra.plugin.email)`.
+        """
 )
 @Plugin(
     examples = {

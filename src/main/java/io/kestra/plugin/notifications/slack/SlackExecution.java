@@ -18,10 +18,16 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Slack message with the execution information.",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, the final status of the execution, and the last task ID in an execution.\n\n" +
-    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SlackIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/slack/io.kestra.plugin.notifications.slack.slackincomingwebhook) task."
+    description = """
+        The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, the final status of the execution, and the last task ID in an execution.
+
+        Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SlackIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/slack/io.kestra.plugin.notifications.slack.slackincomingwebhook) task.
+
+        This task is deprecated since Kestra v1.1.11 and has been replaced by `plugin-slack (io.kestra.plugin.slack)`.
+        """
 )
 @Plugin(
     examples = {

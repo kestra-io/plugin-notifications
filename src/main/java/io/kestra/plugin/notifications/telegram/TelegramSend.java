@@ -20,6 +20,13 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Schema(
+    title = "Send an automated Telegram message from a workflow.",
+    description = """
+        This task is deprecated and has been replaced by `plugin-telegram (io.kestra.plugin.telegram)`.
+        """
+)
+@Deprecated
 public class TelegramSend extends AbstractHttpOptionsTask {
     private static final String TELEGRAMAPI_BASE_URL = "https://api.telegram.org";
 

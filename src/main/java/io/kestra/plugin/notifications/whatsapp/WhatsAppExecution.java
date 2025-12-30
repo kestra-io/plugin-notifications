@@ -18,10 +18,16 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a WhatsApp message with the execution information.",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.\n\n" +
-        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [WhatsAppIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/whatsapp/io.kestra.plugin.notifications.whatsapp.whatsappincomingwebhook) task."
+    description = """
+        The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.
+
+        Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [WhatsAppIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/whatsapp/io.kestra.plugin.notifications.whatsapp.whatsappincomingwebhook) task.
+
+        This task is deprecated and has been replaced by `plugin-meta (io.kestra.plugin.meta.whatsapp)`.
+        """
 )
 @Plugin(
     examples = {

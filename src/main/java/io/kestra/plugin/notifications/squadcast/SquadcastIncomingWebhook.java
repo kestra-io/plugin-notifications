@@ -25,9 +25,14 @@ import java.net.URI;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Squadcast message using an Incoming Webhook.",
-    description = "Add this task to send direct Squadcast notifications. Check the <a href=\"https://support.squadcast.com/docs/webhook\">Squadcast documentation</a> for more details."
+    description = """
+        Add this task to send direct Squadcast notifications. Check the <a href=\"https://support.squadcast.com/docs/webhook\">Squadcast documentation</a> for more details.
+
+        This task is deprecated and has been replaced by `plugin-squadcast (io.kestra.plugin.squadcast)`.
+        """
 )
 @Plugin(
     examples = {

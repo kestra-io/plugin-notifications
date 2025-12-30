@@ -28,9 +28,14 @@ import java.util.Base64;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Twilio message using a notification API.",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://www.twilio.com/docs/notify/send-notifications#sending-notifications\">Twilio documentation</a> for more details.."
+    description = """
+        Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. Check the <a href=\"https://www.twilio.com/docs/notify/send-notifications#sending-notifications\">Twilio documentation</a> for more details..
+
+        This task is deprecated and has been replaced by `plugin-twilio (io.kestra.plugin.twilio.notify)`.
+        """
 )
 @Plugin(
     examples = {

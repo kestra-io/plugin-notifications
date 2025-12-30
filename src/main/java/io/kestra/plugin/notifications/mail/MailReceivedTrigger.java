@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import javax.security.auth.Subject;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -19,9 +20,14 @@ import java.util.*;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Trigger on new email messages.",
-    description = "Monitor a mailbox for new emails via IMAP or POP3 protocols."
+    description = """
+        Monitor a mailbox for new emails via IMAP or POP3 protocols.
+
+        This task is deprecated and has been replaced by `plugin-email (io.kestra.plugin.email)`.
+        """
 )
 @Plugin(
     examples = {

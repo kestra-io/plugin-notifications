@@ -18,10 +18,16 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Microsoft Teams message with the execution information",
-    description = "The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If the task failed, then the task that led to the failure is specified.\n\n" +
-    "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [TeamsIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/teams/io.kestra.plugin.notifications.teams.teamsincomingwebhook) task."
+    description = """
+        The message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If the task failed, then the task that led to the failure is specified.
+
+        Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [TeamsIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/teams/io.kestra.plugin.notifications.teams.teamsincomingwebhook) task.
+
+        This task is deprecated and has been replaced by `plugin-microsoft365 (io.kestra.plugin.microsoft365.teams)`.
+        """
 )
 @Plugin(
     examples = {

@@ -39,8 +39,12 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
-    title = "Send an automated SendGrid email from a workflow."
+    title = "Send an automated SendGrid email from a workflow.",
+    description = """
+        This task is deprecated and has been replaced by `plugin-twilio (io.kestra.plugin.twilio.sendgrid)`.
+        """
 )
 @Plugin(
     examples = {

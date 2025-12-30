@@ -7,10 +7,12 @@ import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.notifications.ExecutionInterface;
 import io.kestra.plugin.notifications.services.ExecutionService;
+import io.micronaut.context.env.Environment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import javax.swing.plaf.synth.Region;
 import java.util.Map;
 
 @SuperBuilder
@@ -18,9 +20,14 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a LINE message with the execution information.",
-    description = "Send execution details via Line notification including execution link, ID, namespace, flow name, start date, duration, and status."
+    description = """
+        Send execution details via Line notification including execution link, ID, namespace, flow name, start date, duration, and status.
+
+        This task is deprecated and has been replaced by `plugin-line (io.kestra.plugin.line)`.
+        """
 )
 @Plugin(
     examples = {

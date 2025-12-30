@@ -18,12 +18,17 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Squadcast message with the execution information.",
-    description = "The message will include execution details such as ID, namespace, flow name, start date, duration, and status.\n\n" +
-        "Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). " +
-        "Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the " +
-        "[SquadcastIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/squadcast/io.kestra.plugin.notifications.squadcast.squadcastincomingwebhook) task."
+    description = """
+        The message will include execution details such as ID, namespace, flow name, start date, duration, and status.
+
+        Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting).
+        Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SquadcastIncomingWebhook](https://kestra.io/plugins/plugin-notifications/tasks/squadcast/io.kestra.plugin.notifications.squadcast.squadcastincomingwebhook) task.
+
+        This task is deprecated and has been replaced by `plugin-squadcast (io.kestra.plugin.squadcast)`.
+        """
 )
 @Plugin(
     examples = {

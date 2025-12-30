@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Trigger a flow when an email is received in real-time.",
     description = """
@@ -41,6 +42,8 @@ import java.util.concurrent.atomic.AtomicReference;
         For IMAP, uses the IDLE command for true real-time monitoring.
         For POP3, uses polling.
         If you would like to process multiple emails in batch, use the MailReceivedTrigger instead.
+
+        This task is deprecated and has been replaced by `plugin-email (io.kestra.plugin.email)`.
         """
 )
 @Plugin(

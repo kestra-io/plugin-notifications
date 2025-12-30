@@ -25,9 +25,14 @@ import java.net.URI;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Zulip message using an Incoming Webhook.",
-    description = "Add this task to send direct Zulip notifications. Check the <a href=\"https://api.zulip.com/messaging/webhooks\">Zulip documentation</a> for more details."
+    description = """
+        Add this task to send direct Zulip notifications. Check the <a href=\"https://api.zulip.com/messaging/webhooks\">Zulip documentation</a> for more details.
+
+        This task is deprecated and has been replaced by `plugin-zulip (io.kestra.plugin.zulip)`.
+        """
 )
 @Plugin(
     examples = {

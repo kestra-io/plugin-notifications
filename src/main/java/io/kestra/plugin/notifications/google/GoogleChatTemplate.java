@@ -22,6 +22,7 @@ import java.util.Objects;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 public abstract class GoogleChatTemplate extends GoogleChatIncomingWebhook {
 
     @Schema(

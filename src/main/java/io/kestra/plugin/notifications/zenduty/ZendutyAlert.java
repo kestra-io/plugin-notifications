@@ -26,11 +26,16 @@ import java.net.URI;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Zenduty alert.",
-    description = "Add this task to a list of `errors` tasks to implement custom flow-level failure notifications. " +
-        "Check the [Zenduty integration documentation](https://docs.zenduty.com/docs/api) and " +
-        "the [Zenduty Events API specification](https://apidocs.zenduty.com/#tag/Events/paths/~1api~1events~1%7Bintegration_key%7D~1/post) for more details."
+    description = """
+        Add this task to a list of `errors` tasks to implement custom flow-level failure notifications.
+
+        Check the [Zenduty integration documentation](https://docs.zenduty.com/docs/api) and the [Zenduty Events API specification](https://apidocs.zenduty.com/#tag/Events/paths/~1api~1events~1%7Bintegration_key%7D~1/post) for more details.
+
+        This task is deprecated and has been replaced by `plugin-zenduty (io.kestra.plugin.zenduty)`.
+        """
 )
 @Plugin(
     examples = {

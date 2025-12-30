@@ -18,10 +18,22 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
+@Deprecated
 @Schema(
     title = "Send a Sentry alert with the execution information.",
     description = """
-    The alert message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.\n\n Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SentryAlert](https://kestra.io/plugins/plugin-notifications/tasks/sentry/io.kestra.plugin.notifications.sentry.sentryalert) task. \n\n The only required input is a DSN string value, which you can find when you go to your Sentry project settings and go to the section `Client Keys (DSN)`. For more detailed description of how to find your DSN, visit the [following Sentry documentation](https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn).\n\n You can customize the alert `payload`, which is a JSON object. For more information about the payload, check the [Sentry Event Payloads documentation](https://develop.sentry.dev/sdk/event-payloads/). \n\n The `level` parameter is the severity of the issue. The task documentation lists all available options including `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`. The default value is `ERROR`."""
+        The alert message will include a link to the execution page in the UI along with the execution ID, namespace, flow name, the start date, duration, and the final status of the execution. If failed, then the task that led to the failure is specified.
+
+        Use this notification task only in a flow that has a [Flow trigger](https://kestra.io/docs/administrator-guide/monitoring#alerting). Don't use this notification task in `errors` tasks. Instead, for `errors` tasks, use the [SentryAlert](https://kestra.io/plugins/plugin-notifications/tasks/sentry/io.kestra.plugin.notifications.sentry.sentryalert) task.
+
+        The only required input is a DSN string value, which you can find when you go to your Sentry project settings and go to the section `Client Keys (DSN)`. For more detailed description of how to find your DSN, visit the [following Sentry documentation](https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/#where-to-find-your-dsn).
+
+        You can customize the alert `payload`, which is a JSON object. For more information about the payload, check the [Sentry Event Payloads documentation](https://develop.sentry.dev/sdk/event-payloads/).
+
+        The `level` parameter is the severity of the issue. The task documentation lists all available options including `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`. The default value is `ERROR`.
+
+        This task is deprecated and has been replaced by `plugin-sentry (io.kestra.plugin.sentry)`.
+        """
 )
 @Plugin(
     examples = {

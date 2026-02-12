@@ -1,7 +1,5 @@
 @PluginSubGroup(
-    description = "This sub-group of plugins contains tasks for Microsoft Teams notifications.",
-    categories = PluginSubGroup.PluginCategory.ALERTING,
-    categories = {
+    description = "This sub-group of plugins contains tasks for Microsoft Teams notifications.",categories = {
         PluginSubGroup.PluginCategory.BUSINESS
     }
 )

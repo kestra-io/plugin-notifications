@@ -1,7 +1,5 @@
 @PluginSubGroup(
-    description = "This subgroup of plugins contains tasks for SendGrid email notifications.",
-    categories = PluginSubGroup.PluginCategory.ALERTING,
-    categories = {
+    description = "This subgroup of plugins contains tasks for SendGrid email notifications.",categories = {
         PluginSubGroup.PluginCategory.BUSINESS
     }
 )

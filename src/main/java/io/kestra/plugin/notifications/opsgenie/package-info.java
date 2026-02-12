@@ -1,7 +1,5 @@
 @PluginSubGroup(
-    description = "This sub-group of plugins contains tasks for Opsgenie alert.",
-    categories = PluginSubGroup.PluginCategory.ALERTING,
-    categories = {
+    description = "This sub-group of plugins contains tasks for Opsgenie alert.",categories = {
         PluginSubGroup.PluginCategory.BUSINESS
     }
 )
